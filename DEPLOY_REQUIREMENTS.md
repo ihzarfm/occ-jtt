@@ -1,6 +1,6 @@
 # Deploy Requirements
 
-Dokumen ini dipakai sebagai acuan saat menjalankan project `wg-manager` di server baru, atau saat rebuild setelah `git pull`.
+Dokumen ini dipakai sebagai acuan saat menjalankan project `occ-jtt` di server baru, atau saat rebuild setelah `git pull`.
 
 ## Runtime Stack
 
@@ -8,7 +8,7 @@ Dokumen ini dipakai sebagai acuan saat menjalankan project `wg-manager` di serve
 
 - Go: minimum `1.22`
 - OS: Linux
-- Binary output: `backend/wg-manager`
+- Binary output: `backend/occ-jtt`
 
 Source:
 - `backend/go.mod`
@@ -74,11 +74,11 @@ Catatan:
 
 ```bash
 cd ../backend
-go build -o wg-manager
+go build -o occ-jtt
 ```
 
 Catatan:
-- Binary hasil build akan ada di `backend/wg-manager`
+- Binary hasil build akan ada di `backend/occ-jtt`
 
 ## Menjalankan Aplikasi
 
@@ -91,7 +91,7 @@ ADMIN_USERNAME=admin \
 ADMIN_PASSWORD='ganti-password-kuat' \
 GATUS_API_URL='http://10.1.0.1:9090/metrics' \
 DASHBOARD_GATEWAY_HOST='10.1.0.1' \
-./wg-manager
+./occ-jtt
 ```
 
 ## Environment Variables
@@ -103,12 +103,12 @@ Variable yang umum dipakai:
 - `ADMIN_PASSWORD`
 - `GATUS_API_URL`
 - `DASHBOARD_GATEWAY_HOST`
-- `WG_MANAGER_DATA`
+- `OCC_JTT_DATA`
 
 Contoh:
 
 - `PORT=8080`
-- `WG_MANAGER_DATA=data/state.json`
+- `OCC_JTT_DATA=data/state.json`
 
 ## Quick Rebuild Checklist
 
@@ -117,14 +117,14 @@ Urutan cepat setiap habis update code:
 ```bash
 git pull
 cd frontend && npm install && npm run build
-cd ../backend && go build -o wg-manager
+cd ../backend && go build -o occ-jtt
 ```
 
 Kalau backend dijalankan sebagai service:
 
 ```bash
-sudo systemctl restart wg-manager
-sudo systemctl status wg-manager
+sudo systemctl restart occ-jtt
+sudo systemctl status occ-jtt
 ```
 
 ## Verification

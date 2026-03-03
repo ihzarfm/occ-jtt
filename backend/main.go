@@ -20,8 +20,8 @@ import (
 	"sync"
 	"time"
 
-	"wg-manager/backend/internal/store"
-	"wg-manager/backend/internal/wg"
+	"occ-jtt/backend/internal/store"
+	"occ-jtt/backend/internal/wg"
 )
 
 type server struct {
@@ -87,7 +87,7 @@ type remoteScriptResult struct {
 }
 
 func main() {
-	dataPath := env("WG_MANAGER_DATA", filepath.Join("data", "state.json"))
+	dataPath := env("OCC_JTT_DATA", filepath.Join("data", "state.json"))
 	port := env("PORT", "8080")
 
 	stateStore, err := store.New(dataPath)
@@ -136,7 +136,7 @@ func main() {
 
 	handler := withCORS(withLogging(mux))
 
-	log.Printf("wg-manager listening on http://localhost:%s", port)
+	log.Printf("occ-jtt listening on http://localhost:%s", port)
 	if err := http.ListenAndServe(":"+port, handler); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("server failed: %v", err)
 	}

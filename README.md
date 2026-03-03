@@ -1,4 +1,4 @@
-# wg-manager
+# occ-jtt
 
 Web manager sederhana untuk mengelola peer WireGuard dengan:
 

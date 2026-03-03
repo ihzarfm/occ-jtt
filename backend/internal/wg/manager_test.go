@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"wg-manager/backend/internal/store"
+	"occ-jtt/backend/internal/store"
 )
 
 func TestRenderPeerConfigIncludesPeerValues(t *testing.T) {

@@ -3,7 +3,7 @@
 ## Backend
 
 - Go: 1.22
-- Module: `wg-manager/backend`
+- Module: `occ-jtt/backend`
 
 Source:
 - `backend/go.mod`

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"wg-manager/backend/internal/store"
+	"occ-jtt/backend/internal/store"
 )
 
 func RenderPeerConfig(network store.NetworkConfig, peer store.Peer) string {
