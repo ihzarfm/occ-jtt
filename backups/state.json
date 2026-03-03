@@ -1,0 +1,580 @@
+{
+  "network": {
+    "interfaceName": "wg0",
+    "serverAddress": "10.8.0.1/24",
+    "listenPort": 51820,
+    "serverPublicKey": "replace-with-server-public-key",
+    "dns": "1.1.1.1"
+  },
+  "peers": [
+    {
+      "id": "rafi99-1772487493",
+      "type": "outlet",
+      "siteName": "rafi99",
+      "name": "Outlet - rafi99",
+      "createdBy": "admin",
+      "createdByName": "Administrator",
+      "publicKey": "",
+      "presharedKey": "",
+      "allowedIPs": [
+        "0.0.0.0/0"
+      ],
+      "endpoint": "",
+      "keepalive": 15,
+      "assignedIP": "10.21.0.6",
+      "assignments": [
+        {
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "interfaceName": "wg-cctv",
+          "assignedIP": "10.21.0.6",
+          "overlayCIDR": "10.21.0.0/22"
+        },
+        {
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "interfaceName": "wg-its",
+          "assignedIP": "10.22.0.8",
+          "overlayCIDR": "10.22.0.0/22"
+        }
+      ],
+      "artifacts": [
+        {
+          "id": "stg-cctv-conf",
+          "kind": "conf",
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "filename": "rafi99-stg-cctv.conf",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "[Interface]\nAddress = 10.21.0.6/22\nPrivateKey = OCFL2PPomPqDGU+qsr3pTG9TAU05ZQ66EuqN80avnnw=\n\n[Peer]\nPublicKey = 3tuc4848WyMQSjFpI420cg1jilE/59lFDSNGJOn9pSA=\nPresharedKey = X+N+dh7j95xerdpqP1O5WTa9JVuniReI3VdX379BIZE=\nAllowedIPs = 10.21.0.0/22\nEndpoint = 192.168.21.254:51821\nPersistentKeepalive = 15\n"
+        },
+        {
+          "id": "stg-cctv-rsc",
+          "kind": "rsc",
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "filename": "rafi99-stg-cctv.rsc",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "/interface wireguard add name=wg-cctv private-key=\"OCFL2PPomPqDGU+qsr3pTG9TAU05ZQ66EuqN80avnnw=\"\n/ip address add address=10.21.0.6/22 interface=wg-cctv\n/interface wireguard peers add name=RAFI99 interface=wg-cctv public-key=\"3tuc4848WyMQSjFpI420cg1jilE/59lFDSNGJOn9pSA=\" preshared-key=\"X+N+dh7j95xerdpqP1O5WTa9JVuniReI3VdX379BIZE=\" endpoint-address=192.168.21.254 endpoint-port=51821 allowed-address=10.21.0.0/22\n"
+        },
+        {
+          "id": "stg-its-conf",
+          "kind": "conf",
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "filename": "rafi99-stg-its.conf",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "[Interface]\nAddress = 10.22.0.8/22\nPrivateKey = wGNywGMYmGK9M4bzQayPzY+kYflq9m0v2Yjhzhq+NWQ=\n\n[Peer]\nPublicKey = PDUIME4/MQNpYQCezpGif9I/R1muZuAKroRi/dr4DXg=\nPresharedKey = TNQsoEVLSv64pztQX2nBA4XxtjA4PgoAQeqIXAISZTE=\nAllowedIPs = 10.22.0.0/22\nEndpoint = 192.168.22.254:51822\nPersistentKeepalive = 15\n"
+        },
+        {
+          "id": "stg-its-rsc",
+          "kind": "rsc",
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "filename": "rafi99-stg-its.rsc",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "/interface wireguard add name=wg-its private-key=\"wGNywGMYmGK9M4bzQayPzY+kYflq9m0v2Yjhzhq+NWQ=\"\n/ip address add address=10.22.0.8/22 interface=wg-its\n/interface wireguard peers add name=RAFI99 interface=wg-its public-key=\"PDUIME4/MQNpYQCezpGif9I/R1muZuAKroRi/dr4DXg=\" preshared-key=\"TNQsoEVLSv64pztQX2nBA4XxtjA4PgoAQeqIXAISZTE=\" endpoint-address=192.168.22.254 endpoint-port=51822 allowed-address=10.22.0.0/22\n"
+        }
+      ],
+      "createdAt": "2026-03-02T21:38:13Z"
+    },
+    {
+      "id": "rafi2-1772486779",
+      "type": "outlet",
+      "siteName": "rafi2",
+      "name": "Outlet - rafi2",
+      "createdBy": "admin",
+      "createdByName": "Administrator",
+      "publicKey": "",
+      "presharedKey": "",
+      "allowedIPs": [
+        "0.0.0.0/0"
+      ],
+      "endpoint": "",
+      "keepalive": 15,
+      "assignedIP": "10.21.0.5",
+      "assignments": [
+        {
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "interfaceName": "wg-cctv",
+          "assignedIP": "10.21.0.5",
+          "overlayCIDR": "10.21.0.0/22"
+        },
+        {
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "interfaceName": "wg-its",
+          "assignedIP": "10.22.0.6",
+          "overlayCIDR": "10.22.0.0/22"
+        }
+      ],
+      "artifacts": [
+        {
+          "id": "stg-cctv-conf",
+          "kind": "conf",
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "filename": "rafi2-stg-cctv.conf",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "[Interface]\nAddress = 10.21.0.5/22\nPrivateKey = eHHf8Vd3DDKO1edtYxH07BUQzOQam3nMq9hdl/R0SUI=\n\n[Peer]\nPublicKey = 3tuc4848WyMQSjFpI420cg1jilE/59lFDSNGJOn9pSA=\nPresharedKey = 7aVV1yX0+J3FP2BFfhKymGnhOv/cjujXPzoqyqr+/rs=\nAllowedIPs = 10.21.0.0/22\nEndpoint = 192.168.21.254:51821\nPersistentKeepalive = 15\n"
+        },
+        {
+          "id": "stg-cctv-rsc",
+          "kind": "rsc",
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "filename": "rafi2-stg-cctv.rsc",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "/interface wireguard add name=wg-cctv private-key=\"eHHf8Vd3DDKO1edtYxH07BUQzOQam3nMq9hdl/R0SUI=\"\n/ip address add address=10.21.0.5/22 interface=wg-cctv\n/interface wireguard peers add name=RAFI2 interface=wg-cctv public-key=\"3tuc4848WyMQSjFpI420cg1jilE/59lFDSNGJOn9pSA=\" preshared-key=\"7aVV1yX0+J3FP2BFfhKymGnhOv/cjujXPzoqyqr+/rs=\" endpoint-address=192.168.21.254 endpoint-port=51821 allowed-address=10.21.0.0/22\n"
+        },
+        {
+          "id": "stg-its-conf",
+          "kind": "conf",
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "filename": "rafi2-stg-its.conf",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "[Interface]\nAddress = 10.22.0.6/22\nPrivateKey = uBIbyf5RDIMQI4LkM1wAUOdX/g1vjszjsvTK5M0EFUc=\n\n[Peer]\nPublicKey = PDUIME4/MQNpYQCezpGif9I/R1muZuAKroRi/dr4DXg=\nPresharedKey = 8FzHJXY6cTdQy3fJB397BcJPxtFZUeyM1J6T0hRCgMg=\nAllowedIPs = 10.22.0.0/22\nEndpoint = 192.168.22.254:51822\nPersistentKeepalive = 15\n"
+        },
+        {
+          "id": "stg-its-rsc",
+          "kind": "rsc",
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "filename": "rafi2-stg-its.rsc",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "/interface wireguard add name=wg-its private-key=\"uBIbyf5RDIMQI4LkM1wAUOdX/g1vjszjsvTK5M0EFUc=\"\n/ip address add address=10.22.0.6/22 interface=wg-its\n/interface wireguard peers add name=RAFI2 interface=wg-its public-key=\"PDUIME4/MQNpYQCezpGif9I/R1muZuAKroRi/dr4DXg=\" preshared-key=\"8FzHJXY6cTdQy3fJB397BcJPxtFZUeyM1J6T0hRCgMg=\" endpoint-address=192.168.22.254 endpoint-port=51822 allowed-address=10.22.0.0/22\n"
+        }
+      ],
+      "createdAt": "2026-03-02T21:26:19Z"
+    },
+    {
+      "id": "test123123-1772483176",
+      "type": "outlet",
+      "siteName": "test123123",
+      "name": "Outlet - test123123",
+      "publicKey": "",
+      "presharedKey": "",
+      "allowedIPs": [
+        "0.0.0.0/0"
+      ],
+      "endpoint": "",
+      "keepalive": 15,
+      "assignedIP": "10.21.0.4",
+      "assignments": [
+        {
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "interfaceName": "wg-cctv",
+          "assignedIP": "10.21.0.4",
+          "overlayCIDR": "10.21.0.0/22"
+        },
+        {
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "interfaceName": "wg-its",
+          "assignedIP": "10.22.0.5",
+          "overlayCIDR": "10.22.0.0/22"
+        }
+      ],
+      "artifacts": [
+        {
+          "id": "stg-cctv-conf",
+          "kind": "conf",
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "filename": "test123123-stg-cctv.conf",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "Artifact is stored on stg-cctv (192.168.21.254) at /opt/occ-wg/peers/test123123-stg-cctv.conf.\nFetch it directly on the server or extend the wrapper to return file contents to OCC.\n"
+        },
+        {
+          "id": "stg-cctv-rsc",
+          "kind": "rsc",
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "filename": "test123123-stg-cctv.rsc",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "Artifact is stored on stg-cctv (192.168.21.254) at /opt/occ-wg/peers/test123123-stg-cctv.rsc.\nFetch it directly on the server or extend the wrapper to return file contents to OCC.\n"
+        },
+        {
+          "id": "stg-its-conf",
+          "kind": "conf",
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "filename": "test123123-stg-its.conf",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "Artifact is stored on stg-its (192.168.22.254) at /opt/occ-wg/peers/test123123-stg-its.conf.\nFetch it directly on the server or extend the wrapper to return file contents to OCC.\n"
+        },
+        {
+          "id": "stg-its-rsc",
+          "kind": "rsc",
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "filename": "test123123-stg-its.rsc",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "Artifact is stored on stg-its (192.168.22.254) at /opt/occ-wg/peers/test123123-stg-its.rsc.\nFetch it directly on the server or extend the wrapper to return file contents to OCC.\n"
+        }
+      ],
+      "createdAt": "2026-03-02T20:26:16Z"
+    },
+    {
+      "id": "test2-1772483125",
+      "type": "outlet",
+      "siteName": "test2",
+      "name": "Outlet - test2",
+      "publicKey": "",
+      "presharedKey": "",
+      "allowedIPs": [
+        "0.0.0.0/0"
+      ],
+      "endpoint": "",
+      "keepalive": 15,
+      "assignedIP": "10.21.0.3",
+      "assignments": [
+        {
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "interfaceName": "wg-cctv",
+          "assignedIP": "10.21.0.3",
+          "overlayCIDR": "10.21.0.0/22"
+        },
+        {
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "interfaceName": "wg-its",
+          "assignedIP": "10.22.0.4",
+          "overlayCIDR": "10.22.0.0/22"
+        }
+      ],
+      "artifacts": [
+        {
+          "id": "stg-cctv-conf",
+          "kind": "conf",
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "filename": "test2-stg-cctv.conf",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "Artifact is stored on stg-cctv (192.168.21.254) at /opt/occ-wg/peers/test2-stg-cctv.conf.\nFetch it directly on the server or extend the wrapper to return file contents to OCC.\n"
+        },
+        {
+          "id": "stg-cctv-rsc",
+          "kind": "rsc",
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "filename": "test2-stg-cctv.rsc",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "Artifact is stored on stg-cctv (192.168.21.254) at /opt/occ-wg/peers/test2-stg-cctv.rsc.\nFetch it directly on the server or extend the wrapper to return file contents to OCC.\n"
+        },
+        {
+          "id": "stg-its-conf",
+          "kind": "conf",
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "filename": "test2-stg-its.conf",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "Artifact is stored on stg-its (192.168.22.254) at /opt/occ-wg/peers/test2-stg-its.conf.\nFetch it directly on the server or extend the wrapper to return file contents to OCC.\n"
+        },
+        {
+          "id": "stg-its-rsc",
+          "kind": "rsc",
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "filename": "test2-stg-its.rsc",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "Artifact is stored on stg-its (192.168.22.254) at /opt/occ-wg/peers/test2-stg-its.rsc.\nFetch it directly on the server or extend the wrapper to return file contents to OCC.\n"
+        }
+      ],
+      "createdAt": "2026-03-02T20:25:25Z"
+    },
+    {
+      "id": "outletv-1772479761",
+      "type": "outlet",
+      "siteName": "outletv",
+      "name": "Outlet - outletv",
+      "publicKey": "",
+      "presharedKey": "",
+      "allowedIPs": [
+        "0.0.0.0/0"
+      ],
+      "endpoint": "",
+      "keepalive": 15,
+      "assignedIP": "10.21.0.3",
+      "assignments": [
+        {
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "interfaceName": "wg-cctv",
+          "assignedIP": "10.21.0.3",
+          "overlayCIDR": "10.21.0.0/22"
+        },
+        {
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "interfaceName": "wg-its",
+          "assignedIP": "10.22.0.3",
+          "overlayCIDR": "10.22.0.0/22"
+        }
+      ],
+      "artifacts": [
+        {
+          "id": "stg-cctv-conf",
+          "kind": "conf",
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "filename": "outletv-stg-cctv.conf",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "[Interface]\nAddress = 10.21.0.3/22\nPrivateKey = iAafZtnYMQwCIcYSoy8YYVVbX70MMDBfC9wToEqNql8=\n\n[Peer]\nPublicKey = Warning: Permanently added '192.168.21.254' (ED25519) to the list of known hosts.\r\nawk: fatal: cannot open file `/etc/wireguard/wg0.conf' for reading: Permission denied\nPresharedKey = M1sG7WVaJ2lMSiOkxrs091slbPbU8ZHfb9pHcPzaSe8=\nAllowedIPs = 10.21.0.0/22\nEndpoint = 192.168.21.254:51820\nPersistentKeepalive = 15\n"
+        },
+        {
+          "id": "stg-cctv-rsc",
+          "kind": "rsc",
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "filename": "outletv-stg-cctv.rsc",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "/interface wireguard add name=wg-cctv private-key=\"iAafZtnYMQwCIcYSoy8YYVVbX70MMDBfC9wToEqNql8=\"\n/ip address add address=10.21.0.3/22 interface=wg-cctv\n/interface wireguard peers add name=wg-cctv interface=wg-cctv \\\npublic-key=\"Warning: Permanently added '192.168.21.254' (ED25519) to the list of known hosts.\r\nawk: fatal: cannot open file `/etc/wireguard/wg0.conf' for reading: Permission denied\" \\\npreshared-key=\"M1sG7WVaJ2lMSiOkxrs091slbPbU8ZHfb9pHcPzaSe8=\" \\\nendpoint-address=192.168.21.254 \\\nendpoint-port=51820 \\\nallowed-address=10.21.0.0/22\n"
+        },
+        {
+          "id": "stg-its-conf",
+          "kind": "conf",
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "filename": "outletv-stg-its.conf",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "[Interface]\nAddress = 10.22.0.3/22\nPrivateKey = MAflVwDNWPF7s0ZzCwAaYXUMhXNGj6+g3kguDDtGvW4=\n\n[Peer]\nPublicKey = Warning: Permanently added '192.168.22.254' (ED25519) to the list of known hosts.\r\nawk: cannot open /etc/wireguard/wg0.conf (Permission denied)\nPresharedKey = ufsbADh5UDt14OBKwKVyKosecGsHqPDodpqdX6rHCtw=\nAllowedIPs = 10.22.0.0/22\nEndpoint = 192.168.22.254:51820\nPersistentKeepalive = 15\n"
+        },
+        {
+          "id": "stg-its-rsc",
+          "kind": "rsc",
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "filename": "outletv-stg-its.rsc",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "/interface wireguard add name=wg-its private-key=\"MAflVwDNWPF7s0ZzCwAaYXUMhXNGj6+g3kguDDtGvW4=\"\n/ip address add address=10.22.0.3/22 interface=wg-its\n/interface wireguard peers add name=wg-its interface=wg-its \\\npublic-key=\"Warning: Permanently added '192.168.22.254' (ED25519) to the list of known hosts.\r\nawk: cannot open /etc/wireguard/wg0.conf (Permission denied)\" \\\npreshared-key=\"ufsbADh5UDt14OBKwKVyKosecGsHqPDodpqdX6rHCtw=\" \\\nendpoint-address=192.168.22.254 \\\nendpoint-port=51820 \\\nallowed-address=10.22.0.0/22\n"
+        }
+      ],
+      "createdAt": "2026-03-02T19:29:21Z"
+    },
+    {
+      "id": "outlet-b-1772479751",
+      "type": "outlet",
+      "siteName": "outlet-b",
+      "name": "Outlet - outlet-b",
+      "publicKey": "",
+      "presharedKey": "",
+      "allowedIPs": [
+        "0.0.0.0/0"
+      ],
+      "endpoint": "",
+      "keepalive": 15,
+      "assignedIP": "10.21.0.2",
+      "assignments": [
+        {
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "interfaceName": "wg-cctv",
+          "assignedIP": "10.21.0.2",
+          "overlayCIDR": "10.21.0.0/22"
+        },
+        {
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "interfaceName": "wg-its",
+          "assignedIP": "10.22.0.2",
+          "overlayCIDR": "10.22.0.0/22"
+        }
+      ],
+      "artifacts": [
+        {
+          "id": "stg-cctv-conf",
+          "kind": "conf",
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "filename": "outlet-b-stg-cctv.conf",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "[Interface]\nAddress = 10.21.0.2/22\nPrivateKey = KEQXFrsMu7yhw8j95dLEbzPWkcs3rmaH7wmFVe1DOXM=\n\n[Peer]\nPublicKey = Warning: Permanently added '192.168.21.254' (ED25519) to the list of known hosts.\r\nawk: fatal: cannot open file `/etc/wireguard/wg0.conf' for reading: Permission denied\nPresharedKey = qRk3vQOxgC8JdoMIdG3yl9cawZtdocKYSuZa0Ar+fPI=\nAllowedIPs = 10.21.0.0/22\nEndpoint = 192.168.21.254:51820\nPersistentKeepalive = 15\n"
+        },
+        {
+          "id": "stg-cctv-rsc",
+          "kind": "rsc",
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "filename": "outlet-b-stg-cctv.rsc",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "/interface wireguard add name=wg-cctv private-key=\"KEQXFrsMu7yhw8j95dLEbzPWkcs3rmaH7wmFVe1DOXM=\"\n/ip address add address=10.21.0.2/22 interface=wg-cctv\n/interface wireguard peers add name=wg-cctv interface=wg-cctv \\\npublic-key=\"Warning: Permanently added '192.168.21.254' (ED25519) to the list of known hosts.\r\nawk: fatal: cannot open file `/etc/wireguard/wg0.conf' for reading: Permission denied\" \\\npreshared-key=\"qRk3vQOxgC8JdoMIdG3yl9cawZtdocKYSuZa0Ar+fPI=\" \\\nendpoint-address=192.168.21.254 \\\nendpoint-port=51820 \\\nallowed-address=10.21.0.0/22\n"
+        },
+        {
+          "id": "stg-its-conf",
+          "kind": "conf",
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "filename": "outlet-b-stg-its.conf",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "[Interface]\nAddress = 10.22.0.2/22\nPrivateKey = GODEPcjwq6VPsULdNrWN2r9+WGFsx4ecDeFXPeHf9HA=\n\n[Peer]\nPublicKey = Warning: Permanently added '192.168.22.254' (ED25519) to the list of known hosts.\r\nawk: cannot open /etc/wireguard/wg0.conf (Permission denied)\nPresharedKey = SfiIapq7ZKthSVI7G7UI3p/tbrxVf5XMUKt19brDGEM=\nAllowedIPs = 10.22.0.0/22\nEndpoint = 192.168.22.254:51820\nPersistentKeepalive = 15\n"
+        },
+        {
+          "id": "stg-its-rsc",
+          "kind": "rsc",
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "filename": "outlet-b-stg-its.rsc",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "/interface wireguard add name=wg-its private-key=\"GODEPcjwq6VPsULdNrWN2r9+WGFsx4ecDeFXPeHf9HA=\"\n/ip address add address=10.22.0.2/22 interface=wg-its\n/interface wireguard peers add name=wg-its interface=wg-its \\\npublic-key=\"Warning: Permanently added '192.168.22.254' (ED25519) to the list of known hosts.\r\nawk: cannot open /etc/wireguard/wg0.conf (Permission denied)\" \\\npreshared-key=\"SfiIapq7ZKthSVI7G7UI3p/tbrxVf5XMUKt19brDGEM=\" \\\nendpoint-address=192.168.22.254 \\\nendpoint-port=51820 \\\nallowed-address=10.22.0.0/22\n"
+        }
+      ],
+      "createdAt": "2026-03-02T19:29:11Z"
+    },
+    {
+      "id": "outlet-test1-1772479428",
+      "type": "outlet",
+      "siteName": "OUTLET-TEST1",
+      "name": "Outlet - OUTLET-TEST1",
+      "publicKey": "",
+      "presharedKey": "",
+      "allowedIPs": [
+        "0.0.0.0/0"
+      ],
+      "endpoint": "",
+      "keepalive": 15,
+      "assignedIP": "10.21.0.4",
+      "assignments": [
+        {
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "interfaceName": "wg-cctv",
+          "assignedIP": "10.21.0.4",
+          "overlayCIDR": "10.21.0.0/22"
+        },
+        {
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "interfaceName": "wg-its",
+          "assignedIP": "10.22.0.4",
+          "overlayCIDR": "10.22.0.0/22"
+        }
+      ],
+      "artifacts": [
+        {
+          "id": "stg-cctv-conf",
+          "kind": "conf",
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "filename": "OUTLET-TEST1-stg-cctv.conf",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "[Interface]\nAddress = 10.21.0.4/22\nPrivateKey = gBiHU16QB9CHI3ZfYYSYaMNgjGfto5yYvlYqptRJjWc=\n\n[Peer]\nPublicKey = Warning: Permanently added '192.168.21.254' (ED25519) to the list of known hosts.\r\nawk: fatal: cannot open file `/etc/wireguard/wg0.conf' for reading: Permission denied\nPresharedKey = DOtr3V/s0ppfe+okiqC4da5iyR0DHZLoNMO49JpPrKs=\nAllowedIPs = 10.21.0.0/22\nEndpoint = 192.168.21.254:51820\nPersistentKeepalive = 15\n"
+        },
+        {
+          "id": "stg-cctv-rsc",
+          "kind": "rsc",
+          "serverId": "stg-cctv",
+          "serverName": "stg-cctv",
+          "filename": "OUTLET-TEST1-stg-cctv.rsc",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "/interface wireguard add name=wg-cctv private-key=\"gBiHU16QB9CHI3ZfYYSYaMNgjGfto5yYvlYqptRJjWc=\"\n/ip address add address=10.21.0.4/22 interface=wg-cctv\n/interface wireguard peers add name=wg-cctv interface=wg-cctv \\\npublic-key=\"Warning: Permanently added '192.168.21.254' (ED25519) to the list of known hosts.\r\nawk: fatal: cannot open file `/etc/wireguard/wg0.conf' for reading: Permission denied\" \\\npreshared-key=\"DOtr3V/s0ppfe+okiqC4da5iyR0DHZLoNMO49JpPrKs=\" \\\nendpoint-address=192.168.21.254 \\\nendpoint-port=51820 \\\nallowed-address=10.21.0.0/22\n"
+        },
+        {
+          "id": "stg-its-conf",
+          "kind": "conf",
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "filename": "OUTLET-TEST1-stg-its.conf",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "[Interface]\nAddress = 10.22.0.4/22\nPrivateKey = iGLIYAGx+nmmZrFmz3jna8V0Xnz5vPylwXslToRz+XU=\n\n[Peer]\nPublicKey = Warning: Permanently added '192.168.22.254' (ED25519) to the list of known hosts.\r\nawk: cannot open /etc/wireguard/wg0.conf (Permission denied)\nPresharedKey = SZ6ao5+6aY9+61Xy3drVfXuYvG8PjoymWwNGJco45E8=\nAllowedIPs = 10.22.0.0/22\nEndpoint = 192.168.22.254:51820\nPersistentKeepalive = 15\n"
+        },
+        {
+          "id": "stg-its-rsc",
+          "kind": "rsc",
+          "serverId": "stg-its",
+          "serverName": "stg-its",
+          "filename": "OUTLET-TEST1-stg-its.rsc",
+          "contentType": "text/plain; charset=utf-8",
+          "content": "/interface wireguard add name=wg-its private-key=\"iGLIYAGx+nmmZrFmz3jna8V0Xnz5vPylwXslToRz+XU=\"\n/ip address add address=10.22.0.4/22 interface=wg-its\n/interface wireguard peers add name=wg-its interface=wg-its \\\npublic-key=\"Warning: Permanently added '192.168.22.254' (ED25519) to the list of known hosts.\r\nawk: cannot open /etc/wireguard/wg0.conf (Permission denied)\" \\\npreshared-key=\"SZ6ao5+6aY9+61Xy3drVfXuYvG8PjoymWwNGJco45E8=\" \\\nendpoint-address=192.168.22.254 \\\nendpoint-port=51820 \\\nallowed-address=10.22.0.0/22\n"
+        }
+      ],
+      "createdAt": "2026-03-02T19:23:48Z"
+    }
+  ],
+  "users": [
+    {
+      "username": "123123",
+      "name": "erick",
+      "nik": "123123",
+      "password": "123123",
+      "role": "administrator",
+      "createdAt": "2026-03-02T16:35:44Z",
+      "updatedAt": "2026-03-02T16:35:44Z"
+    },
+    {
+      "username": "001154",
+      "name": "rafi",
+      "nik": "001154",
+      "password": "123123",
+      "role": "support",
+      "createdAt": "2026-03-02T16:35:30Z",
+      "updatedAt": "2026-03-02T17:20:19Z"
+    },
+    {
+      "username": "admin",
+      "name": "Administrator",
+      "nik": "000000",
+      "password": "123123",
+      "role": "administrator",
+      "builtIn": true,
+      "createdAt": "2026-03-02T16:35:01Z",
+      "updatedAt": "2026-03-02T21:38:02Z"
+    }
+  ],
+  "logs": [
+    {
+      "id": "wireguard-create-outlet---rafi99-1772487493",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - rafi99",
+      "message": "Created outlet peer Outlet - rafi99",
+      "createdAt": "2026-03-02T21:38:13Z"
+    },
+    {
+      "id": "wireguard-create-outlet---rafi2-1772486779",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - rafi2",
+      "message": "Created outlet peer Outlet - rafi2",
+      "createdAt": "2026-03-02T21:26:19Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---test9-1772484696",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "123123",
+      "actorName": "erick",
+      "target": "Outlet - TEST9",
+      "message": "Deleted peer Outlet - TEST9",
+      "createdAt": "2026-03-02T20:51:36Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---outlet1000-1772484660",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - outlet1000",
+      "message": "Deleted peer Outlet - outlet1000",
+      "createdAt": "2026-03-02T20:51:00Z"
+    },
+    {
+      "id": "wireguard-create-outlet---outlet1000-1772484639",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - outlet1000",
+      "message": "Created outlet peer Outlet - outlet1000",
+      "createdAt": "2026-03-02T20:50:39Z"
+    }
+  ]
+}
