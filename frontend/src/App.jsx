@@ -86,7 +86,6 @@ export default function App() {
     lastUpdated: "",
   });
   const [peerForm, setPeerForm] = useState(emptyPeer);
-  const [networkForm, setNetworkForm] = useState(emptyNetwork);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -110,14 +109,6 @@ export default function App() {
     data: null,
     lastUpdated: "",
   });
-  const [serverDiagnostics, setServerDiagnostics] = useState({
-    loading: false,
-    error: "",
-    items: [],
-    lastUpdated: "",
-  });
-  const [wgServers, setWGServers] = useState([]);
-  const [wgServersLoading, setWGServersLoading] = useState(false);
   const [wgServerDiagnostics, setWGServerDiagnostics] = useState({
     loading: false,
     error: "",
@@ -301,7 +292,6 @@ export default function App() {
       }
 
       setState(data);
-      setNetworkForm(data.network);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -343,36 +333,6 @@ export default function App() {
         loading: false,
         error: err.message,
       }));
-    }
-  }
-
-  async function saveNetwork(event) {
-    event.preventDefault();
-    setSaving(true);
-    setError("");
-
-    try {
-      const response = await fetch("/api/network", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({
-          ...networkForm,
-          listenPort: Number(networkForm.listenPort),
-        }),
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to save network");
-      }
-
-      setState(data);
-      setNetworkForm(data.network);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
     }
   }
 
@@ -471,75 +431,6 @@ export default function App() {
         loading: false,
         error: err.message,
       }));
-    }
-  }
-
-  async function loadPeerDiagnostics() {
-    setServerDiagnostics((current) => ({
-      ...current,
-      loading: true,
-      error: "",
-    }));
-
-    try {
-      const response = await fetch("/api/diagnostics/peers", {
-        method: "GET",
-        credentials: "same-origin",
-      });
-      const data = await response.json();
-
-      if (response.status === 401) {
-        setIsAuthenticated(false);
-        throw new Error("Session expired. Please login again.");
-      }
-      if (response.status === 403) {
-        throw new Error("Administrator access required.");
-      }
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to load diagnostics");
-      }
-
-      setServerDiagnostics({
-        loading: false,
-        error: "",
-        items: data.items || [],
-        lastUpdated: data.checkedAt || new Date().toLocaleString(),
-      });
-    } catch (err) {
-      setServerDiagnostics((current) => ({
-        ...current,
-        loading: false,
-        error: err.message,
-      }));
-    }
-  }
-
-  async function loadWGServers() {
-    setWGServersLoading(true);
-
-    try {
-      const response = await fetch("/api/wg-servers", {
-        method: "GET",
-        credentials: "same-origin",
-      });
-      const data = await response.json();
-
-      if (response.status === 401) {
-        setIsAuthenticated(false);
-        throw new Error("Session expired. Please login again.");
-      }
-      if (response.status === 403) {
-        throw new Error("Administrator access required.");
-      }
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch WireGuard servers");
-      }
-
-      setWGServers(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setWGServersLoading(false);
     }
   }
 
@@ -741,11 +632,6 @@ export default function App() {
     setPeerForm((current) => ({ ...current, [name]: value }));
   }
 
-  function updateNetworkField(event) {
-    const { name, value } = event.target;
-    setNetworkForm((current) => ({ ...current, [name]: value }));
-  }
-
   function updateUserField(event) {
     const { name, value } = event.target;
     setUserForm((current) => ({ ...current, [name]: value }));
@@ -935,9 +821,7 @@ export default function App() {
 
   function buildMetricGroups(items) {
     const scopedItems = items.filter((item) => allowedMonitoringGroups.includes(item.group));
-    const endpointStatusItems = scopedItems.filter((item) => item.metric === "gatus_results_endpoint_success");
-    const gatusTotalItems = scopedItems.filter((item) => item.metric === "gatus_results_total");
-    const sourceItems = endpointStatusItems.length > 0 ? endpointStatusItems : gatusTotalItems.length > 0 ? gatusTotalItems : scopedItems;
+    const sourceItems = selectMonitoringMetricItems(scopedItems);
     const endpointMap = new Map();
 
     for (const item of sourceItems) {
@@ -959,21 +843,7 @@ export default function App() {
       }
 
       const current = endpointMap.get(mapKey);
-      const numericValue = parseMetricValue(item.value) ?? 0;
-      if (item.metric === "gatus_results_endpoint_success") {
-        current.successCount = numericValue >= 1 ? 1 : 0;
-        current.failureCount = numericValue >= 1 ? 0 : 1;
-      } else {
-        const successLabel = item.success;
-
-        if (successLabel === "false") {
-          current.failureCount += numericValue;
-        } else if (successLabel === "true") {
-          current.successCount += numericValue;
-        } else if (numericValue > 0) {
-          current.successCount += numericValue;
-        }
-      }
+      applyMonitoringMetricSample(current, item);
 
       current.rawValue = item.value || current.rawValue;
     }
@@ -1045,6 +915,38 @@ export default function App() {
     });
 
     return groups;
+  }
+
+  function selectMonitoringMetricItems(items) {
+    const endpointStatusItems = items.filter((item) => item.metric === "gatus_results_endpoint_success");
+    if (endpointStatusItems.length > 0) {
+      return endpointStatusItems;
+    }
+
+    const cumulativeItems = items.filter((item) => item.metric === "gatus_results_total");
+    if (cumulativeItems.length > 0) {
+      return cumulativeItems;
+    }
+
+    return items;
+  }
+
+  function applyMonitoringMetricSample(bucket, item) {
+    const numericValue = parseMetricValue(item.value) ?? 0;
+    if (item.metric === "gatus_results_endpoint_success") {
+      bucket.successCount = numericValue >= 1 ? 1 : 0;
+      bucket.failureCount = numericValue >= 1 ? 0 : 1;
+      return;
+    }
+
+    if (item.success === "false") {
+      bucket.failureCount += numericValue;
+      return;
+    }
+
+    if (item.success === "true" || numericValue > 0) {
+      bucket.successCount += numericValue;
+    }
   }
 
   function buildMetricBars(item) {
