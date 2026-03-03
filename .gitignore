@@ -1,3 +1,22 @@
 backend/data/
 frontend/node_modules/
 frontend/dist/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS/editor noise
+.DS_Store
+.vscode/
+.idea/
+
+# Go build/test cache
+backend/*.exe
+backend/*.out
+backend/coverage*.out
