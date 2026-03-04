@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS audit_logs;
+DROP TABLE IF EXISTS peer_artifacts;
+DROP TABLE IF EXISTS peer_assignments;
+DROP TABLE IF EXISTS peer_allowed_ips;
+DROP TABLE IF EXISTS peers;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS wg_servers;

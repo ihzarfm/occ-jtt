@@ -94,11 +94,11 @@ type Store struct {
 func DefaultState() State {
 	return State{
 		Network: NetworkConfig{
-			InterfaceName:   "wg0",
-			ServerAddress:   "10.8.0.1/24",
+			InterfaceName:   "control-node",
+			ServerAddress:   "managed-remotely",
 			ListenPort:      51820,
-			ServerPublicKey: "replace-with-server-public-key",
-			DNS:             "1.1.1.1",
+			ServerPublicKey: "replace-with-managed-server-public-key",
+			DNS:             "",
 		},
 		Peers: []Peer{},
 		Users: []User{},

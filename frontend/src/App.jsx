@@ -175,11 +175,11 @@ const emptyPeer = {
 };
 
 const emptyNetwork = {
-  interfaceName: "wg0",
-  serverAddress: "10.8.0.1/24",
+  interfaceName: "control-node",
+  serverAddress: "managed-remotely",
   listenPort: 51820,
-  serverPublicKey: "",
-  dns: "1.1.1.1",
+  serverPublicKey: "replace-with-managed-server-public-key",
+  dns: "",
 };
 
 const initialLogin = {
