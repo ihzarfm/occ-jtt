@@ -2,14 +2,14 @@
 
 Web manager sederhana untuk mengelola peer WireGuard dengan:
 
-- Backend Go (`backend/`) untuk API REST dan penyimpanan state ke JSON.
+- Backend Go (`backend/`) untuk API REST dan penyimpanan state ke JSON/PostgreSQL.
 - Frontend React + Vite (`frontend/`) untuk panel administrasi.
 
 ## Fitur MVP
 
 - Lihat dan ubah konfigurasi jaringan WireGuard dasar.
 - Tambah dan hapus peer.
-- Simpan state ke `backend/data/state.json`.
+- Simpan state ke `backend/data/state.json` (default) atau PostgreSQL (`DATABASE_URL`).
 - Unduh template file config client WireGuard per peer.
 
 ## Menjalankan semua service dengan satu command
@@ -20,8 +20,8 @@ bash dev.sh
 
 Command ini akan menjalankan:
 
-- Backend Go di `http://localhost:8080`
-- Frontend Vite di `http://localhost:5173`
+- Build frontend production (`frontend/dist`)
+- Backend Go di `http://localhost:8080` (single entry)
 
 Jika `frontend/node_modules` belum ada, install dulu:
 
@@ -30,7 +30,7 @@ cd frontend
 npm install
 ```
 
-Tekan `Ctrl+C` untuk menghentikan keduanya sekaligus.
+Tekan `Ctrl+C` untuk menghentikan service.
 
 ## Menjalankan backend
 
@@ -40,6 +40,17 @@ go run .
 ```
 
 Server API akan berjalan di `http://localhost:8080`.
+
+### Opsi storage PostgreSQL
+
+Jika ingin pakai PostgreSQL, set `DATABASE_URL` sebelum menjalankan backend:
+
+```bash
+cd backend
+DATABASE_URL='postgres://occjtt:password@localhost:5432/occ_jtt?sslmode=disable' go run .
+```
+
+Jika `DATABASE_URL` kosong, backend otomatis fallback ke JSON file `backend/data/state.json`.
 
 Jika ingin menampilkan data monitoring dari Gatus, backend akan default membaca dari:
 
@@ -71,6 +82,14 @@ npm run dev
 ```
 
 UI akan berjalan di `http://localhost:5173` dan proxy ke backend.
+
+## Menjalankan migrasi DB
+
+Jika pakai PostgreSQL dan tool `migrate`:
+
+```bash
+migrate -path backend/migrations -database "$DATABASE_URL" up
+```
 
 ## Catatan
 

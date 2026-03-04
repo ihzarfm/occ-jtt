@@ -1,5 +1,169 @@
 import { useEffect, useState } from "react";
 
+function NavIcon({ name }) {
+  const icons = {
+    dashboard: (
+      <>
+        <rect x="3" y="3" width="18" height="18" rx="4" />
+        <path d="M7 8h10M7 12h6M7 16h8" />
+      </>
+    ),
+    monitoring: (
+      <>
+        <path d="M4 17h16" />
+        <path d="M6 15l3-4 3 2 4-6 2 3" />
+        <circle cx="16" cy="7" r="1.5" fill="currentColor" stroke="none" />
+      </>
+    ),
+    createPeer: (
+      <>
+        <circle cx="9" cy="9" r="3" />
+        <path d="M4 18c1.2-2.5 3.3-4 5-4s3.8 1.5 5 4" />
+        <path d="M18 8v6M15 11h6" />
+      </>
+    ),
+    removePeer: (
+      <>
+        <circle cx="9" cy="9" r="3" />
+        <path d="M4 18c1.2-2.5 3.3-4 5-4s3.8 1.5 5 4" />
+        <path d="M15 11h6" />
+      </>
+    ),
+    updatePeer: (
+      <>
+        <circle cx="8.5" cy="8.5" r="3" />
+        <path d="M3.5 18c1.2-2.4 3.2-3.8 5-3.8" />
+        <path d="M15 7l3 3" />
+        <path d="M13.5 14.5l5-5" />
+        <path d="M12.5 17.5l2.5-.5-.5-2.5-2 3z" />
+      </>
+    ),
+    inventoryPeer: (
+      <>
+        <circle cx="8" cy="8" r="2.5" />
+        <circle cx="16" cy="8" r="2.5" />
+        <path d="M3.5 18c1-2.4 2.8-3.8 4.5-3.8S11.5 15.6 12.5 18" />
+        <path d="M11.5 18c1-2.4 2.8-3.8 4.5-3.8S19.5 15.6 20.5 18" />
+      </>
+    ),
+    serverConnection: (
+      <>
+        <rect x="4" y="4" width="16" height="6" rx="2" />
+        <rect x="4" y="14" width="16" height="6" rx="2" />
+        <path d="M8 7h.01M8 17h.01" />
+      </>
+    ),
+    mikrotikSsh: (
+      <>
+        <path d="M6 8l4 4-4 4" />
+        <path d="M11 16h7" />
+      </>
+    ),
+    mikrotikAutomation: (
+      <>
+        <rect x="5" y="4" width="12" height="16" rx="2" />
+        <path d="M9 9h4M9 13h4" />
+        <path d="M18 15l2 2" />
+        <path d="M18 11v4h-4" />
+      </>
+    ),
+    mikrotikCheckIsp: (
+      <>
+        <path d="M5 12a10 10 0 0 1 14 0" />
+        <path d="M8 15a6 6 0 0 1 8 0" />
+        <path d="M11 18a2 2 0 0 1 2 0" />
+      </>
+    ),
+    wireguardLogs: (
+      <>
+        <path d="M7 4h7l4 4v12H7z" />
+        <path d="M14 4v4h4" />
+        <path d="M10 12h5M10 16h5" />
+      </>
+    ),
+    mikrotikLogs: (
+      <>
+        <path d="M7 4h7l4 4v12H7z" />
+        <path d="M14 4v4h4" />
+        <path d="M10 12h5M10 16h5" />
+      </>
+    ),
+    userLogs: (
+      <>
+        <path d="M7 4h7l4 4v12H7z" />
+        <path d="M14 4v4h4" />
+        <path d="M10 12h5M10 16h5" />
+      </>
+    ),
+    userList: (
+      <>
+        <circle cx="8" cy="8" r="2.5" />
+        <path d="M3.5 18c1-2.4 2.8-3.8 4.5-3.8S11.5 15.6 12.5 18" />
+        <path d="M14 8h6M14 12h6M14 16h4" />
+      </>
+    ),
+    createUser: (
+      <>
+        <circle cx="9" cy="9" r="3" />
+        <path d="M4 18c1.2-2.5 3.3-4 5-4s3.8 1.5 5 4" />
+        <path d="M18 8v6M15 11h6" />
+      </>
+    ),
+    updateUser: (
+      <>
+        <circle cx="9" cy="9" r="3" />
+        <path d="M4 18c1.2-2.5 3.3-4 5-4s3.8 1.5 5 4" />
+        <path d="M15 8l3 3" />
+        <path d="M13.5 14.5l5-5" />
+      </>
+    ),
+  };
+
+  return (
+    <span className="nav-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        {icons[name] || icons.dashboard}
+      </svg>
+    </span>
+  );
+}
+
+function ThemeGlyph({ mode }) {
+  if (mode === "light") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M15 4.5a7.5 7.5 0 1 0 4.5 12.8A8.5 8.5 0 0 1 15 4.5z" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2.5v2.2M12 19.3v2.2M21.5 12h-2.2M4.7 12H2.5M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6M18.7 18.7l-1.6-1.6M6.9 6.9 5.3 5.3" />
+    </svg>
+  );
+}
+
+function RefreshGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 6v5h-5" />
+      <path d="M4 18v-5h5" />
+      <path d="M7.8 16.2A7 7 0 0 0 19 11a7 7 0 0 0-.2-1.7" />
+      <path d="M16.2 7.8A7 7 0 0 0 5 13c0 .6.1 1.1.2 1.7" />
+    </svg>
+  );
+}
+
+function ChevronDownGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m7 10 5 5 5-5" />
+    </svg>
+  );
+}
+
 const emptyPeer = {
   name: "",
   publicKey: "",
@@ -29,6 +193,26 @@ const emptyUserForm = {
   password: "",
   role: "support",
 };
+
+const emptyCreatePeerFeedback = {
+  type: "",
+  title: "",
+  message: "",
+  peer: null,
+  scope: "",
+};
+
+const adminTargetOptions = [
+  { id: "wg-its", label: "WG-ITS", pool: "10.22.0.x" },
+  { id: "wg-cctv", label: "WG-CCTV", pool: "10.21.0.x" },
+  { id: "both", label: "BOTH", pool: "WG-ITS + WG-CCTV" },
+];
+
+const adminPurposeOptions = [
+  { id: "server", label: "Server" },
+  { id: "user-admin", label: "User / Admin" },
+  { id: "mikrotik", label: "Mikrotik" },
+];
 
 const monitoringRefreshMs = 300_000;
 const allowedMonitoringGroups = [
@@ -70,7 +254,14 @@ export default function App() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [activeView, setActiveView] = useState("dashboard");
   const [theme, setTheme] = useState(() => localStorage.getItem("occ-theme") || "light");
+  const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [createPeerType, setCreatePeerType] = useState("outlet");
+  const [outletBrand, setOutletBrand] = useState("");
+  const [outletLocation, setOutletLocation] = useState("");
+  const [adminTargetMode, setAdminTargetMode] = useState("");
+  const [adminPurpose, setAdminPurpose] = useState("user-admin");
+  const [adminAssignedItsIP, setAdminAssignedItsIP] = useState("");
+  const [adminAssignedCctvIP, setAdminAssignedCctvIP] = useState("");
   const [sidebarGroupsOpen, setSidebarGroupsOpen] = useState({
     wireguard: true,
     logs: true,
@@ -89,6 +280,8 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [removeError, setRemoveError] = useState("");
+  const [createPeerFeedback, setCreatePeerFeedback] = useState(emptyCreatePeerFeedback);
   const [users, setUsers] = useState([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [auditLogs, setAuditLogs] = useState({
@@ -212,6 +405,46 @@ export default function App() {
       setActiveView("createPeer");
     }
   }, [activeView, isAdministrator]);
+
+  useEffect(() => {
+    if (createPeerType !== "administrator") {
+      return;
+    }
+
+    const itsAvailable = availableIPsFor("10.22.0.");
+    const cctvAvailable = availableIPsFor("10.21.0.");
+
+    if (adminTargetMode === "wg-its" && !itsAvailable.includes(peerForm.assignedIP)) {
+      setPeerForm((current) => ({ ...current, assignedIP: itsAvailable[0] || "" }));
+    }
+
+    if (adminTargetMode === "wg-cctv" && !cctvAvailable.includes(peerForm.assignedIP)) {
+      setPeerForm((current) => ({ ...current, assignedIP: cctvAvailable[0] || "" }));
+    }
+
+    if (adminTargetMode === "both") {
+      if (!itsAvailable.includes(adminAssignedItsIP)) {
+        setAdminAssignedItsIP(itsAvailable[0] || "");
+      }
+      if (!cctvAvailable.includes(adminAssignedCctvIP)) {
+        setAdminAssignedCctvIP(cctvAvailable[0] || "");
+      }
+    }
+  }, [createPeerType, adminTargetMode, state.peers]);
+
+  useEffect(() => {
+    setCreatePeerFeedback(emptyCreatePeerFeedback);
+    setError("");
+    if (createPeerType === "outlet") {
+      setAdminTargetMode("");
+      setPeerForm((current) => ({ ...current, name: "", assignedIP: "", allowedIPs: "0.0.0.0/0" }));
+    }
+    if (createPeerType === "administrator") {
+      setOutletBrand("");
+      setOutletLocation("");
+      setPeerForm((current) => ({ ...current, allowedIPs: "" }));
+    }
+  }, [createPeerType]);
 
   async function restoreSession() {
     setAuthChecking(true);
@@ -338,35 +571,190 @@ export default function App() {
 
   async function createPeer(event) {
     event.preventDefault();
-    setSaving(true);
-    setError("");
-
     const isOutletPeer = createPeerType === "outlet";
     const peerName = peerForm.name.trim();
+    const outletSiteName = generatedOutletSiteName();
+
+    setError("");
+    setCreatePeerFeedback(emptyCreatePeerFeedback);
+
+    if (isOutletPeer && !outletSiteName) {
+      setCreatePeerFeedback({
+        type: "error",
+        title: "Site Name Required",
+        message: "Fill in Brand / Outlet Type and Location before creating an outlet peer.",
+        peer: null,
+      });
+      return;
+    }
+
+    if (!isOutletPeer && !adminTargetMode) {
+      setCreatePeerFeedback({
+        type: "error",
+        title: "Target Server Required",
+        message: "Select WG-ITS, WG-CCTV, or BOTH before creating an administrator peer.",
+        peer: null,
+        scope: "administrator",
+      });
+      return;
+    }
+
+    if (!isOutletPeer && !peerName) {
+      setCreatePeerFeedback({
+        type: "error",
+        title: "Name Required",
+        message: "Name must use uppercase A-Z, numbers, and dashes only.",
+        peer: null,
+        scope: "administrator",
+      });
+      return;
+    }
+
+    if (!isOutletPeer && adminTargetMode !== "both" && !peerForm.assignedIP) {
+      setCreatePeerFeedback({
+        type: "error",
+        title: "Assigned IP Required",
+        message: "Select one available IP before creating administrator peer.",
+        peer: null,
+        scope: "administrator",
+      });
+      return;
+    }
+
+    if (!isOutletPeer && adminTargetMode === "both" && (!adminAssignedItsIP || !adminAssignedCctvIP)) {
+      setCreatePeerFeedback({
+        type: "error",
+        title: "Assigned IP Required",
+        message: "Select available IPs for both WG-ITS and WG-CCTV.",
+        peer: null,
+        scope: "administrator",
+      });
+      return;
+    }
+
+    if (!isValidIPv4CIDR(peerForm.allowedIPs)) {
+      setCreatePeerFeedback({
+        type: "error",
+        title: "Invalid Allowed IPs",
+        message: "Allowed IPs must be valid IPv4/CIDR format, using only numbers, dots, and slash.",
+        peer: null,
+        scope: createPeerType,
+      });
+      return;
+    }
+
+    setSaving(true);
 
     try {
-      const response = await fetch("/api/peers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({
-          peerType: createPeerType,
-          ...peerForm,
-          name: isOutletPeer ? peerName : (peerName ? `Administrator - ${peerName}` : peerForm.name),
-          keepalive: Number(peerForm.keepalive),
-        }),
-      });
-      const data = await response.json();
+      if (!isOutletPeer && adminTargetMode === "both") {
+        const createdPeers = [];
+        let latestState = null;
+        const autoPublicKey = generatePseudoPublicKey();
+        const requests = [
+          { server: "wg-its", assignedIP: adminAssignedItsIP },
+          { server: "wg-cctv", assignedIP: adminAssignedCctvIP },
+        ];
 
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to create peer");
+        for (const request of requests) {
+          const response = await fetch("/api/peers", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "same-origin",
+            body: JSON.stringify({
+              peerType: createPeerType,
+              ...peerForm,
+              name: `Administrator-${peerName}-${request.server.toUpperCase()}`,
+              publicKey: autoPublicKey,
+              assignedIP: request.assignedIP,
+              keepalive: Number(peerForm.keepalive),
+              purpose: adminPurpose,
+              targetServer: request.server,
+            }),
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || "Failed to create peer");
+          }
+          latestState = data.state;
+          if (data.peer) {
+            createdPeers.push({
+              ...data.peer,
+              _targetServer: request.server,
+            });
+          }
+        }
+
+        if (latestState) {
+          setState(latestState);
+        }
+
+        setPeerForm(emptyPeer);
+        setCreatePeerFeedback({
+          type: "success",
+          title: "Administrator Peer Created",
+          message: "Administrator profile has been provisioned on selected servers.",
+          peer: {
+            id: createdPeers[0]?.id || "",
+            _scope: "administrator",
+            _targetMode: "both",
+            _createdPeers: createdPeers,
+            assignedIP: `${adminAssignedItsIP}, ${adminAssignedCctvIP}`,
+          },
+          scope: "administrator",
+        });
+      } else {
+        const response = await fetch("/api/peers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({
+            peerType: createPeerType,
+            ...peerForm,
+            name: isOutletPeer ? outletSiteName : `Administrator-${peerName}`,
+            publicKey: isOutletPeer ? peerForm.publicKey : (peerForm.publicKey || generatePseudoPublicKey()),
+            keepalive: Number(peerForm.keepalive),
+            purpose: adminPurpose,
+            targetServer: adminTargetMode,
+          }),
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to create peer");
+        }
+
+        setState(data.state);
+        setPeerForm(emptyPeer);
+        setOutletBrand("");
+        setOutletLocation("");
+        setCreatePeerFeedback({
+          type: "success",
+          title: isOutletPeer ? "Peer Created" : "Administrator Peer Created",
+          message: isOutletPeer
+            ? "Outlet peer has been provisioned on WireGuard servers."
+            : "Administrator profile has been provisioned on selected server.",
+          peer: data.peer
+            ? {
+                ...data.peer,
+                _scope: isOutletPeer ? "outlet" : "administrator",
+                _targetServer: adminTargetMode,
+                _purpose: adminPurpose,
+              }
+            : null,
+          scope: isOutletPeer ? "outlet" : "administrator",
+        });
       }
 
-      setState(data.state);
-      setPeerForm(emptyPeer);
-      setActiveView(isAdministrator ? "inventoryPeer" : "createPeer");
+      setActiveView("createPeer");
     } catch (err) {
-      setError(err.message);
+      setCreatePeerFeedback({
+        type: "error",
+        title: "Create Failed",
+        message: err.message,
+        peer: null,
+        scope: createPeerType,
+      });
+      setError("");
     } finally {
       setSaving(false);
     }
@@ -374,7 +762,7 @@ export default function App() {
 
   async function deletePeer(id) {
     setSaving(true);
-    setError("");
+    setRemoveError("");
 
     try {
       const response = await fetch(`/api/peers/${id}`, {
@@ -388,8 +776,9 @@ export default function App() {
       }
 
       setState(data);
+      setRemoveError("");
     } catch (err) {
-      setError(err.message);
+      setRemoveError(err.message);
     } finally {
       setSaving(false);
     }
@@ -632,6 +1021,131 @@ export default function App() {
     setPeerForm((current) => ({ ...current, [name]: value }));
   }
 
+  function normalizeOutletSegment(value) {
+    return String(value || "")
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+  }
+
+  function normalizeAdminName(value) {
+    return String(value || "")
+      .toUpperCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^A-Z0-9-]/g, "")
+      .replace(/-+/g, "-");
+  }
+
+  function sanitizeAllowedIPs(value) {
+    return String(value || "")
+      .replace(/\s+/g, "")
+      .replace(/[^0-9./]/g, "");
+  }
+
+  function isValidIPv4CIDR(value) {
+    const current = String(value || "").trim();
+    if (!current) {
+      return true;
+    }
+
+    const matcher = /^(\d{1,3}(?:\.\d{1,3}){3})(?:\/(\d{1,2}))?$/;
+    const match = current.match(matcher);
+    if (!match) {
+      return false;
+    }
+
+    const octets = match[1].split(".").map((octet) => Number(octet));
+    if (octets.some((octet) => Number.isNaN(octet) || octet < 0 || octet > 255)) {
+      return false;
+    }
+
+    if (match[2] !== undefined) {
+      const cidr = Number(match[2]);
+      if (Number.isNaN(cidr) || cidr < 0 || cidr > 32) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  function usedIPs() {
+    const used = new Set();
+    for (const peer of state.peers || []) {
+      if (peer.assignedIP) {
+        used.add(String(peer.assignedIP).split("/")[0]);
+      }
+      if (Array.isArray(peer.assignments)) {
+        for (const assignment of peer.assignments) {
+          if (assignment.assignedIP) {
+            used.add(String(assignment.assignedIP).split("/")[0]);
+          }
+        }
+      }
+    }
+    return used;
+  }
+
+  function availableIPsFor(prefix) {
+    const used = usedIPs();
+    const available = [];
+    for (let last = 10; last <= 120; last += 1) {
+      const ip = `${prefix}${last}`;
+      if (!used.has(ip)) {
+        available.push(ip);
+      }
+      if (available.length >= 40) {
+        break;
+      }
+    }
+    return available;
+  }
+
+  function generatePseudoPublicKey() {
+    const bytes = new Uint8Array(32);
+    window.crypto.getRandomValues(bytes);
+    let binary = "";
+    for (const b of bytes) {
+      binary += String.fromCharCode(b);
+    }
+    return window.btoa(binary);
+  }
+
+  function generatedOutletSiteName() {
+    const brand = normalizeOutletSegment(outletBrand);
+    const location = normalizeOutletSegment(outletLocation);
+
+    if (!brand && !location) {
+      return "";
+    }
+
+    if (!brand) {
+      return location;
+    }
+
+    if (!location) {
+      return brand;
+    }
+
+    return `${brand}-${location}`;
+  }
+
+  function resetPeerForm() {
+    setPeerForm(emptyPeer);
+    if (createPeerType === "administrator") {
+      setPeerForm((current) => ({ ...current, allowedIPs: "" }));
+    }
+    setOutletBrand("");
+    setOutletLocation("");
+    setAdminTargetMode("");
+    setAdminPurpose("user-admin");
+    setAdminAssignedItsIP("");
+    setAdminAssignedCctvIP("");
+    setCreatePeerFeedback(emptyCreatePeerFeedback);
+    setError("");
+  }
+
   function updateUserField(event) {
     const { name, value } = event.target;
     setUserForm((current) => ({ ...current, [name]: value }));
@@ -676,6 +1190,10 @@ export default function App() {
       ...current,
       [groupName]: !current[groupName],
     }));
+  }
+
+  function renderNavLabel(label) {
+    return sidebarExpanded ? <span className="nav-label">{label}</span> : null;
   }
 
   function isViewAllowed(view, admin = isAdministrator) {
@@ -968,6 +1486,159 @@ export default function App() {
     return bars;
   }
 
+  function buildDashboardSparkline(seed, total = 12) {
+    const source = String(seed || "occ");
+    const values = [];
+
+    for (let index = 0; index < total; index += 1) {
+      const code = source.charCodeAt(index % source.length);
+      values.push(18 + ((code + index * 11) % 42));
+    }
+
+    return values;
+  }
+
+  function createFlowSteps(mode) {
+    const siteLabel = mode === "outlet"
+      ? (generatedOutletSiteName() || "BRAND-LOCATION")
+      : (peerForm.name.trim() || "Administrator Peer");
+    const selectedTargetServer = adminTargetOptions.find((item) => item.id === adminTargetMode);
+    if (mode === "administrator") {
+      return [
+        { label: "Target", value: selectedTargetServer?.label || "Select server", meta: selectedTargetServer?.pool || "Required first" },
+        { label: "Identity", value: siteLabel || "Administrator Peer", meta: "Manual input" },
+        { label: "Assigned IP", value: peerForm.assignedIP.trim() || selectedTargetServer?.pool || "10.x.x.x", meta: adminTargetMode === "both" ? "Dual profile" : "Single profile" },
+        { label: "Output", value: "CONF", meta: "Downloadable" },
+      ];
+    }
+
+    return [
+      { label: "Site", value: siteLabel, meta: "Outlet" },
+      { label: "WG-ITS", value: "10.22.x.x", meta: "Auto assign" },
+      { label: "WG-CCTV", value: "10.21.x.x", meta: "Auto assign" },
+      { label: "Output", value: "CONF + RSC", meta: "Artifacts" },
+    ];
+  }
+
+  function downloadLinkForPeer(peer) {
+    if (!peer?.id) {
+      return "";
+    }
+
+    const configArtifact = Array.isArray(peer.artifacts)
+      ? peer.artifacts.find((artifact) => artifact.kind === "conf")
+      : null;
+
+    if (configArtifact?.id) {
+      return `/api/peers/${peer.id}/artifacts/${configArtifact.id}`;
+    }
+
+    return `/api/peers/${peer.id}/config`;
+  }
+
+  function administratorDownloadLinks(peer) {
+    if (!peer) {
+      return [];
+    }
+
+    if (Array.isArray(peer._createdPeers) && peer._createdPeers.length > 0) {
+      return peer._createdPeers.map((item) => {
+        const target = adminTargetOptions.find((option) => option.id === item._targetServer)?.label || "Config";
+        return {
+          id: item.id,
+          label: `Download ${target}`,
+          href: downloadLinkForPeer(item),
+        };
+      });
+    }
+
+    if (peer.id) {
+      const target = adminTargetOptions.find((option) => option.id === peer._targetServer)?.label || "Config";
+      return [{ id: peer.id, label: `Download ${target}`, href: downloadLinkForPeer(peer) }];
+    }
+
+    return [];
+  }
+
+  function outletConfigLinks(peer) {
+    if (!peer?.id || !Array.isArray(peer.artifacts)) {
+      return [];
+    }
+
+    return peer.artifacts
+      .filter((artifact) => artifact.kind === "conf")
+      .map((artifact) => {
+        const serverName = String(artifact.serverName || artifact.serverId || "");
+        const label = serverName.toLowerCase().includes("cctv")
+          ? "WG-CCTV"
+          : serverName.toLowerCase().includes("its")
+            ? "WG-ITS"
+            : serverName || "Config";
+
+        return {
+          id: artifact.id,
+          label,
+          href: `/api/peers/${peer.id}/artifacts/${artifact.id}`,
+        };
+      })
+      .sort((left, right) => left.label.localeCompare(right.label));
+  }
+
+  function outletAssignmentSummary(peer) {
+    if (!Array.isArray(peer?.assignments)) {
+      return [];
+    }
+
+    return [...peer.assignments]
+      .map((assignment) => {
+        const serverLabel = String(assignment.interfaceName || assignment.serverName || assignment.serverId || "");
+        const label = serverLabel.toLowerCase().includes("cctv")
+          ? "WG-CCTV"
+          : serverLabel.toLowerCase().includes("its")
+            ? "WG-ITS"
+            : serverLabel.toUpperCase();
+
+        return {
+          label,
+          value: assignment.assignedIP || "-",
+        };
+      })
+      .sort((left, right) => left.label.localeCompare(right.label));
+  }
+
+  function createFeedbackSummary(peer) {
+    if (!peer) {
+      return [];
+    }
+
+    if (Array.isArray(peer._createdPeers) && peer._createdPeers.length > 0) {
+      return peer._createdPeers.map((item) => {
+        const target = adminTargetOptions.find((option) => option.id === item._targetServer)?.label || "SERVER";
+        return {
+          label: target,
+          value: item.assignedIP || "-",
+        };
+      });
+    }
+
+    if (peer._targetServer) {
+      const selectedTargetServer = adminTargetOptions.find((item) => item.id === peer._targetServer);
+      return [
+        { label: "Server", value: selectedTargetServer?.label || peer._targetServer },
+        { label: "Assigned IP", value: peer.assignedIP || "-" },
+      ];
+    }
+
+    if (Array.isArray(peer.assignments) && peer.assignments.length > 0) {
+      return peer.assignments.map((assignment) => ({
+        label: assignment.interfaceName || assignment.serverName || assignment.serverId,
+        value: assignment.assignedIP || "-",
+      }));
+    }
+
+    return [{ label: "Assigned IP", value: peer.assignedIP || "-" }];
+  }
+
   function renderPlaceholderSection(title, subtitle, description) {
     return (
       <section className="panel">
@@ -1039,37 +1710,55 @@ export default function App() {
 
     switch (activeView) {
       case "dashboard": {
-        const dashboardCards = [
-          {
-            id: "total-peers",
-            title: "Total Peers",
-            value: String(state.peers.length),
-            detail: "Registered peers",
-            tone: "neutral",
-          },
-          ...dashboardHealth.items.map((item) => ({
-            id: item.id,
-            title: item.label || item.target || "-",
-            value: typeof item.latencyMs === "number" ? `${item.latencyMs.toFixed(2)} ms` : "Timeout",
-            detail: item.error || item.target || "-",
-            tone: item.status === "good" ? "good" : "bad",
-          })),
-        ];
+        const dashboardCards = dashboardHealth.items.map((item, index) => ({
+          id: item.id || `dashboard-${index}`,
+          title: String(item.label || item.target || "-").toUpperCase(),
+          value: typeof item.latencyMs === "number" ? item.latencyMs.toFixed(2) : "--",
+          detail: item.error || item.target || "-",
+          tone: item.status === "good" ? "good" : "bad",
+          sparkline: buildDashboardSparkline(item.label || item.target || item.id || index),
+        }));
 
         return (
-          <>
-            <section className="grid stats-grid">
-              {dashboardCards.map((card) => (
-                <article className={`panel stat-card health-${card.tone}`} key={card.id}>
-                  <p className="stat-label">{card.title}</p>
-                  <strong>{card.value}</strong>
-                  <span className="stat-subvalue">{card.detail}</span>
-                </article>
-              ))}
-            </section>
+          <section className="dashboard-shell">
+            <article className="panel dashboard-hero-card">
+              <div className="dashboard-hero-icon">
+                <NavIcon name="inventoryPeer" />
+              </div>
+              <p className="dashboard-hero-label">Total Peers</p>
+              <strong className="dashboard-hero-value">{state.peers.length}</strong>
+              <span className="dashboard-hero-subvalue">Registered peers</span>
+            </article>
 
             {dashboardHealth.error ? <div className="alert">{dashboardHealth.error}</div> : null}
-          </>
+
+            {dashboardCards.length > 0 ? (
+              <section className="dashboard-health-grid">
+                {dashboardCards.map((card) => (
+                  <article className="panel dashboard-endpoint-card" key={card.id}>
+                    <p className="dashboard-endpoint-title">{card.title}</p>
+                    <div className="dashboard-endpoint-metric">
+                      <strong>{card.value}</strong>
+                      <span>ms</span>
+                      <span className={`dashboard-status-dot status-${card.tone}`} aria-hidden="true" />
+                    </div>
+                    <p className="dashboard-endpoint-subtitle">{card.detail}</p>
+                    <div className="dashboard-sparkline" aria-hidden="true">
+                      {card.sparkline.map((height, index) => (
+                        <span
+                          className="dashboard-sparkline-bar"
+                          key={`${card.id}-bar-${index}`}
+                          style={{ height: `${height}px` }}
+                        />
+                      ))}
+                    </div>
+                  </article>
+                ))}
+              </section>
+            ) : (
+              <div className="empty">No dashboard health checks available yet.</div>
+            )}
+          </section>
         );
       }
       case "monitoring": {
@@ -1232,119 +1921,348 @@ export default function App() {
         );
       }
       case "createPeer":
+        {
+        const feedbackPeer = createPeerFeedback.peer;
+        const feedbackSummary = createFeedbackSummary(feedbackPeer);
+        const flowSteps = createFlowSteps(createPeerType);
+        const selectedTargetServer = adminTargetOptions.find((item) => item.id === adminTargetMode);
+        const adminItsIPs = availableIPsFor("10.22.0.");
+        const adminCctvIPs = availableIPsFor("10.21.0.");
+        const adminDownloads = administratorDownloadLinks(feedbackPeer);
+        const outletSummary = outletAssignmentSummary(feedbackPeer);
+        const outletDownloads = outletConfigLinks(feedbackPeer);
+        const adminIsReady = adminTargetMode !== ""
+          && peerForm.name.trim() !== ""
+          && adminPurpose !== ""
+          && (
+            (adminTargetMode === "both" && adminAssignedItsIP !== "" && adminAssignedCctvIP !== "")
+            || (adminTargetMode !== "both" && peerForm.assignedIP !== "")
+          );
+
         return (
-          <section className="panel">
-            <div className="panel-head">
-              <h2>Create Peer</h2>
-              <span>Generate a new WireGuard client profile</span>
-            </div>
-
-            <div className="peer-type-selector" role="tablist" aria-label="Select peer type">
+          <section className="panel create-peer-panel">
+            <div className="peer-tablist" role="tablist" aria-label="Select peer type">
               <button
+                id="tab-outlet-peer"
                 type="button"
-                className={`peer-type-option${createPeerType === "outlet" ? " active" : ""}`}
+                role="tab"
+                className={`peer-tab${createPeerType === "outlet" ? " active" : ""}`}
                 onClick={() => setCreatePeerType("outlet")}
-                aria-pressed={createPeerType === "outlet"}
+                aria-selected={createPeerType === "outlet"}
+                aria-controls="create-peer-form"
               >
-                Outlet Peer
+                <span className="peer-tab-title">Outlet Peer</span>
+                <span className="peer-tab-description">Provision to WG-ITS and WG-CCTV</span>
               </button>
               <button
+                id="tab-admin-peer"
                 type="button"
-                className={`peer-type-option${createPeerType === "administrator" ? " active" : ""}`}
+                role="tab"
+                className={`peer-tab${createPeerType === "administrator" ? " active" : ""}`}
                 onClick={() => setCreatePeerType("administrator")}
-                aria-pressed={createPeerType === "administrator"}
+                aria-selected={createPeerType === "administrator"}
+                aria-controls="create-peer-form"
               >
-                Administrator Peer
+                <span className="peer-tab-title">Administrator Peer</span>
+                <span className="peer-tab-description">Manual single-profile entry</span>
               </button>
             </div>
 
-            <p className="form-note">
+            <p className="form-note create-peer-note">
               {createPeerType === "outlet"
-                ? "Outlet peer akan otomatis dimapping ke dua server WireGuard dan menghasilkan artefak .conf / .rsc per server."
-                : (
-                  <>
-                    Peer baru akan diberi prefix otomatis:
-                    {" "}
-                    <strong>Administrator</strong>
-                  </>
-                )}
+                ? "Auto-provision to WG-ITS and WG-CCTV"
+                : "Single profile → .conf download"}
             </p>
 
-            <form className="settings-form" onSubmit={createPeer}>
-              <label>
-                {createPeerType === "outlet" ? "Site Name" : "Name"}
-                <input
-                  name="name"
-                  value={peerForm.name}
-                  onChange={updatePeerField}
-                  required
-                  placeholder={createPeerType === "outlet" ? "OUTLET-A" : ""}
-                />
-              </label>
-
-              {createPeerType === "administrator" ? (
-                <>
-                  <label>
-                    Public Key
-                    <input name="publicKey" value={peerForm.publicKey} onChange={updatePeerField} required />
-                  </label>
-                  <label>
-                    Assigned IP
-                    <input name="assignedIP" value={peerForm.assignedIP} onChange={updatePeerField} required />
-                  </label>
-                  <label>
-                    Allowed IPs
-                    <input name="allowedIPs" value={peerForm.allowedIPs} onChange={updatePeerField} />
-                  </label>
-                  <label>
-                    Endpoint
-                    <input
-                      name="endpoint"
-                      value={peerForm.endpoint}
-                      onChange={updatePeerField}
-                      placeholder="vpn.example.com:51820"
-                    />
-                  </label>
-                  <label>
-                    Preshared Key
-                    <input name="presharedKey" value={peerForm.presharedKey} onChange={updatePeerField} />
-                  </label>
-                  <label>
-                    Keepalive
-                    <input name="keepalive" type="number" value={peerForm.keepalive} onChange={updatePeerField} />
-                  </label>
-                </>
-              ) : (
-                <div className="outlet-flow-card">
-                  <strong>Flow Outlet Peer</strong>
-                  <div className="outlet-flow-grid">
-                    <div className="outlet-flow-step">
-                      <span>Site</span>
-                      <strong>{peerForm.name.trim() || "OUTLET-A"}</strong>
+            {createPeerFeedback.type && (createPeerFeedback.scope === createPeerType || createPeerFeedback.scope === "") ? (
+              <section className={`create-feedback-banner ${createPeerFeedback.type}`} aria-live="polite">
+                <div className="create-feedback-main">
+                  <strong>{createPeerFeedback.type === "success" ? "✅ " : "⚠ "} {createPeerFeedback.title}</strong>
+                  <p>{createPeerFeedback.message}</p>
+                </div>
+                {createPeerFeedback.type === "success" && createPeerType === "outlet" && feedbackPeer ? (
+                  <div className="create-feedback-body outlet-feedback-body">
+                    <div className="create-feedback-summary outlet-feedback-summary">
+                      <div className="outlet-feedback-cards">
+                        {outletSummary.map((item) => (
+                          <div className="create-feedback-chip outlet-feedback-chip" key={`${item.label}-${item.value}`}>
+                            <span>{item.label}</span>
+                            <strong>{item.value}</strong>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="outlet-flow-step">
-                      <span>wg-its</span>
-                      <strong>10.22.x.x</strong>
-                    </div>
-                    <div className="outlet-flow-step">
-                      <span>wg-cctv</span>
-                      <strong>10.21.x.x</strong>
-                    </div>
-                    <div className="outlet-flow-step">
-                      <span>Output</span>
-                      <strong>CONF + RSC</strong>
+                    <div className="create-feedback-actions">
+                      {outletDownloads.map((item) => (
+                        <a className="ghost" href={item.href} key={item.id}>
+                          Download {item.label}
+                        </a>
+                      ))}
+                      {isAdministrator ? (
+                        <button type="button" className="secondary-button" onClick={() => setActiveView("inventoryPeer")}>
+                          View Inventory
+                        </button>
+                      ) : null}
                     </div>
                   </div>
-                  <p className="outlet-flow-note">
-                    Saat create dijalankan, OCC akan menyimpan satu site dengan dua assignment WireGuard dan empat file artefak untuk diunduh dari inventory.
-                  </p>
+                ) : null}
+                {createPeerFeedback.type === "success" && createPeerType === "administrator" ? (
+                  <div className="create-feedback-body">
+                    <div className="create-feedback-summary">
+                      {feedbackSummary.map((item) => (
+                        <div className="create-feedback-chip" key={`${item.label}-${item.value}`}>
+                          <span>{String(item.label).toUpperCase()}</span>
+                          <strong>{item.value}</strong>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="create-feedback-actions">
+                      {adminDownloads.map((item) => (
+                        <a className="ghost" href={item.href} key={item.id}>
+                          {item.label}
+                        </a>
+                      ))}
+                      {isAdministrator ? (
+                        <button type="button" className="secondary-button" onClick={() => setActiveView("inventoryPeer")}>
+                          View Inventory
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : null}
+              </section>
+            ) : null}
+
+            <form id="create-peer-form" className="settings-form create-peer-form" onSubmit={createPeer} role="tabpanel" aria-labelledby={createPeerType === "outlet" ? "tab-outlet-peer" : "tab-admin-peer"}>
+              {createPeerType === "administrator" ? (
+                <>
+                  <section className="form-section">
+                    <div className="form-section-head">
+                      <strong>Step 1 · Target Server</strong>
+                      <span>Select WG-ITS, WG-CCTV, or BOTH</span>
+                    </div>
+                    <div className="target-server-inline" role="radiogroup" aria-label="Target Server">
+                      {adminTargetOptions.map((option) => (
+                        <button
+                          key={option.id}
+                          type="button"
+                          role="radio"
+                          className={`target-server-pill${adminTargetMode === option.id ? " active" : ""}`}
+                          aria-checked={adminTargetMode === option.id}
+                          onClick={() => setAdminTargetMode(option.id)}
+                        >
+                          <span>{option.label}</span>
+                          <small>{option.pool}</small>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+
+                  <section className="form-section">
+                    <div className="form-section-head">
+                      <strong>Step 2 · Peer Identity</strong>
+                      <span>Core identity used in OCC inventory</span>
+                    </div>
+                    <div className="create-peer-form-grid admin-identity-grid">
+                      <label className="create-peer-field create-peer-field-wide">
+                        Name
+                        <input
+                          name="name"
+                          value={peerForm.name.toUpperCase()}
+                          onChange={(event) =>
+                            setPeerForm((current) => ({
+                              ...current,
+                              name: normalizeAdminName(event.target.value),
+                            }))
+                          }
+                          required
+                          disabled={saving}
+                          placeholder="ADMIN-BRANCH"
+                        />
+                        <small className="field-helper">Use only `A-Z`, `0-9`, and dash `-`. Spaces become `-`.</small>
+                      </label>
+                      <label className="create-peer-field create-peer-field-wide">
+                        Purpose / Role
+                        <select
+                          value={adminPurpose}
+                          onChange={(event) => setAdminPurpose(event.target.value)}
+                          disabled={saving}
+                        >
+                          {adminPurposeOptions.map((option) => (
+                            <option key={option.id} value={option.id}>{option.label}</option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+                  </section>
+
+                  <section className="form-section">
+                    <div className="form-section-head">
+                      <strong>Step 3 · Network</strong>
+                      <span>Pick from available administrator IPs</span>
+                    </div>
+                    <div className="create-peer-form-grid admin-layout">
+                      {adminTargetMode === "both" ? (
+                        <>
+                          <label className="create-peer-field">
+                            Assigned IP (WG-ITS)
+                            <select
+                              value={adminAssignedItsIP}
+                              onChange={(event) => setAdminAssignedItsIP(event.target.value)}
+                              disabled={saving}
+                            >
+                              <option value="">Select available WG-ITS IP</option>
+                              {adminItsIPs.map((ip) => (
+                                <option key={ip} value={ip}>{ip}</option>
+                              ))}
+                            </select>
+                          </label>
+                          <label className="create-peer-field">
+                            Assigned IP (WG-CCTV)
+                            <select
+                              value={adminAssignedCctvIP}
+                              onChange={(event) => setAdminAssignedCctvIP(event.target.value)}
+                              disabled={saving}
+                            >
+                              <option value="">Select available WG-CCTV IP</option>
+                              {adminCctvIPs.map((ip) => (
+                                <option key={ip} value={ip}>{ip}</option>
+                              ))}
+                            </select>
+                          </label>
+                        </>
+                      ) : (
+                        <label className="create-peer-field">
+                          Assigned IP
+                          <select
+                            name="assignedIP"
+                            value={peerForm.assignedIP}
+                            onChange={updatePeerField}
+                            required
+                            disabled={saving}
+                          >
+                            <option value="">
+                              {adminTargetMode ? `Select available ${selectedTargetServer?.label || "target"} IP` : "Select target server first"}
+                            </option>
+                            {(adminTargetMode === "wg-its" ? adminItsIPs : adminTargetMode === "wg-cctv" ? adminCctvIPs : []).map((ip) => (
+                              <option key={ip} value={ip}>{ip}</option>
+                            ))}
+                          </select>
+                        </label>
+                      )}
+                      <label className="create-peer-field">
+                        Allowed IPs
+                        <input
+                          name="allowedIPs"
+                          value={peerForm.allowedIPs}
+                          onChange={(event) =>
+                            setPeerForm((current) => ({
+                              ...current,
+                              allowedIPs: sanitizeAllowedIPs(event.target.value),
+                            }))
+                          }
+                          disabled={saving}
+                          placeholder="Optional"
+                          inputMode="numeric"
+                          pattern="^(\d{1,3}(\.\d{1,3}){3})(/\d{1,2})?$"
+                        />
+                        <small className="field-helper">Optional. Use IPv4/CIDR format only (example: 10.22.0.0/24).</small>
+                      </label>
+                      <div className="create-peer-field">
+                        <span>Availability</span>
+                        <small className="field-helper">
+                          {adminTargetMode === "both"
+                            ? `WG-ITS: ${adminItsIPs.length} available • WG-CCTV: ${adminCctvIPs.length} available`
+                            : adminTargetMode
+                              ? `${(adminTargetMode === "wg-its" ? adminItsIPs : adminCctvIPs).length} IPs available`
+                              : "Choose target server to load IP availability"}
+                        </small>
+                      </div>
+                    </div>
+                  </section>
+
+                </>
+              ) : (
+                <div className="create-peer-form-grid">
+                  <label className="create-peer-field">
+                    Brand / Outlet Type
+                    <input
+                      value={outletBrand}
+                      onChange={(event) => setOutletBrand(normalizeOutletSegment(event.target.value))}
+                      required
+                      disabled={saving}
+                      placeholder="LIVEHOUSE"
+                    />
+                  </label>
+                  <label className="create-peer-field">
+                    Location
+                    <input
+                      value={outletLocation}
+                      onChange={(event) => setOutletLocation(normalizeOutletSegment(event.target.value))}
+                      required
+                      disabled={saving}
+                      placeholder="KEMANG"
+                    />
+                  </label>
+                  <label className="create-peer-field create-peer-field-wide">
+                    Generated Site Name
+                    <input
+                      value={generatedOutletSiteName() || "BRAND-LOCATION"}
+                      readOnly
+                      disabled={saving}
+                    />
+                    <small className="field-helper">Final site name is generated automatically as `BRAND-LOCATION`.</small>
+                  </label>
                 </div>
               )}
 
-              <button type="submit" disabled={saving}>Create Peer</button>
+              <section className="flow-card">
+                <div className="flow-card-head">
+                  <strong>{createPeerType === "outlet" ? "Flow Outlet Peer" : "Flow Administrator Peer"}</strong>
+                  <span>{createPeerType === "outlet" ? "Auto-generated assignments" : "Manual profile creation"}</span>
+                </div>
+                <div className="flow-pipeline" aria-label={`${createPeerType} flow`}>
+                  {flowSteps.map((step, index) => (
+                    <div className="flow-pipeline-fragment" key={`${step.label}-${index}`}>
+                      <article className="flow-step">
+                        <span>{step.label}</span>
+                        <strong>{step.value}</strong>
+                        <small>{step.meta}</small>
+                      </article>
+                      {index < flowSteps.length - 1 ? <span className="flow-arrow" aria-hidden="true">→</span> : null}
+                    </div>
+                  ))}
+                </div>
+                <p className="outlet-flow-note">
+                  {createPeerType === "outlet"
+                    ? "Saat create dijalankan, OCC akan menyimpan satu site dengan dua assignment WireGuard dan empat file artefak untuk diunduh dari inventory."
+                    : `Administrator profile will be created for ${selectedTargetServer?.label || "selected target"} and can be downloaded as .conf.`}
+                </p>
+              </section>
+
+              <div className={`create-peer-actions${createPeerType === "administrator" ? " create-peer-actions-sticky" : ""}`}>
+                {createPeerType === "administrator" ? (
+                  <div className="create-peer-action-summary">
+                    <span>Creating on</span>
+                    <strong>{selectedTargetServer?.label || "Select target server"}</strong>
+                  </div>
+                ) : <span />}
+                <button type="button" className="secondary-button" onClick={resetPeerForm} disabled={saving}>
+                  Reset
+                </button>
+                <button type="submit" className="primary-action-button" disabled={saving || (createPeerType === "administrator" && !adminIsReady)}>
+                  {saving ? (
+                    <>
+                      <span className="button-spinner" aria-hidden="true" />
+                      Creating...
+                    </>
+                  ) : "Create Peer"}
+                </button>
+              </div>
             </form>
           </section>
         );
+        }
       case "removePeer":
         {
           const outletPeers = state.peers.filter((peer) => peer.type === "outlet" && peerMatchesSearch(peer, removeSearch));
@@ -1356,6 +2274,7 @@ export default function App() {
               <h2>Remove Peer</h2>
               <span>Use this area for deletion only. Inventory remains read-only.</span>
             </div>
+            {removeError ? <div className="alert">{removeError}</div> : null}
 
             <section className="list-toolbar" aria-label="Remove Peer Search">
               <label className="monitor-search">
@@ -1959,7 +2878,7 @@ export default function App() {
               title={theme === "light" ? "Dark mode" : "Light mode"}
             >
               <span className="theme-toggle-icon" aria-hidden="true">
-                {theme === "light" ? "☾" : "☀"}
+                <ThemeGlyph mode={theme} />
               </span>
             </button>
           </div>
@@ -2001,7 +2920,7 @@ export default function App() {
               title={theme === "light" ? "Dark mode" : "Light mode"}
             >
               <span className="theme-toggle-icon" aria-hidden="true">
-                {theme === "light" ? "☾" : "☀"}
+                <ThemeGlyph mode={theme} />
               </span>
             </button>
           </div>
@@ -2086,6 +3005,9 @@ export default function App() {
 
         <div className="topbar-actions">
           <button className="ghost" onClick={handleTopRefresh} disabled={saving || loading || monitoring.loading}>
+            <span className="button-icon" aria-hidden="true">
+              <RefreshGlyph />
+            </span>
             Refresh Data
           </button>
           <button
@@ -2096,7 +3018,7 @@ export default function App() {
             title={theme === "light" ? "Dark mode" : "Light mode"}
           >
             <span className="theme-toggle-icon" aria-hidden="true">
-              {theme === "light" ? "☾" : "☀"}
+              <ThemeGlyph mode={theme} />
             </span>
           </button>
           <div className="topbar-user">
@@ -2111,7 +3033,10 @@ export default function App() {
               </span>
               <span className="user-summary">
                 <strong>{loggedInName || "Administrator"}</strong>
-                <small>{roleLabel(loggedInRole)}</small>
+                <small>{`${loggedInUser || "admin"}@occ.local`}</small>
+              </span>
+              <span className="user-chevron" aria-hidden="true">
+                <ChevronDownGlyph />
               </span>
             </button>
 
@@ -2139,24 +3064,43 @@ export default function App() {
         </div>
       </header>
 
-      <div className="workspace">
-        <aside className="sidebar">
+      <div className={`workspace${sidebarExpanded ? "" : " sidebar-collapsed"}`}>
+        <aside className={`sidebar${sidebarExpanded ? " expanded" : " collapsed"}`}>
           <nav className="sidebar-nav" aria-label="Primary Navigation">
-            <button
-              type="button"
-              className={`nav-item${activeView === "dashboard" ? " active" : ""}`}
-              onClick={() => setActiveView("dashboard")}
-            >
-              Dashboard
-            </button>
+            <div className="nav-group">
+              <button
+                type="button"
+                className="nav-group-toggle nav-group-static"
+                aria-label="General"
+                title="General"
+              >
+                {renderNavLabel("General")}
+                {sidebarExpanded ? <span className="nav-group-chevron nav-group-chevron-right">›</span> : null}
+              </button>
+              <div className="nav-group-body">
+                <button
+                  type="button"
+                  className={`nav-subitem${activeView === "dashboard" ? " active" : ""}`}
+                  onClick={() => setActiveView("dashboard")}
+                  aria-label="Dashboard"
+                  title="Dashboard"
+                >
+                  <NavIcon name="dashboard" />
+                  {renderNavLabel("Dashboard")}
+                </button>
 
-            <button
-              type="button"
-              className={`nav-item${activeView === "monitoring" ? " active" : ""}`}
-              onClick={() => setActiveView("monitoring")}
-            >
-              Monitoring
-            </button>
+                <button
+                  type="button"
+                  className={`nav-subitem${activeView === "monitoring" ? " active" : ""}`}
+                  onClick={() => setActiveView("monitoring")}
+                  aria-label="Monitoring"
+                  title="Monitoring"
+                >
+                  <NavIcon name="monitoring" />
+                  {renderNavLabel("Monitoring")}
+                </button>
+              </div>
+            </div>
 
             <div className="nav-group">
               <button
@@ -2164,9 +3108,11 @@ export default function App() {
                 className={`nav-group-toggle${sidebarGroupsOpen.wireguard ? " open" : ""}`}
                 onClick={() => toggleSidebarGroup("wireguard")}
                 aria-expanded={sidebarGroupsOpen.wireguard}
+                aria-label="WireGuard"
+                title="WireGuard"
               >
-                <span className={`nav-group-chevron${sidebarGroupsOpen.wireguard ? " open" : ""}`}>⌃</span>
-                <span className="nav-group-title">WireGuard</span>
+                {renderNavLabel("WireGuard")}
+                {sidebarExpanded ? <span className={`nav-group-chevron${sidebarGroupsOpen.wireguard ? " open" : ""}`}>⌃</span> : null}
               </button>
               {sidebarGroupsOpen.wireguard ? (
                 <div className="nav-group-body">
@@ -2174,8 +3120,11 @@ export default function App() {
                     type="button"
                     className={`nav-subitem${activeView === "createPeer" ? " active" : ""}`}
                     onClick={() => setActiveView("createPeer")}
+                    aria-label="Create Peer"
+                    title="Create Peer"
                   >
-                    Create Peer
+                    <NavIcon name="createPeer" />
+                    {renderNavLabel("Create Peer")}
                   </button>
                   {isAdministrator ? (
                     <>
@@ -2183,29 +3132,41 @@ export default function App() {
                         type="button"
                         className={`nav-subitem${activeView === "removePeer" ? " active" : ""}`}
                         onClick={() => setActiveView("removePeer")}
+                        aria-label="Remove Peer"
+                        title="Remove Peer"
                       >
-                        Remove Peer
+                        <NavIcon name="removePeer" />
+                        {renderNavLabel("Remove Peer")}
                       </button>
                       <button
                         type="button"
                         className={`nav-subitem${activeView === "updatePeer" ? " active" : ""}`}
                         onClick={() => setActiveView("updatePeer")}
+                        aria-label="Update Peer"
+                        title="Update Peer"
                       >
-                        Update Peer
+                        <NavIcon name="updatePeer" />
+                        {renderNavLabel("Update Peer")}
                       </button>
                       <button
                         type="button"
                         className={`nav-subitem${activeView === "inventoryPeer" ? " active" : ""}`}
                         onClick={() => setActiveView("inventoryPeer")}
+                        aria-label="Inventory Peer"
+                        title="Inventory Peer"
                       >
-                        Inventory Peer
+                        <NavIcon name="inventoryPeer" />
+                        {renderNavLabel("Inventory Peer")}
                       </button>
                       <button
                         type="button"
                         className={`nav-subitem${activeView === "checkServerConnection" ? " active" : ""}`}
                         onClick={() => setActiveView("checkServerConnection")}
+                        aria-label="Server Connection"
+                        title="Server Connection"
                       >
-                        Server Connection
+                        <NavIcon name="serverConnection" />
+                        {renderNavLabel("Server Connection")}
                       </button>
                     </>
                   ) : null}
@@ -2221,9 +3182,11 @@ export default function App() {
                     className={`nav-group-toggle${sidebarGroupsOpen.mikrotik ? " open" : ""}`}
                     onClick={() => toggleSidebarGroup("mikrotik")}
                     aria-expanded={sidebarGroupsOpen.mikrotik}
+                    aria-label="Mikrotik"
+                    title="Mikrotik"
                   >
-                    <span className={`nav-group-chevron${sidebarGroupsOpen.mikrotik ? " open" : ""}`}>⌃</span>
-                    <span className="nav-group-title">Mikrotik</span>
+                    {renderNavLabel("Mikrotik")}
+                    {sidebarExpanded ? <span className={`nav-group-chevron${sidebarGroupsOpen.mikrotik ? " open" : ""}`}>⌃</span> : null}
                   </button>
                   {sidebarGroupsOpen.mikrotik ? (
                     <div className="nav-group-body">
@@ -2231,22 +3194,31 @@ export default function App() {
                         type="button"
                         className={`nav-subitem${activeView === "mikrotikSsh" ? " active" : ""}`}
                         onClick={() => setActiveView("mikrotikSsh")}
+                        aria-label="Akses Mikrotik SSH"
+                        title="Akses Mikrotik SSH"
                       >
-                        Akses Mikrotik SSH
+                        <NavIcon name="mikrotikSsh" />
+                        {renderNavLabel("Akses Mikrotik SSH")}
                       </button>
                       <button
                         type="button"
                         className={`nav-subitem${activeView === "mikrotikAutomation" ? " active" : ""}`}
                         onClick={() => setActiveView("mikrotikAutomation")}
+                        aria-label="Automation Script Update"
+                        title="Automation Script Update"
                       >
-                        Automation Script Update
+                        <NavIcon name="mikrotikAutomation" />
+                        {renderNavLabel("Automation Script Update")}
                       </button>
                       <button
                         type="button"
                         className={`nav-subitem${activeView === "mikrotikCheckIsp" ? " active" : ""}`}
                         onClick={() => setActiveView("mikrotikCheckIsp")}
+                        aria-label="Check ISP"
+                        title="Check ISP"
                       >
-                        Check ISP
+                        <NavIcon name="mikrotikCheckIsp" />
+                        {renderNavLabel("Check ISP")}
                       </button>
                     </div>
                   ) : null}
@@ -2258,9 +3230,11 @@ export default function App() {
                     className={`nav-group-toggle${sidebarGroupsOpen.logs ? " open" : ""}`}
                     onClick={() => toggleSidebarGroup("logs")}
                     aria-expanded={sidebarGroupsOpen.logs}
+                    aria-label="Logs"
+                    title="Logs"
                   >
-                    <span className={`nav-group-chevron${sidebarGroupsOpen.logs ? " open" : ""}`}>⌃</span>
-                    <span className="nav-group-title">Logs</span>
+                    {renderNavLabel("Logs")}
+                    {sidebarExpanded ? <span className={`nav-group-chevron${sidebarGroupsOpen.logs ? " open" : ""}`}>⌃</span> : null}
                   </button>
                   {sidebarGroupsOpen.logs ? (
                     <div className="nav-group-body">
@@ -2268,22 +3242,31 @@ export default function App() {
                         type="button"
                         className={`nav-subitem${activeView === "wireguardLogs" ? " active" : ""}`}
                         onClick={() => setActiveView("wireguardLogs")}
+                        aria-label="WireGuard Logs"
+                        title="WireGuard Logs"
                       >
-                        WireGuard Logs
+                        <NavIcon name="wireguardLogs" />
+                        {renderNavLabel("WireGuard Logs")}
                       </button>
                       <button
                         type="button"
                         className={`nav-subitem${activeView === "mikrotikLogs" ? " active" : ""}`}
                         onClick={() => setActiveView("mikrotikLogs")}
+                        aria-label="Mikrotik Logs"
+                        title="Mikrotik Logs"
                       >
-                        Mikrotik Logs
+                        <NavIcon name="mikrotikLogs" />
+                        {renderNavLabel("Mikrotik Logs")}
                       </button>
                       <button
                         type="button"
                         className={`nav-subitem${activeView === "userLogs" ? " active" : ""}`}
                         onClick={() => setActiveView("userLogs")}
+                        aria-label="User Logs"
+                        title="User Logs"
                       >
-                        User Logs
+                        <NavIcon name="userLogs" />
+                        {renderNavLabel("User Logs")}
                       </button>
                     </div>
                   ) : null}
@@ -2295,9 +3278,11 @@ export default function App() {
                     className={`nav-group-toggle${sidebarGroupsOpen.userManagement ? " open" : ""}`}
                     onClick={() => toggleSidebarGroup("userManagement")}
                     aria-expanded={sidebarGroupsOpen.userManagement}
+                    aria-label="User Management"
+                    title="User Management"
                   >
-                    <span className={`nav-group-chevron${sidebarGroupsOpen.userManagement ? " open" : ""}`}>⌃</span>
-                    <span className="nav-group-title">User Management</span>
+                    {renderNavLabel("User Management")}
+                    {sidebarExpanded ? <span className={`nav-group-chevron${sidebarGroupsOpen.userManagement ? " open" : ""}`}>⌃</span> : null}
                   </button>
                   {sidebarGroupsOpen.userManagement ? (
                     <div className="nav-group-body">
@@ -2305,15 +3290,21 @@ export default function App() {
                         type="button"
                         className={`nav-subitem${activeView === "userList" ? " active" : ""}`}
                         onClick={() => setActiveView("userList")}
+                        aria-label="User List"
+                        title="User List"
                       >
-                        User List
+                        <NavIcon name="userList" />
+                        {renderNavLabel("User List")}
                       </button>
                       <button
                         type="button"
                         className={`nav-subitem${activeView === "createUser" ? " active" : ""}`}
                         onClick={() => setActiveView("createUser")}
+                        aria-label="Create User"
+                        title="Create User"
                       >
-                        Create User
+                        <NavIcon name="createUser" />
+                        {renderNavLabel("Create User")}
                       </button>
                       <button
                         type="button"
@@ -2324,8 +3315,11 @@ export default function App() {
                           }
                           setActiveView("updateUser");
                         }}
+                        aria-label="Update User"
+                        title="Update User"
                       >
-                        Update User
+                        <NavIcon name="updateUser" />
+                        {renderNavLabel("Update User")}
                       </button>
                     </div>
                   ) : null}
@@ -2333,12 +3327,27 @@ export default function App() {
               </>
             ) : null}
           </nav>
+          <div className="sidebar-footer">
+            <button
+              type="button"
+              className="sidebar-collapse"
+              onClick={() => setSidebarExpanded((current) => !current)}
+              aria-label={sidebarExpanded ? "Collapse" : "Expand"}
+              title={sidebarExpanded ? "Collapse" : "Expand"}
+            >
+              <span className="sidebar-collapse-icon" aria-hidden="true">{sidebarExpanded ? "‹" : "›"}</span>
+              {sidebarExpanded ? <span className="sidebar-collapse-label">Collapse</span> : null}
+            </button>
+          </div>
         </aside>
 
         <section className="content-area">
           <section className="content-header">
             <div className="content-header-main">
               <h1>{viewLabels[activeView]}</h1>
+              {activeView === "createPeer" ? (
+                <p className="create-peer-subtitle">WireGuard Client</p>
+              ) : null}
             </div>
             {activeView === "dashboard" ? (
               <div className="dashboard-header-note">

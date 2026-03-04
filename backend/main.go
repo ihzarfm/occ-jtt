@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
+	"database/sql"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -22,6 +23,8 @@ import (
 
 	"occ-jtt/backend/internal/store"
 	"occ-jtt/backend/internal/wg"
+
+	_ "github.com/lib/pq"
 )
 
 type server struct {
@@ -88,11 +91,34 @@ type remoteScriptResult struct {
 
 func main() {
 	dataPath := env("OCC_JTT_DATA", filepath.Join("data", "state.json"))
+	databaseURL := strings.TrimSpace(env("DATABASE_URL", ""))
 	port := env("PORT", "8080")
 
-	stateStore, err := store.New(dataPath)
-	if err != nil {
-		log.Fatalf("failed to open state store: %v", err)
+	var (
+		stateStore *store.Store
+		err        error
+	)
+
+	if databaseURL != "" {
+		db, dbErr := sql.Open("postgres", databaseURL)
+		if dbErr != nil {
+			log.Fatalf("failed to open postgres connection: %v", dbErr)
+		}
+		if pingErr := db.Ping(); pingErr != nil {
+			log.Fatalf("failed to ping postgres: %v", pingErr)
+		}
+
+		stateStore, err = store.NewPostgres(db)
+		if err != nil {
+			log.Fatalf("failed to initialize postgres state store: %v", err)
+		}
+		log.Printf("state store mode: postgres")
+	} else {
+		stateStore, err = store.New(dataPath)
+		if err != nil {
+			log.Fatalf("failed to open state store: %v", err)
+		}
+		log.Printf("state store mode: json file (%s)", dataPath)
 	}
 
 	s := &server{
@@ -1190,6 +1216,9 @@ func (s *server) removeRemotePeer(ctx context.Context, peer store.Peer) error {
 
 		result, err := s.runRemoteScript(ctx, serverConfig, serverConfig.RemoveScript, siteName)
 		if err != nil {
+			if isRemotePeerNotFoundError(err.Error()) {
+				continue
+			}
 			return err
 		}
 		if !result.OK || !result.Removed {
@@ -1197,11 +1226,22 @@ func (s *server) removeRemotePeer(ctx context.Context, peer store.Peer) error {
 			if message == "" {
 				message = fmt.Sprintf("remote remove failed on %s", serverConfig.Name)
 			}
+			if isRemotePeerNotFoundError(message) {
+				continue
+			}
 			return errors.New(message)
 		}
 	}
 
 	return nil
+}
+
+func isRemotePeerNotFoundError(message string) bool {
+	normalized := strings.ToLower(strings.TrimSpace(message))
+	if normalized == "" {
+		return false
+	}
+	return strings.Contains(normalized, "peer not found")
 }
 
 func (s *server) serverByID(id string) (wgServerConfig, bool) {

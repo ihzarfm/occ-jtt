@@ -1,6 +1,7 @@
 package store
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"os"
@@ -85,6 +86,7 @@ type State struct {
 
 type Store struct {
 	path  string
+	db    *sql.DB
 	mu    sync.RWMutex
 	state State
 }
@@ -152,13 +154,51 @@ func New(path string) (*Store, error) {
 	return s, nil
 }
 
+func NewPostgres(db *sql.DB) (*Store, error) {
+	s := &Store{
+		db:    db,
+		state: DefaultState(),
+	}
+
+	if err := s.ensurePostgresSchema(); err != nil {
+		return nil, err
+	}
+
+	return s, nil
+}
+
 func (s *Store) GetState() State {
+	if s.db != nil {
+		state, err := s.loadStatePostgres()
+		if err != nil {
+			return DefaultState()
+		}
+		return state
+	}
+
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return cloneState(s.state)
 }
 
 func (s *Store) ListLogs(category string) []AuditLog {
+	if s.db != nil {
+		state, err := s.loadStatePostgres()
+		if err != nil {
+			return []AuditLog{}
+		}
+		if category == "" {
+			return cloneLogs(state.Logs)
+		}
+		filtered := make([]AuditLog, 0, len(state.Logs))
+		for _, item := range state.Logs {
+			if item.Category == category {
+				filtered = append(filtered, item)
+			}
+		}
+		return cloneLogs(filtered)
+	}
+
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -177,6 +217,14 @@ func (s *Store) ListLogs(category string) []AuditLog {
 }
 
 func (s *Store) ListUsers() []User {
+	if s.db != nil {
+		state, err := s.loadStatePostgres()
+		if err != nil {
+			return []User{}
+		}
+		return cloneUsers(state.Users)
+	}
+
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -189,6 +237,19 @@ func (s *Store) ListUsers() []User {
 }
 
 func (s *Store) Authenticate(username, password string) (User, bool) {
+	if s.db != nil {
+		state, err := s.loadStatePostgres()
+		if err != nil {
+			return User{}, false
+		}
+		for _, user := range state.Users {
+			if user.Username == username && user.Password == password {
+				return cloneUser(user), true
+			}
+		}
+		return User{}, false
+	}
+
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -202,6 +263,34 @@ func (s *Store) Authenticate(username, password string) (User, bool) {
 }
 
 func (s *Store) EnsureUser(user User) error {
+	if s.db != nil {
+		_, err := s.updateStatePostgres(func(state *State) error {
+			now := time.Now().UTC().Format(time.RFC3339)
+			index := slices.IndexFunc(state.Users, func(current User) bool {
+				return current.Username == user.Username
+			})
+
+			if index >= 0 {
+				existing := state.Users[index]
+				user.CreatedAt = existing.CreatedAt
+				if user.CreatedAt == "" {
+					user.CreatedAt = now
+				}
+				user.UpdatedAt = now
+				state.Users[index] = user
+				return nil
+			}
+
+			if user.CreatedAt == "" {
+				user.CreatedAt = now
+			}
+			user.UpdatedAt = now
+			state.Users = append(state.Users, user)
+			return nil
+		})
+		return err
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -230,6 +319,31 @@ func (s *Store) EnsureUser(user User) error {
 }
 
 func (s *Store) AddUser(user User) (User, error) {
+	if s.db != nil {
+		var created User
+		_, err := s.updateStatePostgres(func(state *State) error {
+			for _, current := range state.Users {
+				if current.Username == user.Username {
+					return errors.New("username already exists")
+				}
+				if current.NIK == user.NIK {
+					return errors.New("nik already exists")
+				}
+			}
+
+			now := time.Now().UTC().Format(time.RFC3339)
+			user.CreatedAt = now
+			user.UpdatedAt = now
+			state.Users = append([]User{user}, state.Users...)
+			created = cloneUser(user)
+			return nil
+		})
+		if err != nil {
+			return User{}, err
+		}
+		return created, nil
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -255,6 +369,51 @@ func (s *Store) AddUser(user User) (User, error) {
 }
 
 func (s *Store) UpdateUser(username string, next User) (User, bool, error) {
+	if s.db != nil {
+		var updated User
+		var found bool
+		_, err := s.updateStatePostgres(func(state *State) error {
+			index := slices.IndexFunc(state.Users, func(user User) bool {
+				return user.Username == username
+			})
+			if index == -1 {
+				found = false
+				return nil
+			}
+			found = true
+
+			existing := state.Users[index]
+			for _, current := range state.Users {
+				if current.Username != username && current.NIK == next.NIK {
+					return errors.New("nik already exists")
+				}
+			}
+
+			if existing.BuiltIn {
+				next.Username = existing.Username
+				next.NIK = existing.NIK
+				next.Role = existing.Role
+				next.BuiltIn = true
+			} else {
+				next.Username = existing.Username
+				next.BuiltIn = existing.BuiltIn
+			}
+
+			next.CreatedAt = existing.CreatedAt
+			next.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
+			state.Users[index] = next
+			updated = cloneUser(next)
+			return nil
+		})
+		if err != nil {
+			return User{}, true, err
+		}
+		if !found {
+			return User{}, false, nil
+		}
+		return updated, true, nil
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -294,6 +453,13 @@ func (s *Store) UpdateUser(username string, next User) (User, bool, error) {
 }
 
 func (s *Store) UpdateNetwork(network NetworkConfig) (State, error) {
+	if s.db != nil {
+		return s.updateStatePostgres(func(state *State) error {
+			state.Network = network
+			return nil
+		})
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -305,6 +471,18 @@ func (s *Store) UpdateNetwork(network NetworkConfig) (State, error) {
 }
 
 func (s *Store) AddPeer(peer Peer) (State, Peer, error) {
+	if s.db != nil {
+		peer.CreatedAt = time.Now().UTC().Format(time.RFC3339)
+		state, err := s.updateStatePostgres(func(current *State) error {
+			current.Peers = append([]Peer{peer}, current.Peers...)
+			return nil
+		})
+		if err != nil {
+			return State{}, Peer{}, err
+		}
+		return state, peer, nil
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -319,6 +497,29 @@ func (s *Store) AddPeer(peer Peer) (State, Peer, error) {
 }
 
 func (s *Store) DeletePeer(id string) (State, bool, error) {
+	if s.db != nil {
+		var deleted bool
+		state, err := s.updateStatePostgres(func(current *State) error {
+			index := slices.IndexFunc(current.Peers, func(peer Peer) bool {
+				return peer.ID == id
+			})
+			if index == -1 {
+				deleted = false
+				return nil
+			}
+			deleted = true
+			current.Peers = append(current.Peers[:index], current.Peers[index+1:]...)
+			return nil
+		})
+		if err != nil {
+			return State{}, false, err
+		}
+		if !deleted {
+			return State{}, false, nil
+		}
+		return state, true, nil
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -338,6 +539,19 @@ func (s *Store) DeletePeer(id string) (State, bool, error) {
 }
 
 func (s *Store) GetPeer(id string) (Peer, bool) {
+	if s.db != nil {
+		state, err := s.loadStatePostgres()
+		if err != nil {
+			return Peer{}, false
+		}
+		for _, peer := range state.Peers {
+			if peer.ID == id {
+				return clonePeer(peer), true
+			}
+		}
+		return Peer{}, false
+	}
+
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -351,6 +565,20 @@ func (s *Store) GetPeer(id string) (Peer, bool) {
 }
 
 func (s *Store) AddLog(entry AuditLog) (AuditLog, error) {
+	if s.db != nil {
+		if entry.CreatedAt == "" {
+			entry.CreatedAt = time.Now().UTC().Format(time.RFC3339)
+		}
+		_, err := s.updateStatePostgres(func(state *State) error {
+			state.Logs = append([]AuditLog{entry}, state.Logs...)
+			return nil
+		})
+		if err != nil {
+			return AuditLog{}, err
+		}
+		return entry, nil
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -372,6 +600,115 @@ func (s *Store) saveLocked() error {
 		return err
 	}
 	return os.WriteFile(s.path, data, 0o644)
+}
+
+func (s *Store) ensurePostgresSchema() error {
+	if s.db == nil {
+		return nil
+	}
+
+	if _, err := s.db.Exec(`
+CREATE TABLE IF NOT EXISTS occ_state (
+  id SMALLINT PRIMARY KEY,
+  payload JSONB NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+)`); err != nil {
+		return err
+	}
+
+	if _, err := s.db.Exec(`
+INSERT INTO occ_state (id, payload)
+VALUES (1, $1::jsonb)
+ON CONFLICT (id) DO NOTHING
+`, stateJSON(DefaultState())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Store) loadStatePostgres() (State, error) {
+	if s.db == nil {
+		return State{}, errors.New("postgres is not configured")
+	}
+
+	var payload []byte
+	err := s.db.QueryRow(`SELECT payload FROM occ_state WHERE id = 1`).Scan(&payload)
+	if err != nil {
+		return State{}, err
+	}
+
+	var state State
+	if err := json.Unmarshal(payload, &state); err != nil {
+		return State{}, err
+	}
+	return normalizeState(state), nil
+}
+
+func (s *Store) updateStatePostgres(mutator func(state *State) error) (State, error) {
+	if s.db == nil {
+		return State{}, errors.New("postgres is not configured")
+	}
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return State{}, err
+	}
+	defer tx.Rollback()
+
+	var payload []byte
+	if err := tx.QueryRow(`SELECT payload FROM occ_state WHERE id = 1 FOR UPDATE`).Scan(&payload); err != nil {
+		return State{}, err
+	}
+
+	var state State
+	if err := json.Unmarshal(payload, &state); err != nil {
+		return State{}, err
+	}
+	state = normalizeState(state)
+
+	if err := mutator(&state); err != nil {
+		return State{}, err
+	}
+
+	nextJSON, err := json.Marshal(state)
+	if err != nil {
+		return State{}, err
+	}
+
+	if _, err := tx.Exec(`UPDATE occ_state SET payload = $1::jsonb, updated_at = NOW() WHERE id = 1`, string(nextJSON)); err != nil {
+		return State{}, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return State{}, err
+	}
+
+	return cloneState(state), nil
+}
+
+func stateJSON(state State) string {
+	payload, err := json.Marshal(state)
+	if err != nil {
+		return "{}"
+	}
+	return string(payload)
+}
+
+func normalizeState(state State) State {
+	if state.Network.InterfaceName == "" {
+		state.Network = DefaultState().Network
+	}
+	if state.Peers == nil {
+		state.Peers = []Peer{}
+	}
+	if state.Users == nil {
+		state.Users = []User{}
+	}
+	if state.Logs == nil {
+		state.Logs = []AuditLog{}
+	}
+	return state
 }
 
 func cloneState(state State) State {

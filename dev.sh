@@ -4,13 +4,8 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKEND_PID=""
-FRONTEND_PID=""
 
 cleanup() {
-  if [[ -n "${FRONTEND_PID}" ]] && kill -0 "${FRONTEND_PID}" 2>/dev/null; then
-    kill "${FRONTEND_PID}" 2>/dev/null || true
-  fi
-
   if [[ -n "${BACKEND_PID}" ]] && kill -0 "${BACKEND_PID}" 2>/dev/null; then
     kill "${BACKEND_PID}" 2>/dev/null || true
   fi
@@ -53,11 +48,5 @@ echo "starting backend on http://localhost:8080"
 ) &
 BACKEND_PID=$!
 
-echo "starting frontend on http://localhost:5173"
-(
-  cd "${ROOT_DIR}/frontend"
-  exec npm run dev -- --host 0.0.0.0
-) &
-FRONTEND_PID=$!
-
-wait -n "${BACKEND_PID}" "${FRONTEND_PID}"
+echo "app is available at http://localhost:8080"
+wait "${BACKEND_PID}"
