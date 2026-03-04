@@ -164,6 +164,16 @@ function ChevronDownGlyph() {
   );
 }
 
+function MenuGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 7h16" />
+      <path d="M4 12h16" />
+      <path d="M4 17h16" />
+    </svg>
+  );
+}
+
 const emptyPeer = {
   name: "",
   publicKey: "",
@@ -255,6 +265,10 @@ export default function App() {
   const [activeView, setActiveView] = useState("dashboard");
   const [theme, setTheme] = useState(() => localStorage.getItem("occ-theme") || "light");
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(() => (
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 767px)").matches : false
+  ));
   const [createPeerType, setCreatePeerType] = useState("outlet");
   const [outletBrand, setOutletBrand] = useState("");
   const [outletLocation, setOutletLocation] = useState("");
@@ -313,10 +327,48 @@ export default function App() {
   const [monitorSort, setMonitorSort] = useState("group");
   const [expandedGroups, setExpandedGroups] = useState({});
   const isAdministrator = loggedInRole === "administrator";
+  const showSidebarLabels = isMobileViewport || sidebarExpanded;
 
   useEffect(() => {
     localStorage.setItem("occ-theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const handleChange = (event) => setIsMobileViewport(event.matches);
+    handleChange(mediaQuery);
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    }
+
+    mediaQuery.addListener(handleChange);
+    return () => mediaQuery.removeListener(handleChange);
+  }, []);
+
+  useEffect(() => {
+    if (!isMobileViewport) {
+      setMobileSidebarOpen(false);
+      return;
+    }
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = mobileSidebarOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isMobileViewport, mobileSidebarOpen]);
+
+  useEffect(() => {
+    if (isMobileViewport) {
+      setMobileSidebarOpen(false);
+    }
+  }, [activeView, isMobileViewport]);
 
   useEffect(() => {
     restoreSession();
@@ -765,7 +817,7 @@ export default function App() {
     setRemoveError("");
 
     try {
-      const response = await fetch(`/api/peers/${id}`, {
+      const response = await fetch(`/api/peers/${encodeURIComponent(id)}`, {
         method: "DELETE",
         credentials: "same-origin",
       });
@@ -1191,7 +1243,7 @@ export default function App() {
   }
 
   function renderNavLabel(label) {
-    return sidebarExpanded ? <span className="nav-label">{label}</span> : null;
+    return showSidebarLabels ? <span className="nav-label">{label}</span> : null;
   }
 
   function isViewAllowed(view, admin = isAdministrator) {
@@ -1526,12 +1578,13 @@ export default function App() {
     const configArtifact = Array.isArray(peer.artifacts)
       ? peer.artifacts.find((artifact) => artifact.kind === "conf")
       : null;
+    const peerID = encodeURIComponent(peer.id);
 
     if (configArtifact?.id) {
-      return `/api/peers/${peer.id}/artifacts/${configArtifact.id}`;
+      return `/api/peers/${peerID}/artifacts/${encodeURIComponent(configArtifact.id)}`;
     }
 
-    return `/api/peers/${peer.id}/config`;
+    return `/api/peers/${peerID}/config`;
   }
 
   function administratorDownloadLinks(peer) {
@@ -1576,7 +1629,7 @@ export default function App() {
         return {
           id: artifact.id,
           label,
-          href: `/api/peers/${peer.id}/artifacts/${artifact.id}`,
+          href: `/api/peers/${encodeURIComponent(peer.id)}/artifacts/${encodeURIComponent(artifact.id)}`,
         };
       })
       .sort((left, right) => left.label.localeCompare(right.label));
@@ -2486,7 +2539,7 @@ export default function App() {
                                     <span className="artifact-group-title">{serverName}</span>
                                     <div className="artifact-group-actions">
                                       {items.map((artifact) => (
-                                        <a className="ghost" href={`/api/peers/${peer.id}/artifacts/${artifact.id}`} key={`${peer.id}-${artifact.id}`}>
+                                        <a className="ghost" href={`/api/peers/${encodeURIComponent(peer.id)}/artifacts/${encodeURIComponent(artifact.id)}`} key={`${peer.id}-${artifact.id}`}>
                                           {artifact.kind.toUpperCase()}
                                         </a>
                                       ))}
@@ -2496,7 +2549,7 @@ export default function App() {
                               })}
                             </div>
                           ) : (
-                            <a className="ghost" href={`/api/peers/${peer.id}/config`}>
+                            <a className="ghost" href={`/api/peers/${encodeURIComponent(peer.id)}/config`}>
                               Download Config
                             </a>
                           )}
@@ -2594,20 +2647,22 @@ export default function App() {
               <div className="empty">{auditLogs.wireguard.items.length === 0 ? "No WireGuard audit logs yet." : "No log matches the current search."}</div>
             ) : null}
             {!auditLogs.wireguard.loading && visibleLogs.length > 0 ? (
-              <div className="log-list">
-                {visibleLogs.map((item) => (
-                  <article className="log-card" key={item.id}>
-                    <div className="log-card-head">
-                      <span className={`log-action log-action-${item.action}`}>{String(item.action || "event").toUpperCase()}</span>
-                      <strong>{item.target || "-"}</strong>
-                    </div>
-                    <p>{item.message || "-"}</p>
-                    <div className="log-meta">
-                      <span>{item.actorName || item.actor || "-"}</span>
-                      <span>{item.createdAt ? new Date(item.createdAt).toLocaleString() : "-"}</span>
-                    </div>
-                  </article>
-                ))}
+              <div className="log-scroll">
+                <div className="log-list">
+                  {visibleLogs.map((item) => (
+                    <article className="log-card" key={item.id}>
+                      <div className="log-card-head">
+                        <span className={`log-action log-action-${item.action}`}>{String(item.action || "event").toUpperCase()}</span>
+                        <strong>{item.target || "-"}</strong>
+                      </div>
+                      <p>{item.message || "-"}</p>
+                      <div className="log-meta">
+                        <span>{item.actorName || item.actor || "-"}</span>
+                        <span>{item.createdAt ? new Date(item.createdAt).toLocaleString() : "-"}</span>
+                      </div>
+                    </article>
+                  ))}
+                </div>
               </div>
             ) : null}
           </section>
@@ -2667,20 +2722,22 @@ export default function App() {
               <div className="empty">{auditLogs.user.items.length === 0 ? "No user audit logs yet." : "No log matches the current search."}</div>
             ) : null}
             {!auditLogs.user.loading && visibleLogs.length > 0 ? (
-              <div className="log-list">
-                {visibleLogs.map((item) => (
-                  <article className="log-card" key={item.id}>
-                    <div className="log-card-head">
-                      <span className={`log-action log-action-${item.action}`}>{String(item.action || "event").toUpperCase()}</span>
-                      <strong>{item.target || "-"}</strong>
-                    </div>
-                    <p>{item.message || "-"}</p>
-                    <div className="log-meta">
-                      <span>By {item.actorName || item.actor || "-"}</span>
-                      <span>{item.createdAt ? new Date(item.createdAt).toLocaleString() : "-"}</span>
-                    </div>
-                  </article>
-                ))}
+              <div className="log-scroll">
+                <div className="log-list">
+                  {visibleLogs.map((item) => (
+                    <article className="log-card" key={item.id}>
+                      <div className="log-card-head">
+                        <span className={`log-action log-action-${item.action}`}>{String(item.action || "event").toUpperCase()}</span>
+                        <strong>{item.target || "-"}</strong>
+                      </div>
+                      <p>{item.message || "-"}</p>
+                      <div className="log-meta">
+                        <span>By {item.actorName || item.actor || "-"}</span>
+                        <span>{item.createdAt ? new Date(item.createdAt).toLocaleString() : "-"}</span>
+                      </div>
+                    </article>
+                  ))}
+                </div>
               </div>
             ) : null}
           </section>
@@ -2989,6 +3046,14 @@ export default function App() {
   return (
     <main className="app-theme app-layout" data-theme={theme}>
       <header className="topbar">
+        <button
+          type="button"
+          className="mobile-menu-toggle"
+          onClick={() => setMobileSidebarOpen(true)}
+          aria-label="Open navigation menu"
+        >
+          <MenuGlyph />
+        </button>
         <div className="topbar-brand">
           <div className="brand-mark topbar-mark" aria-hidden="true">
             <span className="occ-node occ-node-top" />
@@ -3068,9 +3133,28 @@ export default function App() {
         </div>
       </header>
 
-      <div className={`workspace${sidebarExpanded ? "" : " sidebar-collapsed"}`}>
-        <aside className={`sidebar${sidebarExpanded ? " expanded" : " collapsed"}`}>
-          <nav className="sidebar-nav" aria-label="Primary Navigation">
+      <div className={`workspace${!isMobileViewport && !sidebarExpanded ? " sidebar-collapsed" : ""}${isMobileViewport ? " mobile-workspace" : ""}`}>
+        {isMobileViewport ? (
+          <button
+            type="button"
+            className={`sidebar-backdrop${mobileSidebarOpen ? " open" : ""}`}
+            aria-label="Close navigation menu"
+            onClick={() => setMobileSidebarOpen(false)}
+          />
+        ) : null}
+        <aside className={`sidebar${showSidebarLabels ? " expanded" : " collapsed"}${isMobileViewport ? " mobile-drawer" : ""}${isMobileViewport && mobileSidebarOpen ? " mobile-open" : ""}`}>
+          <nav
+            className="sidebar-nav"
+            aria-label="Primary Navigation"
+            onClick={(event) => {
+              if (!isMobileViewport) {
+                return;
+              }
+              if (event.target.closest(".nav-subitem")) {
+                setMobileSidebarOpen(false);
+              }
+            }}
+          >
             <div className="nav-group">
               <button
                 type="button"
@@ -3079,7 +3163,7 @@ export default function App() {
                 title="General"
               >
                 {renderNavLabel("General")}
-                {sidebarExpanded ? <span className="nav-group-chevron nav-group-chevron-right">›</span> : null}
+                {showSidebarLabels ? <span className="nav-group-chevron nav-group-chevron-right">›</span> : null}
               </button>
               <div className="nav-group-body">
                 <button
@@ -3116,7 +3200,7 @@ export default function App() {
                 title="WireGuard"
               >
                 {renderNavLabel("WireGuard")}
-                {sidebarExpanded ? <span className={`nav-group-chevron${sidebarGroupsOpen.wireguard ? " open" : ""}`}>⌃</span> : null}
+                {showSidebarLabels ? <span className={`nav-group-chevron${sidebarGroupsOpen.wireguard ? " open" : ""}`}>⌃</span> : null}
               </button>
               {sidebarGroupsOpen.wireguard ? (
                 <div className="nav-group-body">
@@ -3190,7 +3274,7 @@ export default function App() {
                     title="Mikrotik"
                   >
                     {renderNavLabel("Mikrotik")}
-                    {sidebarExpanded ? <span className={`nav-group-chevron${sidebarGroupsOpen.mikrotik ? " open" : ""}`}>⌃</span> : null}
+                    {showSidebarLabels ? <span className={`nav-group-chevron${sidebarGroupsOpen.mikrotik ? " open" : ""}`}>⌃</span> : null}
                   </button>
                   {sidebarGroupsOpen.mikrotik ? (
                     <div className="nav-group-body">
@@ -3238,7 +3322,7 @@ export default function App() {
                     title="Logs"
                   >
                     {renderNavLabel("Logs")}
-                    {sidebarExpanded ? <span className={`nav-group-chevron${sidebarGroupsOpen.logs ? " open" : ""}`}>⌃</span> : null}
+                    {showSidebarLabels ? <span className={`nav-group-chevron${sidebarGroupsOpen.logs ? " open" : ""}`}>⌃</span> : null}
                   </button>
                   {sidebarGroupsOpen.logs ? (
                     <div className="nav-group-body">
@@ -3286,7 +3370,7 @@ export default function App() {
                     title="User Management"
                   >
                     {renderNavLabel("User Management")}
-                    {sidebarExpanded ? <span className={`nav-group-chevron${sidebarGroupsOpen.userManagement ? " open" : ""}`}>⌃</span> : null}
+                    {showSidebarLabels ? <span className={`nav-group-chevron${sidebarGroupsOpen.userManagement ? " open" : ""}`}>⌃</span> : null}
                   </button>
                   {sidebarGroupsOpen.userManagement ? (
                     <div className="nav-group-body">
@@ -3340,7 +3424,7 @@ export default function App() {
               title={sidebarExpanded ? "Collapse" : "Expand"}
             >
               <span className="sidebar-collapse-icon" aria-hidden="true">{sidebarExpanded ? "‹" : "›"}</span>
-              {sidebarExpanded ? <span className="sidebar-collapse-label">Collapse</span> : null}
+              {showSidebarLabels ? <span className="sidebar-collapse-label">Collapse</span> : null}
             </button>
           </div>
         </aside>

@@ -15,6 +15,7 @@ body,
 body {
   margin: 0;
   background: #eaf0fb;
+  overflow-x: hidden;
 }
 
 button,
@@ -519,6 +520,12 @@ button {
   gap: 12px;
 }
 
+.log-scroll {
+  max-height: min(56vh, 540px);
+  overflow: auto;
+  padding-right: 4px;
+}
+
 .log-card {
   display: grid;
   gap: 10px;
@@ -531,6 +538,12 @@ button {
 .log-card p {
   margin: 0;
   color: var(--text-secondary);
+}
+
+.log-card-head strong,
+.peer-card h3 {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .log-card-head,
@@ -613,10 +626,31 @@ button {
 
 .app-layout {
   height: 100vh;
+  width: 100%;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   padding: 16px 20px 20px;
   overflow: hidden;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 12px;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-soft);
+  color: var(--text-primary);
+  box-shadow: none;
+}
+
+.mobile-menu-toggle svg {
+  width: 20px;
+  height: 20px;
 }
 
 .topbar {
@@ -637,11 +671,16 @@ button {
   font-size: 1.1rem;
 }
 
+.topbar-brand {
+  min-width: 0;
+}
+
 .topbar-actions {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
+  min-width: 0;
 }
 
 .theme-toggle {
@@ -790,6 +829,7 @@ button {
   gap: 16px;
   align-items: stretch;
   min-height: 0;
+  min-width: 0;
 }
 
 .workspace.sidebar-collapsed {
@@ -819,6 +859,10 @@ button {
   overflow: hidden;
   transition: padding 180ms ease, width 180ms ease;
   background: color-mix(in srgb, var(--surface-strong) 94%, #f3f5f8);
+}
+
+.sidebar-backdrop {
+  display: none;
 }
 
 .sidebar.expanded {
@@ -1566,6 +1610,7 @@ button {
   align-content: start;
   min-width: 0;
   min-height: 0;
+  width: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 6px;
@@ -2519,36 +2564,89 @@ button {
   background: var(--primary-soft);
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 767px) {
   .app-layout {
     height: auto;
     min-height: 100vh;
     grid-template-rows: auto auto;
-    overflow: visible;
+    padding: 12px;
+    overflow-x: hidden;
   }
 
   .workspace {
     grid-template-columns: 1fr;
     min-height: auto;
+    position: relative;
   }
 
   .sidebar {
-    height: auto;
-    min-height: auto;
-    position: static;
-    overflow: visible;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(88vw, 320px) !important;
+    max-width: 320px;
+    height: 100dvh;
+    min-height: 100dvh;
+    border-radius: 0 20px 20px 0;
+    z-index: 40;
+    transform: translateX(-105%);
+    transition: transform 180ms ease;
+    overflow: hidden;
+    padding-top: 16px;
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    border: 0;
+    background: rgba(5, 14, 30, 0.38);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease;
+  }
+
+  .sidebar-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .sidebar-nav {
-    overflow: visible;
+    overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-gutter: auto;
   }
 
   .content-area {
     min-height: auto;
-    overflow: visible;
+    overflow-y: visible;
+    overflow-x: hidden;
     padding-right: 0;
     scrollbar-gutter: auto;
+  }
+
+  .sidebar-collapse {
+    display: none;
+  }
+
+  .mobile-menu-toggle {
+    display: inline-flex;
+  }
+
+  .topbar {
+    padding: 12px 14px;
+  }
+
+  .topbar-brand,
+  .topbar-actions,
+  .user-summary {
+    min-width: 0;
   }
 
   .stats-grid {
