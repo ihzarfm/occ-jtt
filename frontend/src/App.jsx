@@ -1023,10 +1023,8 @@ export default function App() {
 
   function normalizeOutletSegment(value) {
     return String(value || "")
-      .trim()
       .toUpperCase()
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-");
+      .replace(/[^A-Z0-9]/g, "");
   }
 
   function normalizeAdminName(value) {
@@ -2189,20 +2187,26 @@ export default function App() {
                     <input
                       value={outletBrand}
                       onChange={(event) => setOutletBrand(normalizeOutletSegment(event.target.value))}
+                      pattern="[A-Z0-9]+"
+                      inputMode="text"
                       required
                       disabled={saving}
                       placeholder="LIVEHOUSE"
                     />
+                    <small className="field-helper">Use uppercase letters A-Z and numbers 0-9 only.</small>
                   </label>
                   <label className="create-peer-field">
                     Location
                     <input
                       value={outletLocation}
                       onChange={(event) => setOutletLocation(normalizeOutletSegment(event.target.value))}
+                      pattern="[A-Z0-9]+"
+                      inputMode="text"
                       required
                       disabled={saving}
                       placeholder="KEMANG"
                     />
+                    <small className="field-helper">Use uppercase letters A-Z and numbers 0-9 only.</small>
                   </label>
                   <label className="create-peer-field create-peer-field-wide">
                     Generated Site Name
