@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { deletePeer, getState } from "../api/peers";
 import { getWGServerDiagnostics } from "../api/monitoring";
 import { normalizedServerID } from "../utils/validators";
+import InventorySummary from "../components/inventory/InventorySummary";
+import PeerCard from "../components/inventory/PeerCard";
 
 function isSitePeerRecord(peer) {
   const peerType = String(peer?.type || "").trim().toLowerCase();
@@ -38,6 +40,16 @@ function peerCreatorLabel(peer) {
 
 function peerCreatedAtLabel(peer) {
   return peer.createdAt ? new Date(peer.createdAt).toLocaleString() : "-";
+}
+
+async function copyToClipboard(text) {
+  const value = String(text || "").trim();
+  if (!value) return;
+  try {
+    await navigator.clipboard.writeText(value);
+  } catch {
+    // no-op: clipboard permission or unsupported browser
+  }
 }
 
 function peerMatchesSearch(peer, searchValue) {
@@ -244,73 +256,30 @@ export default function InventoryPeerView({ mode, active, isAdministrator }) {
       {!loading && visiblePeers.length === 0 ? <div className="empty">No peer found in inventory.</div> : null}
 
       {!loading && visiblePeers.length > 0 ? (
-        <div className="inventory-summary-cards">
-          <article className="inventory-summary-card"><span>Total</span><strong>{visiblePeers.length}</strong></article>
-          <article className="inventory-summary-card"><span>Managed</span><strong>{managedPeers.length}</strong></article>
-          <article className="inventory-summary-card"><span>Unmanaged</span><strong>{unmanagedPeers.length}</strong></article>
-        </div>
+        <InventorySummary total={visiblePeers.length} managed={managedPeers.length} unmanaged={unmanagedPeers.length} />
       ) : null}
 
       {!loading && visiblePeers.length > 0 ? (
         <div className="peer-list-grid inventory-grid">
           {visiblePeers.map((peer) => {
             const managementStatus = peerManagementStatus(peer);
+            const isSite = Array.isArray(peer.assignments) && peer.assignments.length > 0;
             const wgIts = assignmentFor(peer, "wg-its");
             const wgCctv = assignmentFor(peer, "wg-cctv");
             return (
-              <article className="peer-card inventory-card" key={peer.id}>
-                <div>
-                  <div className="inventory-card-head">
-                    <h3>{peer.siteName || peer.name}</h3>
-                    <span className={`inventory-pill inventory-${managementStatus}`}>{managementStatus === "managed" ? "MANAGED" : "UNMANAGED"}</span>
-                  </div>
-                  {Array.isArray(peer.assignments) && peer.assignments.length > 0 ? (
-                    <div className="inventory-site-block">
-                      <span className="inventory-site-label">Site</span>
-                      <strong className="inventory-site-name">{peer.siteName || peer.name}</strong>
-                      <div className="inventory-assignment-list">
-                        <p><strong>ip wg-its</strong>{": "}{wgIts?.assignedIP || "-"}</p>
-                        <p><strong>ip wg-cctv</strong>{": "}{wgCctv?.assignedIP || "-"}</p>
-                      </div>
-                      <div className="inventory-meta-list">
-                        <p><strong>Created by</strong>: {peerCreatorLabel(peer)}</p>
-                        <p><strong>Created at</strong>: {peerCreatedAtLabel(peer)}</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <p>{peer.assignedIP}</p>
-                      <small>{peer.publicKey}</small>
-                      <div className="inventory-meta-list">
-                        <p><strong>Created by</strong>: {peerCreatorLabel(peer)}</p>
-                        <p><strong>Created at</strong>: {peerCreatedAtLabel(peer)}</p>
-                      </div>
-                    </>
-                  )}
-                </div>
-                <div className="peer-actions">
-                  {Array.isArray(peer.artifacts) && peer.artifacts.length > 0 ? (
-                    <div className="artifact-list artifact-list-stacked">
-                      {["wg-its", "wg-cctv"].map((serverName) => {
-                        const items = peer.artifacts.filter((artifact) => normalizedServerID(artifact.serverId || artifact.serverName) === serverName);
-                        if (items.length === 0) return null;
-                        return (
-                          <div className="artifact-group" key={`${peer.id}-${serverName}`}>
-                            <span className="artifact-group-title">{canonicalServerLabel(serverName)}</span>
-                            <div className="artifact-group-actions">
-                              {items.map((artifact) => (
-                                <a className="ghost" href={`/api/peers/${encodeURIComponent(peer.id)}/artifacts/${encodeURIComponent(artifact.id)}`} key={`${peer.id}-${artifact.id}`}>{artifact.kind.toUpperCase()}</a>
-                              ))}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <a className="ghost" href={`/api/peers/${encodeURIComponent(peer.id)}/config`}>Download Config</a>
-                  )}
-                </div>
-              </article>
+              <PeerCard
+                key={peer.id}
+                peer={peer}
+                managementStatus={managementStatus}
+                isSite={isSite}
+                peerTypeLabel={isSite ? "Site" : "Administrator"}
+                wgItsIP={wgIts?.assignedIP}
+                wgCctvIP={wgCctv?.assignedIP}
+                assignedIP={peer.assignedIP}
+                creatorLabel={peerCreatorLabel(peer)}
+                createdAtLabel={peerCreatedAtLabel(peer)}
+                onCopyPublicKey={copyToClipboard}
+              />
             );
           })}
         </div>
