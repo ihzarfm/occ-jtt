@@ -218,9 +218,8 @@ const emptyCreatePeerFeedback = {
 };
 
 const adminTargetOptions = [
-  { id: "wg-its", label: "WG-ITS", pool: "10.22.0.x" },
-  { id: "wg-cctv", label: "WG-CCTV", pool: "10.21.0.x" },
-  { id: "both", label: "BOTH", pool: "WG-ITS + WG-CCTV" },
+  { id: "wg-its", label: "WG-ITS", pool: "10.21.3.2 - 10.21.3.254" },
+  { id: "wg-cctv", label: "WG-CCTV", pool: "10.22.3.2 - 10.22.3.254" },
 ];
 
 const adminPurposeOptions = [
@@ -275,14 +274,13 @@ export default function App() {
   const [isMobileViewport, setIsMobileViewport] = useState(() => (
     typeof window !== "undefined" ? window.matchMedia("(max-width: 767px)").matches : false
   ));
-  const [createPeerType, setCreatePeerType] = useState("outlet");
+  const [createPeerType, setCreatePeerType] = useState("site");
   const [managedByAutomation, setManagedByAutomation] = useState(true);
-  const [outletBrand, setOutletBrand] = useState("");
-  const [outletLocation, setOutletLocation] = useState("");
+  const [siteBrand, setSiteBrand] = useState("");
+  const [siteLocation, setSiteLocation] = useState("");
   const [adminTargetMode, setAdminTargetMode] = useState("");
   const [adminPurpose, setAdminPurpose] = useState("user-admin");
-  const [adminAssignedItsIP, setAdminAssignedItsIP] = useState("");
-  const [adminAssignedCctvIP, setAdminAssignedCctvIP] = useState("");
+  const [adminAssignedIPError, setAdminAssignedIPError] = useState("");
   const [sidebarGroupsOpen, setSidebarGroupsOpen] = useState({
     wireguard: true,
     logs: true,
@@ -335,7 +333,7 @@ export default function App() {
   const [monitorFilter, setMonitorFilter] = useState("none");
   const [monitorSort, setMonitorSort] = useState("group");
   const [expandedGroups, setExpandedGroups] = useState({});
-  const isAdministrator = loggedInRole === "administrator" || loggedInRole === "superadmin";
+  const isAdministrator = isAdminRole(loggedInRole);
   const showSidebarLabels = isMobileViewport || sidebarExpanded;
 
   useEffect(() => {
@@ -468,43 +466,36 @@ export default function App() {
   }, [activeView, isAdministrator]);
 
   useEffect(() => {
-    if (createPeerType !== "administrator") {
+    if (createPeerType !== "administrator" || !adminTargetMode) {
       return;
     }
 
-    const itsAvailable = availableIPsFor("10.22.0.");
-    const cctvAvailable = availableIPsFor("10.21.0.");
-
-    if (adminTargetMode === "wg-its" && !itsAvailable.includes(peerForm.assignedIP)) {
-      setPeerForm((current) => ({ ...current, assignedIP: itsAvailable[0] || "" }));
+    const available = availableAdminIPsFor(adminTargetMode);
+    const currentValidation = validateAdminIP(peerForm.assignedIP, adminTargetMode);
+    if (currentValidation) {
+      setAdminAssignedIPError(currentValidation);
+    } else {
+      setAdminAssignedIPError("");
     }
-
-    if (adminTargetMode === "wg-cctv" && !cctvAvailable.includes(peerForm.assignedIP)) {
-      setPeerForm((current) => ({ ...current, assignedIP: cctvAvailable[0] || "" }));
+    if (!peerForm.assignedIP && available.length > 0) {
+      setPeerForm((current) => ({ ...current, assignedIP: available[0] }));
     }
-
-    if (adminTargetMode === "both") {
-      if (!itsAvailable.includes(adminAssignedItsIP)) {
-        setAdminAssignedItsIP(itsAvailable[0] || "");
-      }
-      if (!cctvAvailable.includes(adminAssignedCctvIP)) {
-        setAdminAssignedCctvIP(cctvAvailable[0] || "");
-      }
-    }
-  }, [createPeerType, adminTargetMode, state.peers]);
+  }, [createPeerType, adminTargetMode, state.peers, peerForm.assignedIP]);
 
   useEffect(() => {
     setCreatePeerFeedback(emptyCreatePeerFeedback);
     setError("");
-    if (createPeerType === "outlet") {
+    if (createPeerType === "site") {
       setManagedByAutomation(true);
       setAdminTargetMode("");
+      setAdminAssignedIPError("");
       setPeerForm((current) => ({ ...current, name: "", assignedIP: "", allowedIPs: "0.0.0.0/0" }));
     }
     if (createPeerType === "administrator") {
       setManagedByAutomation(false);
-      setOutletBrand("");
-      setOutletLocation("");
+      setSiteBrand("");
+      setSiteLocation("");
+      setAdminAssignedIPError("");
       setPeerForm((current) => ({ ...current, allowedIPs: "" }));
     }
   }, [createPeerType]);
@@ -527,7 +518,7 @@ export default function App() {
       const nextUser = data.username || data.user || "admin";
       setLoggedInUser(nextUser);
       setLoggedInName(data.name || nextUser || "Administrator");
-      setLoggedInNIK(data.nik || (/^[0-9]{6}$/.test(nextUser) ? nextUser : ""));
+      setLoggedInNIK(data.nik || "");
       setLoggedInRole(data.role || "administrator");
       setIsAuthenticated(true);
       await loadState();
@@ -559,8 +550,8 @@ export default function App() {
       const nextUser = data.username || data.user || loginForm.username;
       const nextNIK = data.nik || (/^[0-9]{6}$/.test(nextUser) ? nextUser : "");
       setLoggedInUser(nextUser);
-      setLoggedInNIK(nextNIK);
       setLoggedInName(data.name || nextUser);
+      setLoggedInNIK(nextNIK);
       setLoggedInRole(data.role || "administrator");
       setIsAuthenticated(true);
       await loadState();
@@ -638,35 +629,35 @@ export default function App() {
 
   async function createPeer(event) {
     event.preventDefault();
-    const isOutletPeer = createPeerType === "outlet";
+    const isSitePeer = createPeerType === "site";
     const peerName = peerForm.name.trim();
-    const outletSiteName = generatedOutletSiteName();
+    const sitePeerName = generatedSiteName();
 
     setError("");
     setCreatePeerFeedback(emptyCreatePeerFeedback);
 
-    if (isOutletPeer && !outletSiteName) {
+    if (isSitePeer && !sitePeerName) {
       setCreatePeerFeedback({
         type: "error",
         title: "Site Name Required",
-        message: "Fill in Brand / Outlet Type and Location before creating an outlet peer.",
+        message: "Fill in Brand / Site Type and Location before creating a site peer.",
         peer: null,
       });
       return;
     }
 
-    if (!isOutletPeer && !adminTargetMode) {
+    if (!isSitePeer && !adminTargetMode) {
       setCreatePeerFeedback({
         type: "error",
         title: "Target Server Required",
-        message: "Select WG-ITS, WG-CCTV, or BOTH before creating an administrator peer.",
+        message: "Select WG-ITS or WG-CCTV before creating an administrator peer.",
         peer: null,
         scope: "administrator",
       });
       return;
     }
 
-    if (!isOutletPeer && !peerName) {
+    if (!isSitePeer && !peerName) {
       setCreatePeerFeedback({
         type: "error",
         title: "Name Required",
@@ -677,7 +668,7 @@ export default function App() {
       return;
     }
 
-    if (!isOutletPeer && adminTargetMode !== "both" && !peerForm.assignedIP) {
+    if (!isSitePeer && !peerForm.assignedIP) {
       setCreatePeerFeedback({
         type: "error",
         title: "Assigned IP Required",
@@ -688,15 +679,20 @@ export default function App() {
       return;
     }
 
-    if (!isOutletPeer && adminTargetMode === "both" && (!adminAssignedItsIP || !adminAssignedCctvIP)) {
-      setCreatePeerFeedback({
-        type: "error",
-        title: "Assigned IP Required",
-        message: "Select available IPs for both WG-ITS and WG-CCTV.",
-        peer: null,
-        scope: "administrator",
-      });
-      return;
+    if (!isSitePeer) {
+      const validationMessage = validateAdminIP(peerForm.assignedIP, adminTargetMode);
+      if (validationMessage) {
+        setAdminAssignedIPError(validationMessage);
+        setCreatePeerFeedback({
+          type: "error",
+          title: "Invalid Assigned IP",
+          message: validationMessage,
+          peer: null,
+          scope: "administrator",
+        });
+        return;
+      }
+      setAdminAssignedIPError("");
     }
 
     if (!isValidIPv4CIDR(peerForm.allowedIPs)) {
@@ -713,106 +709,47 @@ export default function App() {
     setSaving(true);
 
     try {
-      if (!isOutletPeer && adminTargetMode === "both") {
-        const createdPeers = [];
-        let latestState = null;
-        const autoPublicKey = generatePseudoPublicKey();
-        const requests = [
-          { server: "wg-its", assignedIP: adminAssignedItsIP },
-          { server: "wg-cctv", assignedIP: adminAssignedCctvIP },
-        ];
+      const response = await fetch("/api/peers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          peerType: createPeerType,
+          managed: managedByAutomation,
+          ...peerForm,
+          name: isSitePeer ? sitePeerName : `Administrator-${peerName}`,
+          publicKey: isSitePeer ? peerForm.publicKey : (peerForm.publicKey || generatePseudoPublicKey()),
+          keepalive: Number(peerForm.keepalive),
+          purpose: adminPurpose,
+          targetServer: adminTargetMode,
+        }),
+      });
+      const data = await response.json();
 
-        for (const request of requests) {
-          const response = await fetch("/api/peers", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "same-origin",
-            body: JSON.stringify({
-              peerType: createPeerType,
-              managed: managedByAutomation,
-              ...peerForm,
-              name: `Administrator-${peerName}-${request.server.toUpperCase()}`,
-              publicKey: autoPublicKey,
-              assignedIP: request.assignedIP,
-              keepalive: Number(peerForm.keepalive),
-              purpose: adminPurpose,
-              targetServer: request.server,
-            }),
-          });
-          const data = await response.json();
-          if (!response.ok) {
-            throw new Error(data.error || "Failed to create peer");
-          }
-          latestState = data.state;
-          if (data.peer) {
-            createdPeers.push({
-              ...data.peer,
-              _targetServer: request.server,
-            });
-          }
-        }
-
-        if (latestState) {
-          setState(latestState);
-        }
-
-        setPeerForm(emptyPeer);
-        setCreatePeerFeedback({
-          type: "success",
-          title: "Administrator Peer Created",
-          message: "Administrator profile has been provisioned on selected servers.",
-          peer: {
-            id: createdPeers[0]?.id || "",
-            _scope: "administrator",
-            _targetMode: "both",
-            _createdPeers: createdPeers,
-            assignedIP: `${adminAssignedItsIP}, ${adminAssignedCctvIP}`,
-          },
-          scope: "administrator",
-        });
-      } else {
-        const response = await fetch("/api/peers", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "same-origin",
-          body: JSON.stringify({
-            peerType: createPeerType,
-            managed: managedByAutomation,
-            ...peerForm,
-            name: isOutletPeer ? outletSiteName : `Administrator-${peerName}`,
-            publicKey: isOutletPeer ? peerForm.publicKey : (peerForm.publicKey || generatePseudoPublicKey()),
-            keepalive: Number(peerForm.keepalive),
-            purpose: adminPurpose,
-            targetServer: adminTargetMode,
-          }),
-        });
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to create peer");
-        }
-
-        setState(data.state);
-        setPeerForm(emptyPeer);
-        setOutletBrand("");
-        setOutletLocation("");
-        setCreatePeerFeedback({
-          type: "success",
-          title: isOutletPeer ? "Peer Created" : "Administrator Peer Created",
-          message: isOutletPeer
-            ? "Outlet peer has been provisioned on WireGuard servers."
-            : "Administrator profile has been provisioned on selected server.",
-          peer: data.peer
-            ? {
-                ...data.peer,
-                _scope: isOutletPeer ? "outlet" : "administrator",
-                _targetServer: adminTargetMode,
-                _purpose: adminPurpose,
-              }
-            : null,
-          scope: isOutletPeer ? "outlet" : "administrator",
-        });
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create peer");
       }
+
+      setState(data.state);
+      setPeerForm(emptyPeer);
+      setSiteBrand("");
+      setSiteLocation("");
+      setCreatePeerFeedback({
+        type: "success",
+        title: isSitePeer ? "Peer Created" : "Administrator Peer Created",
+        message: isSitePeer
+          ? "Site peer has been provisioned on WireGuard servers."
+          : "Administrator profile has been provisioned on selected server.",
+        peer: data.peer
+          ? {
+              ...data.peer,
+              _scope: isSitePeer ? "site" : "administrator",
+              _targetServer: adminTargetMode,
+              _purpose: adminPurpose,
+            }
+          : null,
+        scope: isSitePeer ? "site" : "administrator",
+      });
 
       setActiveView("createPeer");
     } catch (err) {
@@ -1102,7 +1039,7 @@ export default function App() {
     setPeerForm((current) => ({ ...current, [name]: value }));
   }
 
-  function normalizeOutletSegment(value) {
+  function normalizeSiteSegment(value) {
     return String(value || "")
       .toUpperCase()
       .replace(/[^A-Z0-9]/g, "");
@@ -1149,15 +1086,46 @@ export default function App() {
     return true;
   }
 
-  function usedIPs() {
+  function normalizedServerID(value) {
+    const current = String(value || "").toLowerCase().trim();
+    if (current === "wg-its" || current === "stg-its") {
+      return "wg-its";
+    }
+    if (current === "wg-cctv" || current === "stg-cctv") {
+      return "wg-cctv";
+    }
+    return current;
+  }
+
+  function overlayPair(serverID) {
+    const normalized = normalizedServerID(serverID);
+    if (normalized === "wg-its") {
+      return [10, 21];
+    }
+    if (normalized === "wg-cctv") {
+      return [10, 22];
+    }
+    return null;
+  }
+
+  function isIPInOverlay(ip, serverID) {
+    const octets = parseIPv4(ip);
+    const pair = overlayPair(serverID);
+    if (!octets || !pair) {
+      return false;
+    }
+    return octets[0] === pair[0] && octets[1] === pair[1];
+  }
+
+  function usedIPsForServer(serverID) {
     const used = new Set();
     for (const peer of state.peers || []) {
-      if (peer.assignedIP) {
+      if (peer.assignedIP && isIPInOverlay(peer.assignedIP, serverID)) {
         used.add(String(peer.assignedIP).split("/")[0]);
       }
       if (Array.isArray(peer.assignments)) {
         for (const assignment of peer.assignments) {
-          if (assignment.assignedIP) {
+          if (assignment.assignedIP && isIPInOverlay(assignment.assignedIP, serverID)) {
             used.add(String(assignment.assignedIP).split("/")[0]);
           }
         }
@@ -1166,19 +1134,66 @@ export default function App() {
     return used;
   }
 
-  function availableIPsFor(prefix) {
-    const used = usedIPs();
+  function availableAdminIPsFor(serverID) {
+    const prefix = serverID === "wg-its" ? "10.21.3." : "10.22.3.";
+    const used = usedIPsForServer(serverID);
     const available = [];
-    for (let last = 10; last <= 120; last += 1) {
+    for (let last = 2; last <= 254; last += 1) {
       const ip = `${prefix}${last}`;
       if (!used.has(ip)) {
         available.push(ip);
       }
-      if (available.length >= 40) {
+      if (available.length >= 10) {
         break;
       }
     }
     return available;
+  }
+
+  function parseIPv4(value) {
+    const matcher = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+    const match = String(value || "").trim().match(matcher);
+    if (!match) {
+      return null;
+    }
+    const octets = match.slice(1).map((item) => Number(item));
+    if (octets.some((octet) => Number.isNaN(octet) || octet < 0 || octet > 255)) {
+      return null;
+    }
+    return octets;
+  }
+
+  function adminRangeLabel(serverID) {
+    if (serverID === "wg-its") {
+      return "Allowed IP range: 10.21.3.2 - 10.21.3.254 (reserved .1 and .255)";
+    }
+    if (serverID === "wg-cctv") {
+      return "Allowed IP range: 10.22.3.2 - 10.22.3.254 (reserved .1 and .255)";
+    }
+    return "Select target server to load allowed IP range.";
+  }
+
+  function validateAdminIP(ipValue, serverID) {
+    const octets = parseIPv4(ipValue);
+    if (!octets) {
+      return "Assigned IP must be a valid IPv4 address.";
+    }
+    if (octets[3] === 1 || octets[3] === 255) {
+      return "Reserved host (.1 or .255) is not allowed.";
+    }
+    if (octets[2] !== 3 || octets[3] < 2 || octets[3] > 254) {
+      return "Assigned IP out of allowed administrator range.";
+    }
+    if (serverID === "wg-its" && (octets[0] !== 10 || octets[1] !== 21)) {
+      return "Assigned IP must be in 10.21.3.2 - 10.21.3.254.";
+    }
+    if (serverID === "wg-cctv" && (octets[0] !== 10 || octets[1] !== 22)) {
+      return "Assigned IP must be in 10.22.3.2 - 10.22.3.254.";
+    }
+    if (isIPInOverlay(ipValue, serverID) && usedIPsForServer(serverID).has(String(ipValue).trim())) {
+      return "IP already in use.";
+    }
+    return "";
   }
 
   function generatePseudoPublicKey() {
@@ -1191,9 +1206,9 @@ export default function App() {
     return window.btoa(binary);
   }
 
-  function generatedOutletSiteName() {
-    const brand = normalizeOutletSegment(outletBrand);
-    const location = normalizeOutletSegment(outletLocation);
+  function generatedSiteName() {
+    const brand = normalizeSiteSegment(siteBrand);
+    const location = normalizeSiteSegment(siteLocation);
 
     if (!brand && !location) {
       return "";
@@ -1212,16 +1227,15 @@ export default function App() {
 
   function resetPeerForm() {
     setPeerForm(emptyPeer);
-    setManagedByAutomation(createPeerType === "outlet");
+    setManagedByAutomation(createPeerType === "site");
     if (createPeerType === "administrator") {
       setPeerForm((current) => ({ ...current, allowedIPs: "" }));
     }
-    setOutletBrand("");
-    setOutletLocation("");
+    setSiteBrand("");
+    setSiteLocation("");
     setAdminTargetMode("");
     setAdminPurpose("user-admin");
-    setAdminAssignedItsIP("");
-    setAdminAssignedCctvIP("");
+    setAdminAssignedIPError("");
     setCreatePeerFeedback(emptyCreatePeerFeedback);
     setError("");
   }
@@ -1286,8 +1300,8 @@ export default function App() {
     } finally {
       setIsAuthenticated(false);
       setLoggedInUser("admin");
-      setLoggedInNIK("000000");
       setLoggedInName("Administrator");
+      setLoggedInNIK("000000");
       setLoggedInRole("administrator");
       setLoginForm(initialLogin);
       setLoginError("");
@@ -1330,14 +1344,26 @@ export default function App() {
     if (role === "superadmin") {
       return "Superadmin";
     }
-    return role === "administrator" ? "Administrator" : "Support";
+    if (role === "administrator") {
+      return "Administrator";
+    }
+    return "Support";
+  }
+
+  function isAdminRole(role) {
+    return role === "administrator" || role === "superadmin";
+  }
+
+  function isSitePeerRecord(peer) {
+    const peerType = String(peer?.type || "").trim().toLowerCase();
+    return peerType === "site" || peerType === "outlet" || Array.isArray(peer?.assignments);
   }
 
   function peerManagementStatus(peer) {
     if (typeof peer?.managed === "boolean") {
       return peer.managed ? "managed" : "unmanaged";
     }
-    if (peer?.type === "outlet" || Array.isArray(peer?.assignments)) {
+    if (isSitePeerRecord(peer)) {
       return "managed";
     }
 
@@ -1629,23 +1655,23 @@ export default function App() {
   }
 
   function createFlowSteps(mode) {
-    const siteLabel = mode === "outlet"
-      ? (generatedOutletSiteName() || "BRAND-LOCATION")
+    const siteLabel = mode === "site"
+      ? (generatedSiteName() || "BRAND-LOCATION")
       : (peerForm.name.trim() || "Administrator Peer");
     const selectedTargetServer = adminTargetOptions.find((item) => item.id === adminTargetMode);
     if (mode === "administrator") {
       return [
         { label: "Target", value: selectedTargetServer?.label || "Select server", meta: selectedTargetServer?.pool || "Required first" },
         { label: "Identity", value: siteLabel || "Administrator Peer", meta: "Manual input" },
-        { label: "Assigned IP", value: peerForm.assignedIP.trim() || selectedTargetServer?.pool || "10.x.x.x", meta: adminTargetMode === "both" ? "Dual profile" : "Single profile" },
+        { label: "Assigned IP", value: peerForm.assignedIP.trim() || selectedTargetServer?.pool || "10.x.x.x", meta: "Single profile" },
         { label: "Output", value: "CONF", meta: "Downloadable" },
       ];
     }
 
     return [
-      { label: "Site", value: siteLabel, meta: "Outlet" },
-      { label: "WG-ITS", value: "10.22.x.x", meta: "Auto assign" },
-      { label: "WG-CCTV", value: "10.21.x.x", meta: "Auto assign" },
+      { label: "Site", value: siteLabel, meta: "Site Peer" },
+      { label: "WG-ITS", value: "10.21.x.x", meta: "Auto assign" },
+      { label: "WG-CCTV", value: "10.22.x.x", meta: "Auto assign" },
       { label: "Output", value: "CONF + RSC", meta: "Artifacts" },
     ];
   }
@@ -1691,7 +1717,7 @@ export default function App() {
     return [];
   }
 
-  function outletConfigLinks(peer) {
+  function siteConfigLinks(peer) {
     if (!peer?.id || !Array.isArray(peer.artifacts)) {
       return [];
     }
@@ -1715,7 +1741,7 @@ export default function App() {
       .sort((left, right) => left.label.localeCompare(right.label));
   }
 
-  function outletAssignmentSummary(peer) {
+  function siteAssignmentSummary(peer) {
     if (!Array.isArray(peer?.assignments)) {
       return [];
     }
@@ -2057,32 +2083,32 @@ export default function App() {
         const feedbackSummary = createFeedbackSummary(feedbackPeer);
         const flowSteps = createFlowSteps(createPeerType);
         const selectedTargetServer = adminTargetOptions.find((item) => item.id === adminTargetMode);
-        const adminItsIPs = availableIPsFor("10.22.0.");
-        const adminCctvIPs = availableIPsFor("10.21.0.");
+        const adminSuggestions = adminTargetMode ? availableAdminIPsFor(adminTargetMode) : [];
         const adminDownloads = administratorDownloadLinks(feedbackPeer);
-        const outletSummary = outletAssignmentSummary(feedbackPeer);
-        const outletDownloads = outletConfigLinks(feedbackPeer);
+        const siteSummary = siteAssignmentSummary(feedbackPeer);
+        const siteDownloads = siteConfigLinks(feedbackPeer);
+        const adminValidationMessage = createPeerType === "administrator" && adminTargetMode
+          ? validateAdminIP(peerForm.assignedIP, adminTargetMode)
+          : "";
         const adminIsReady = adminTargetMode !== ""
           && peerForm.name.trim() !== ""
           && adminPurpose !== ""
-          && (
-            (adminTargetMode === "both" && adminAssignedItsIP !== "" && adminAssignedCctvIP !== "")
-            || (adminTargetMode !== "both" && peerForm.assignedIP !== "")
-          );
+          && peerForm.assignedIP !== ""
+          && adminValidationMessage === "";
 
         return (
           <section className="panel create-peer-panel">
             <div className="peer-tablist" role="tablist" aria-label="Select peer type">
               <button
-                id="tab-outlet-peer"
+                id="tab-site-peer"
                 type="button"
                 role="tab"
-                className={`peer-tab${createPeerType === "outlet" ? " active" : ""}`}
-                onClick={() => setCreatePeerType("outlet")}
-                aria-selected={createPeerType === "outlet"}
+                className={`peer-tab${createPeerType === "site" ? " active" : ""}`}
+                onClick={() => setCreatePeerType("site")}
+                aria-selected={createPeerType === "site"}
                 aria-controls="create-peer-form"
               >
-                <span className="peer-tab-title">Outlet Peer</span>
+                <span className="peer-tab-title">Site Peer</span>
                 <span className="peer-tab-description">Provision to WG-ITS and WG-CCTV</span>
               </button>
               <button
@@ -2100,7 +2126,7 @@ export default function App() {
             </div>
 
             <p className="form-note create-peer-note">
-              {createPeerType === "outlet"
+              {createPeerType === "site"
                 ? "Auto-provision to WG-ITS and WG-CCTV"
                 : "Single profile → .conf download"}
             </p>
@@ -2111,12 +2137,12 @@ export default function App() {
                   <strong>{createPeerFeedback.type === "success" ? "✅ " : "⚠ "} {createPeerFeedback.title}</strong>
                   <p>{createPeerFeedback.message}</p>
                 </div>
-                {createPeerFeedback.type === "success" && createPeerType === "outlet" && feedbackPeer ? (
-                  <div className="create-feedback-body outlet-feedback-body">
-                    <div className="create-feedback-summary outlet-feedback-summary">
-                      <div className="outlet-feedback-cards">
-                        {outletSummary.map((item) => (
-                          <div className="create-feedback-chip outlet-feedback-chip" key={`${item.label}-${item.value}`}>
+                {createPeerFeedback.type === "success" && createPeerType === "site" && feedbackPeer ? (
+                  <div className="create-feedback-body site-feedback-body">
+                    <div className="create-feedback-summary site-feedback-summary">
+                      <div className="site-feedback-cards">
+                        {siteSummary.map((item) => (
+                          <div className="create-feedback-chip site-feedback-chip" key={`${item.label}-${item.value}`}>
                             <span>{item.label}</span>
                             <strong>{item.value}</strong>
                           </div>
@@ -2124,7 +2150,7 @@ export default function App() {
                       </div>
                     </div>
                     <div className="create-feedback-actions">
-                      {outletDownloads.map((item) => (
+                      {siteDownloads.map((item) => (
                         <a className="ghost" href={item.href} key={item.id}>
                           Download {item.label}
                         </a>
@@ -2164,13 +2190,13 @@ export default function App() {
               </section>
             ) : null}
 
-            <form id="create-peer-form" className="settings-form create-peer-form" onSubmit={createPeer} role="tabpanel" aria-labelledby={createPeerType === "outlet" ? "tab-outlet-peer" : "tab-admin-peer"}>
+            <form id="create-peer-form" className="settings-form create-peer-form" onSubmit={createPeer} role="tabpanel" aria-labelledby={createPeerType === "site" ? "tab-site-peer" : "tab-admin-peer"}>
               {createPeerType === "administrator" ? (
                 <>
                   <section className="form-section">
                     <div className="form-section-head">
                       <strong>Step 1 · Target Server</strong>
-                      <span>Select WG-ITS, WG-CCTV, or BOTH</span>
+                      <span>Select WG-ITS or WG-CCTV</span>
                     </div>
                     <div className="target-server-inline" role="radiogroup" aria-label="Target Server">
                       {adminTargetOptions.map((option) => (
@@ -2230,57 +2256,52 @@ export default function App() {
                   <section className="form-section">
                     <div className="form-section-head">
                       <strong>Step 3 · Network</strong>
-                      <span>Pick from available administrator IPs</span>
+                      <span>Input administrator IP inside allowed range</span>
                     </div>
                     <div className="create-peer-form-grid admin-layout">
-                      {adminTargetMode === "both" ? (
-                        <>
-                          <label className="create-peer-field">
-                            Assigned IP (WG-ITS)
-                            <select
-                              value={adminAssignedItsIP}
-                              onChange={(event) => setAdminAssignedItsIP(event.target.value)}
-                              disabled={saving}
-                            >
-                              <option value="">Select available WG-ITS IP</option>
-                              {adminItsIPs.map((ip) => (
-                                <option key={ip} value={ip}>{ip}</option>
-                              ))}
-                            </select>
-                          </label>
-                          <label className="create-peer-field">
-                            Assigned IP (WG-CCTV)
-                            <select
-                              value={adminAssignedCctvIP}
-                              onChange={(event) => setAdminAssignedCctvIP(event.target.value)}
-                              disabled={saving}
-                            >
-                              <option value="">Select available WG-CCTV IP</option>
-                              {adminCctvIPs.map((ip) => (
-                                <option key={ip} value={ip}>{ip}</option>
-                              ))}
-                            </select>
-                          </label>
-                        </>
-                      ) : (
-                        <label className="create-peer-field">
-                          Assigned IP
-                          <select
-                            name="assignedIP"
-                            value={peerForm.assignedIP}
-                            onChange={updatePeerField}
-                            required
-                            disabled={saving}
-                          >
-                            <option value="">
-                              {adminTargetMode ? `Select available ${selectedTargetServer?.label || "target"} IP` : "Select target server first"}
-                            </option>
-                            {(adminTargetMode === "wg-its" ? adminItsIPs : adminTargetMode === "wg-cctv" ? adminCctvIPs : []).map((ip) => (
-                              <option key={ip} value={ip}>{ip}</option>
+                      <label className="create-peer-field create-peer-field-wide">
+                        Assigned IP
+                        <input
+                          name="assignedIP"
+                          value={peerForm.assignedIP}
+                          onChange={(event) => {
+                            const nextValue = String(event.target.value || "").replace(/[^0-9.]/g, "");
+                            setPeerForm((current) => ({ ...current, assignedIP: nextValue }));
+                            if (adminTargetMode) {
+                              setAdminAssignedIPError(validateAdminIP(nextValue, adminTargetMode));
+                            } else {
+                              setAdminAssignedIPError("");
+                            }
+                          }}
+                          required
+                          disabled={saving}
+                          placeholder={adminTargetMode ? (adminTargetMode === "wg-its" ? "10.21.3.10" : "10.22.3.10") : "Select target server first"}
+                          inputMode="numeric"
+                          pattern="^([0-9]{1,3}\.){3}[0-9]{1,3}$"
+                        />
+                        <small className="field-helper">{adminRangeLabel(adminTargetMode)}</small>
+                        {(adminAssignedIPError || adminValidationMessage) ? (
+                          <small className="field-error">{adminAssignedIPError || adminValidationMessage}</small>
+                        ) : null}
+                        {adminTargetMode ? (
+                          <div className="ip-suggestion-list" aria-label="Suggested available IPs">
+                            {adminSuggestions.map((ip) => (
+                              <button
+                                type="button"
+                                key={ip}
+                                className="ip-suggestion-chip"
+                                onClick={() => {
+                                  setPeerForm((current) => ({ ...current, assignedIP: ip }));
+                                  setAdminAssignedIPError("");
+                                }}
+                                disabled={saving}
+                              >
+                                {ip}
+                              </button>
                             ))}
-                          </select>
-                        </label>
-                      )}
+                          </div>
+                        ) : null}
+                      </label>
                       <label className="create-peer-field">
                         Allowed IPs
                         <input
@@ -2302,11 +2323,9 @@ export default function App() {
                       <div className="create-peer-field">
                         <span>Availability</span>
                         <small className="field-helper">
-                          {adminTargetMode === "both"
-                            ? `WG-ITS: ${adminItsIPs.length} available • WG-CCTV: ${adminCctvIPs.length} available`
-                            : adminTargetMode
-                              ? `${(adminTargetMode === "wg-its" ? adminItsIPs : adminCctvIPs).length} IPs available`
-                              : "Choose target server to load IP availability"}
+                          {adminTargetMode
+                            ? `${adminSuggestions.length} suggested free IPs`
+                            : "Choose target server to load IP suggestions"}
                         </small>
                       </div>
                     </div>
@@ -2316,10 +2335,10 @@ export default function App() {
               ) : (
                 <div className="create-peer-form-grid">
                   <label className="create-peer-field">
-                    Brand / Outlet Type
+                    Brand / Site Type
                     <input
-                      value={outletBrand}
-                      onChange={(event) => setOutletBrand(normalizeOutletSegment(event.target.value))}
+                      value={siteBrand}
+                      onChange={(event) => setSiteBrand(normalizeSiteSegment(event.target.value))}
                       pattern="[A-Z0-9]+"
                       inputMode="text"
                       required
@@ -2331,8 +2350,8 @@ export default function App() {
                   <label className="create-peer-field">
                     Location
                     <input
-                      value={outletLocation}
-                      onChange={(event) => setOutletLocation(normalizeOutletSegment(event.target.value))}
+                      value={siteLocation}
+                      onChange={(event) => setSiteLocation(normalizeSiteSegment(event.target.value))}
                       pattern="[A-Z0-9]+"
                       inputMode="text"
                       required
@@ -2344,7 +2363,7 @@ export default function App() {
                   <label className="create-peer-field create-peer-field-wide">
                     Generated Site Name
                     <input
-                      value={generatedOutletSiteName() || "BRAND-LOCATION"}
+                      value={generatedSiteName() || "BRAND-LOCATION"}
                       readOnly
                       disabled={saving}
                     />
@@ -2368,7 +2387,7 @@ export default function App() {
                     />
                     {" "}Managed by automation
                   </span>
-                  {createPeerType === "outlet" ? (
+                  {createPeerType === "site" ? (
                     <small className="field-helper">For site peers, unmanaged mode is blocked for safety.</small>
                   ) : (
                     <small className="field-helper">Administrator peers can be managed or unmanaged.</small>
@@ -2378,8 +2397,8 @@ export default function App() {
 
               <section className="flow-card">
                 <div className="flow-card-head">
-                  <strong>{createPeerType === "outlet" ? "Flow Outlet Peer" : "Flow Administrator Peer"}</strong>
-                  <span>{createPeerType === "outlet" ? "Auto-generated assignments" : "Manual profile creation"}</span>
+                  <strong>{createPeerType === "site" ? "Flow Site Peer" : "Flow Administrator Peer"}</strong>
+                  <span>{createPeerType === "site" ? "Auto-generated assignments" : "Manual profile creation"}</span>
                 </div>
                 <div className="flow-pipeline" aria-label={`${createPeerType} flow`}>
                   {flowSteps.map((step, index) => (
@@ -2393,8 +2412,8 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-                <p className="outlet-flow-note">
-                  {createPeerType === "outlet"
+                <p className="site-flow-note">
+                  {createPeerType === "site"
                     ? "Saat create dijalankan, OCC akan menyimpan satu site dengan dua assignment WireGuard dan empat file artefak untuk diunduh dari inventory."
                     : `Administrator profile will be created for ${selectedTargetServer?.label || "selected target"} and can be downloaded as .conf.`}
                 </p>
@@ -2425,8 +2444,8 @@ export default function App() {
         }
       case "removePeer":
         {
-          const outletPeers = state.peers.filter((peer) => peer.type === "outlet" && peerMatchesSearch(peer, removeSearch));
-          const administratorPeers = state.peers.filter((peer) => peer.type !== "outlet" && peerMatchesSearch(peer, removeSearch));
+          const sitePeers = state.peers.filter((peer) => isSitePeerRecord(peer) && peerMatchesSearch(peer, removeSearch));
+          const administratorPeers = state.peers.filter((peer) => !isSitePeerRecord(peer) && peerMatchesSearch(peer, removeSearch));
 
         return (
           <section className="panel">
@@ -2454,14 +2473,14 @@ export default function App() {
               <div className="remove-sections">
                 <section className="remove-section">
                   <div className="panel-head compact-head">
-                    <h3>Outlet Peers</h3>
+                    <h3>Site Peers</h3>
                     <span>Dual-server sites mapped to `wg-its` and `wg-cctv`</span>
                   </div>
-                  {outletPeers.length === 0 ? (
-                    <div className="empty">No outlet peers found.</div>
+                  {sitePeers.length === 0 ? (
+                    <div className="empty">No site peers found.</div>
                   ) : (
                     <div className="peer-list">
-                      {outletPeers.map((peer) => {
+                      {sitePeers.map((peer) => {
                         const wgIts = assignmentFor(peer, "wg-its");
                         const wgCctv = assignmentFor(peer, "wg-cctv");
                         const managementStatus = peerManagementStatus(peer);
@@ -2955,8 +2974,8 @@ export default function App() {
                   onChange={updateUserField}
                   inputMode="numeric"
                   pattern="[0-9]{6}"
-                  title="Exactly 6 digits"
                   maxLength={6}
+                  title="Exactly 6 digits"
                   aria-invalid={userFormErrors.nik ? "true" : "false"}
                   required
                 />

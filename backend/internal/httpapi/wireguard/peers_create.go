@@ -50,6 +50,7 @@ func (h *Handler) createPeer(w http.ResponseWriter, r *http.Request) {
 	)
 
 	managed := boolValueOrDefault(input.Managed, false)
+	targetServer := normalizeTargetServer(input.TargetServer)
 	name := strings.TrimSpace(input.Name)
 	publicKey := strings.TrimSpace(input.PublicKey)
 	assignedIP = strings.TrimSpace(input.AssignedIP)
@@ -60,7 +61,7 @@ func (h *Handler) createPeer(w http.ResponseWriter, r *http.Request) {
 				Peer:        name,
 				PeerType:    "administrator",
 				Managed:     managed,
-				ServerScope: strings.TrimSpace(input.TargetServer),
+				ServerScope: targetServer,
 				AssignedIP:  assignedIP,
 				TValidate:   tValidate,
 				TWriteState: tWriteState,
@@ -76,11 +77,38 @@ func (h *Handler) createPeer(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "name, publicKey, and assignedIP are required")
 		return
 	}
+	if targetServer == "both" {
+		errMessage = "administrator peer must choose a single server (wg-its or wg-cctv)"
+		writeError(w, http.StatusBadRequest, errMessage)
+		return
+	}
+	if _, ok := overlayPrefixForServerID(targetServer); !ok {
+		errMessage = "administrator peer must choose a single server (wg-its or wg-cctv)"
+		writeError(w, http.StatusBadRequest, errMessage)
+		return
+	}
+	assignedAddr, ok := parseIPv4(assignedIP)
+	if !ok {
+		errMessage = "assignedIP must be a valid IPv4 address"
+		writeError(w, http.StatusBadRequest, errMessage)
+		return
+	}
+	if !isAdminIPAllowedForServer(assignedAddr, targetServer) {
+		errMessage = "assignedIP out of allowed administrator range"
+		writeError(w, http.StatusBadRequest, errMessage)
+		return
+	}
+	if isAssignedIPAlreadyInUse(h.Store.GetState(), assignedAddr, targetServer) {
+		errMessage = "IP already in use"
+		writeError(w, http.StatusConflict, errMessage)
+		return
+	}
 
 	peer := store.Peer{
 		ID:           newID(name),
 		Name:         name,
 		Managed:      managed,
+		ServerScope:  targetServer,
 		PublicKey:    publicKey,
 		PresharedKey: strings.TrimSpace(input.PresharedKey),
 		AllowedIPs:   parseCSV(input.AllowedIPs),
@@ -183,6 +211,15 @@ func (h *Handler) createSitePeer(w http.ResponseWriter, r *http.Request, input p
 			if message == "" {
 				message = fmt.Sprintf("remote create failed on %s", serverConfig.Name)
 			}
+			timing.Err = shortTimingError(message)
+			applyTimings[serverConfig.ID] = timing
+			errMessage = fmt.Sprintf("server_id=%s reason=%s", serverConfig.ID, shortTimingError(message))
+			writeError(w, http.StatusBadGateway, message)
+			return
+		}
+		assignedAddr, ok := parseIPv4(result.AssignedIP)
+		if !ok || !isSiteIPAllowedForServer(assignedAddr, serverConfig.ID) {
+			message := fmt.Sprintf("remote assigned IP out of allowed site range for %s", serverConfig.ID)
 			timing.Err = shortTimingError(message)
 			applyTimings[serverConfig.ID] = timing
 			errMessage = fmt.Sprintf("server_id=%s reason=%s", serverConfig.ID, shortTimingError(message))

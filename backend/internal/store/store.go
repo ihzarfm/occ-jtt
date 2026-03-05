@@ -28,6 +28,7 @@ type Peer struct {
 	CreatedBy     string           `json:"createdBy,omitempty"`
 	CreatedByName string           `json:"createdByName,omitempty"`
 	Managed       bool             `json:"managed"`
+	ServerScope   string           `json:"serverScope,omitempty"`
 	PublicKey     string           `json:"publicKey"`
 	PresharedKey  string           `json:"presharedKey"`
 	AllowedIPs    []string         `json:"allowedIPs"`

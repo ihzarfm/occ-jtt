@@ -530,6 +530,30 @@ input[aria-invalid="true"] {
   line-height: 1.3;
 }
 
+.ip-suggestion-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.ip-suggestion-chip {
+  border: 1px solid var(--border-soft);
+  background: var(--surface-muted);
+  color: var(--text-primary);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.ip-suggestion-chip:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
 .log-list {
   display: grid;
   gap: 12px;
@@ -1198,23 +1222,23 @@ input[aria-invalid="true"] {
   color: var(--text-secondary);
 }
 
-.outlet-feedback-body {
+.site-feedback-body {
   align-items: flex-start;
 }
 
-.outlet-feedback-summary {
+.site-feedback-summary {
   display: grid;
   gap: 8px;
 }
 
-.outlet-feedback-cards {
+.site-feedback-cards {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   align-items: stretch;
 }
 
-.outlet-feedback-chip {
+.site-feedback-chip {
   min-width: 118px;
   padding: 10px 12px;
   border-radius: 12px;
@@ -1223,12 +1247,12 @@ input[aria-invalid="true"] {
   box-shadow: none;
 }
 
-.outlet-feedback-chip span {
+.site-feedback-chip span {
   font-size: 0.74rem;
   letter-spacing: 0.09em;
 }
 
-.outlet-feedback-chip strong {
+.site-feedback-chip strong {
   font-size: 1.02rem;
   letter-spacing: -0.03em;
   line-height: 1.02;
@@ -1413,7 +1437,7 @@ input[aria-invalid="true"] {
 
 .flow-card-head strong,
 .flow-card-head span,
-.outlet-flow-note {
+.site-flow-note {
   margin: 0;
 }
 
@@ -1499,7 +1523,7 @@ input[aria-invalid="true"] {
   color: var(--text-muted);
 }
 
-.outlet-flow-note {
+.site-flow-note {
   color: var(--text-secondary);
   line-height: 1.45;
   font-size: 0.92rem;
@@ -1967,7 +1991,7 @@ input[aria-invalid="true"] {
 
 .app-theme[data-theme="dark"] .flow-step small,
 .app-theme[data-theme="dark"] .create-feedback-main p,
-.app-theme[data-theme="dark"] .outlet-flow-note,
+.app-theme[data-theme="dark"] .site-flow-note,
 .app-theme[data-theme="dark"] .target-server-card small,
 .app-theme[data-theme="dark"] .advanced-toggle-meta,
 .app-theme[data-theme="dark"] .field-helper,
