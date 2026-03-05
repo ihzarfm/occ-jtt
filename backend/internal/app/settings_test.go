@@ -74,6 +74,48 @@ func TestSettingsRejectInvalidCIDR(t *testing.T) {
 	}
 }
 
+func TestSettingsRejectOverlayCIDRNotSlash22(t *testing.T) {
+	stateStore, err := store.New(filepath.Join(t.TempDir(), "state.json"))
+	if err != nil {
+		t.Fatalf("failed to create store: %v", err)
+	}
+
+	s := &server{store: stateStore}
+	payload := store.Settings{
+		WG: store.WGSettings{
+			ActiveProfile: "staging",
+			Profiles: map[string]store.WGProfileSettings{
+				"staging": {
+					Servers: map[string]store.WGServerSettings{
+						"stg-its": {
+							ID:           "stg-its",
+							Enabled:      true,
+							DisplayName:  "stg-its",
+							OverlayCIDR:  "10.21.0.0/24",
+							EndpointHost: "10.0.0.1",
+							EndpointPort: 22,
+							SSHUser:      "raph",
+							SSHKeyPath:   "~/.ssh/id_ed25519",
+						},
+					},
+				},
+			},
+		},
+	}
+	body, _ := json.Marshal(payload)
+
+	req := httptest.NewRequest(http.MethodPut, "/api/settings", bytes.NewReader(body))
+	res := httptest.NewRecorder()
+	s.handleSettings(res, req)
+
+	if res.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d", res.Code)
+	}
+	if !bytes.Contains(res.Body.Bytes(), []byte("wg overlayCIDR must be /22")) {
+		t.Fatalf("expected /22 validation error, got: %s", res.Body.String())
+	}
+}
+
 func TestEffectiveWGSettingsFallback(t *testing.T) {
 	stateStore, err := store.New(filepath.Join(t.TempDir(), "state.json"))
 	if err != nil {

@@ -304,7 +304,7 @@ func defaultWGServers() []wireguard.WGServerConfig {
 			KeyPath:         env("STG_CCTV_SSH_KEY_PATH", filepath.Join(defaultSSHHomeDir("raph"), ".ssh", "id_ed25519")),
 			WireGuardIP:     "192.168.21.254",
 			InterfaceName:   "wg-cctv",
-			OverlayCIDR:     "10.21.0.0/22",
+			OverlayCIDR:     "10.22.0.0/22",
 			RemoteWGConf:    "/etc/wireguard/wg0.conf",
 			DefaultEndpoint: "192.168.21.254",
 			DefaultPort:     51820,
@@ -320,7 +320,7 @@ func defaultWGServers() []wireguard.WGServerConfig {
 			KeyPath:         env("STG_ITS_SSH_KEY_PATH", filepath.Join(defaultSSHHomeDir("raph"), ".ssh", "id_ed25519")),
 			WireGuardIP:     "192.168.22.254",
 			InterfaceName:   "wg-its",
-			OverlayCIDR:     "10.22.0.0/22",
+			OverlayCIDR:     "10.21.0.0/22",
 			RemoteWGConf:    "/etc/wireguard/wg0.conf",
 			DefaultEndpoint: "192.168.22.254",
 			DefaultPort:     51820,
@@ -711,6 +711,14 @@ func validateWGSettings(settings store.WGSettings) error {
 	}
 
 	for serverID, server := range profile.Servers {
+		prefix, err := netip.ParsePrefix(strings.TrimSpace(server.OverlayCIDR))
+		if err != nil {
+			return fmt.Errorf("invalid overlayCIDR for server %s", serverID)
+		}
+		if prefix.Bits() != 22 {
+			return errors.New("wg overlayCIDR must be /22 (example: 10.21.0.0/22)")
+		}
+
 		if !server.Enabled {
 			continue
 		}
@@ -723,9 +731,6 @@ func validateWGSettings(settings store.WGSettings) error {
 		keyPath := strings.TrimSpace(server.SSHKeyPath)
 		if keyPath == "" || (!strings.Contains(keyPath, "/") && !strings.HasPrefix(keyPath, "~")) {
 			return fmt.Errorf("sshKeyPath is invalid for enabled server %s", serverID)
-		}
-		if _, err := netip.ParsePrefix(strings.TrimSpace(server.OverlayCIDR)); err != nil {
-			return fmt.Errorf("invalid overlayCIDR for server %s", serverID)
 		}
 	}
 	return nil

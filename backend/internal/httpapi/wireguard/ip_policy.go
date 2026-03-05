@@ -64,37 +64,50 @@ func isReservedHostOctet(ip netip.Addr) bool {
 	return lastOctet == 1 || lastOctet == 255
 }
 
-func isAdminIPAllowedForServer(ip netip.Addr, serverID string) bool {
+func adminRangeForServerID(serverID string) (netip.Addr, netip.Addr, netip.Prefix, bool) {
 	prefix, ok := overlayPrefixForServerID(serverID)
-	if !ok || !prefix.Contains(ip) {
-		return false
+	if !ok || !prefix.Addr().Is4() || prefix.Bits() != 22 {
+		return netip.Addr{}, netip.Addr{}, netip.Prefix{}, false
 	}
 
-	octets := ip.As4()
-	thirdOctet := octets[2]
-	lastOctet := octets[3]
-	if thirdOctet != 3 {
+	base := prefix.Masked().Addr().As4()
+	startThird := base[2] + 3 // last /24 in /22
+	start := netip.AddrFrom4([4]byte{base[0], base[1], startThird, 2})
+	end := netip.AddrFrom4([4]byte{base[0], base[1], startThird, 254})
+	return start, end, prefix, true
+}
+
+func siteRangeForServerID(serverID string) (netip.Addr, netip.Addr, netip.Prefix, bool) {
+	prefix, ok := overlayPrefixForServerID(serverID)
+	if !ok || !prefix.Addr().Is4() || prefix.Bits() != 22 {
+		return netip.Addr{}, netip.Addr{}, netip.Prefix{}, false
+	}
+
+	base := prefix.Masked().Addr().As4()
+	startThird := base[2]
+	endThird := base[2] + 2
+	start := netip.AddrFrom4([4]byte{base[0], base[1], startThird, 2})
+	end := netip.AddrFrom4([4]byte{base[0], base[1], endThird, 254})
+	return start, end, prefix, true
+}
+
+func isAdminIPAllowedForServer(ip netip.Addr, serverID string) bool {
+	start, end, _, ok := adminRangeForServerID(serverID)
+	if !ok {
 		return false
 	}
-	if lastOctet < 2 || lastOctet > 254 {
+	if ip.Compare(start) < 0 || ip.Compare(end) > 0 {
 		return false
 	}
 	return !isReservedHostOctet(ip)
 }
 
 func isSiteIPAllowedForServer(ip netip.Addr, serverID string) bool {
-	prefix, ok := overlayPrefixForServerID(serverID)
-	if !ok || !prefix.Contains(ip) {
+	start, end, _, ok := siteRangeForServerID(serverID)
+	if !ok {
 		return false
 	}
-
-	octets := ip.As4()
-	thirdOctet := octets[2]
-	lastOctet := octets[3]
-	if thirdOctet > 2 {
-		return false
-	}
-	if lastOctet < 2 || lastOctet > 254 {
+	if ip.Compare(start) < 0 || ip.Compare(end) > 0 {
 		return false
 	}
 	return !isReservedHostOctet(ip)

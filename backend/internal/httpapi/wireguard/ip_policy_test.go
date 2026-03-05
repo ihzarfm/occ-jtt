@@ -100,3 +100,55 @@ func TestIsSiteIPAllowedForServer(t *testing.T) {
 		t.Fatalf("expected site ip out-of-range to be rejected")
 	}
 }
+
+func TestIsAdminIPAllowedForServer_WithOverlayResolver(t *testing.T) {
+	setOverlayCIDRResolver(func(serverID string) (string, bool) {
+		if serverID == "stg-its" {
+			return "10.21.0.0/22", true
+		}
+		return "", false
+	})
+	t.Cleanup(func() {
+		setOverlayCIDRResolver(nil)
+	})
+
+	validLow, ok := parseIPv4("10.21.3.2")
+	if !ok {
+		t.Fatalf("failed parsing valid low ip")
+	}
+	if !isAdminIPAllowedForServer(validLow, "stg-its") {
+		t.Fatalf("expected valid low admin ip")
+	}
+
+	validHigh, ok := parseIPv4("10.21.3.254")
+	if !ok {
+		t.Fatalf("failed parsing valid high ip")
+	}
+	if !isAdminIPAllowedForServer(validHigh, "stg-its") {
+		t.Fatalf("expected valid high admin ip")
+	}
+
+	siteRange, ok := parseIPv4("10.21.0.10")
+	if !ok {
+		t.Fatalf("failed parsing site-range ip")
+	}
+	if isAdminIPAllowedForServer(siteRange, "stg-its") {
+		t.Fatalf("expected site range ip to be rejected")
+	}
+
+	reservedLow, ok := parseIPv4("10.21.3.1")
+	if !ok {
+		t.Fatalf("failed parsing reserved low ip")
+	}
+	if isAdminIPAllowedForServer(reservedLow, "stg-its") {
+		t.Fatalf("expected .1 to be rejected")
+	}
+
+	reservedHigh, ok := parseIPv4("10.21.3.255")
+	if !ok {
+		t.Fatalf("failed parsing reserved high ip")
+	}
+	if isAdminIPAllowedForServer(reservedHigh, "stg-its") {
+		t.Fatalf("expected .255 to be rejected")
+	}
+}

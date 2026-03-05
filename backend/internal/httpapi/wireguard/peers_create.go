@@ -43,14 +43,17 @@ func (h *Handler) createPeer(w http.ResponseWriter, r *http.Request) {
 	requestStartedAt := time.Now()
 	validateStartedAt := time.Now()
 	var (
-		tValidate   time.Duration
-		tWriteState time.Duration
-		errMessage  string
-		assignedIP  string
+		tValidate          time.Duration
+		tWriteState        time.Duration
+		errMessage         string
+		assignedIP         string
+		overlayCIDRUsed    string
+		expectedAdminRange string
+		serverIDResolved   string
 	)
 
 	managed := boolValueOrDefault(input.Managed, false)
-	targetServer := normalizeTargetServer(input.TargetServer)
+	targetServerScope := strings.ToLower(strings.TrimSpace(input.TargetServer))
 	name := strings.TrimSpace(input.Name)
 	publicKey := strings.TrimSpace(input.PublicKey)
 	assignedIP = strings.TrimSpace(input.AssignedIP)
@@ -58,15 +61,18 @@ func (h *Handler) createPeer(w http.ResponseWriter, r *http.Request) {
 		log.Printf(
 			"%s",
 			formatAdministratorPeerTimingLog(administratorPeerTimingLog{
-				Peer:        name,
-				PeerType:    "administrator",
-				Managed:     managed,
-				ServerScope: targetServer,
-				AssignedIP:  assignedIP,
-				TValidate:   tValidate,
-				TWriteState: tWriteState,
-				Total:       time.Since(requestStartedAt),
-				Err:         errMessage,
+				Peer:               name,
+				PeerType:           "administrator",
+				Managed:            managed,
+				ServerScope:        targetServerScope,
+				AssignedIP:         assignedIP,
+				OverlayCIDRUsed:    overlayCIDRUsed,
+				ExpectedAdminRange: expectedAdminRange,
+				ServerIDResolved:   serverIDResolved,
+				TValidate:          tValidate,
+				TWriteState:        tWriteState,
+				Total:              time.Since(requestStartedAt),
+				Err:                errMessage,
 			}),
 		)
 	}()
@@ -77,28 +83,36 @@ func (h *Handler) createPeer(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "name, publicKey, and assignedIP are required")
 		return
 	}
-	if targetServer == "both" {
+	if targetServerScope == "both" {
 		errMessage = "administrator peer must choose a single server (wg-its or wg-cctv)"
 		writeError(w, http.StatusBadRequest, errMessage)
 		return
 	}
-	if _, ok := overlayPrefixForServerID(targetServer); !ok {
-		errMessage = "administrator peer must choose a single server (wg-its or wg-cctv)"
+	resolvedServer, ok := resolveServerForScope(targetServerScope, h.ListWGServers())
+	if !ok {
+		errMessage = fmt.Sprintf("Unknown serverScope: %s (not present in active profile)", targetServerScope)
 		writeError(w, http.StatusBadRequest, errMessage)
 		return
 	}
+	serverIDResolved = strings.TrimSpace(resolvedServer.ID)
+	overlayCIDRUsed = strings.TrimSpace(resolvedServer.OverlayCIDR)
+
+	targetServer := normalizeTargetServer(targetServerScope)
 	assignedAddr, ok := parseIPv4(assignedIP)
 	if !ok {
 		errMessage = "assignedIP must be a valid IPv4 address"
 		writeError(w, http.StatusBadRequest, errMessage)
 		return
 	}
-	if !isAdminIPAllowedForServer(assignedAddr, targetServer) {
+	if rangeStart, rangeEnd, _, rangeOK := adminRangeForServerID(serverIDResolved); rangeOK {
+		expectedAdminRange = fmt.Sprintf("%s-%s", rangeStart.String(), rangeEnd.String())
+	}
+	if !isAdminIPAllowedForServer(assignedAddr, serverIDResolved) {
 		errMessage = "assignedIP out of allowed administrator range"
 		writeError(w, http.StatusBadRequest, errMessage)
 		return
 	}
-	if isAssignedIPAlreadyInUse(h.Store.GetState(), assignedAddr, targetServer) {
+	if isAssignedIPAlreadyInUse(h.Store.GetState(), assignedAddr, serverIDResolved) {
 		errMessage = "IP already in use"
 		writeError(w, http.StatusConflict, errMessage)
 		return
@@ -332,15 +346,18 @@ type sitePeerTimingLog struct {
 }
 
 type administratorPeerTimingLog struct {
-	Peer        string
-	PeerType    string
-	Managed     bool
-	ServerScope string
-	AssignedIP  string
-	TValidate   time.Duration
-	TWriteState time.Duration
-	Total       time.Duration
-	Err         string
+	Peer               string
+	PeerType           string
+	Managed            bool
+	ServerScope        string
+	AssignedIP         string
+	OverlayCIDRUsed    string
+	ExpectedAdminRange string
+	ServerIDResolved   string
+	TValidate          time.Duration
+	TWriteState        time.Duration
+	Total              time.Duration
+	Err                string
 }
 
 func formatSitePeerTimingLog(data sitePeerTimingLog) string {
@@ -377,17 +394,55 @@ func formatSitePeerTimingLog(data sitePeerTimingLog) string {
 
 func formatAdministratorPeerTimingLog(data administratorPeerTimingLog) string {
 	return fmt.Sprintf(
-		"[timing] mode=administrator peer=%q peerType=%q managed=%t serverScope=%q assigned_ip=%q t_validate=%dms t_write_state=%dms total=%dms err=%q",
+		"[timing] mode=administrator peer=%q peerType=%q managed=%t serverScope=%q assigned_ip=%q overlayCIDR_used=%q expected_admin_range=%q server_id_resolved=%q t_validate=%dms t_write_state=%dms total=%dms err=%q",
 		data.Peer,
 		data.PeerType,
 		data.Managed,
 		data.ServerScope,
 		data.AssignedIP,
+		data.OverlayCIDRUsed,
+		data.ExpectedAdminRange,
+		data.ServerIDResolved,
 		durationMillis(data.TValidate),
 		durationMillis(data.TWriteState),
 		durationMillis(data.Total),
 		shortTimingError(data.Err),
 	)
+}
+
+func resolveServerForScope(serverScope string, servers []WGServerConfig) (WGServerConfig, bool) {
+	scope := strings.ToLower(strings.TrimSpace(serverScope))
+	if scope == "" {
+		return WGServerConfig{}, false
+	}
+
+	for _, server := range servers {
+		if strings.EqualFold(strings.TrimSpace(server.ID), scope) {
+			return server, true
+		}
+	}
+
+	aliases := []string{scope}
+	switch scope {
+	case "wg-its":
+		aliases = append(aliases, "stg-its")
+	case "stg-its":
+		aliases = append(aliases, "wg-its")
+	case "wg-cctv":
+		aliases = append(aliases, "stg-cctv")
+	case "stg-cctv":
+		aliases = append(aliases, "wg-cctv")
+	}
+
+	for _, alias := range aliases[1:] {
+		for _, server := range servers {
+			if strings.EqualFold(strings.TrimSpace(server.ID), alias) {
+				return server, true
+			}
+		}
+	}
+
+	return WGServerConfig{}, false
 }
 
 func mapKeysSorted[V any](items map[string]V) []string {
