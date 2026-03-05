@@ -1384,6 +1384,17 @@ input[aria-invalid="true"] {
   grid-column: 1 / -1;
 }
 
+.checkbox-field span {
+  font-size: 0.92rem;
+  color: var(--text-primary);
+}
+
+.checkbox-field input[type="checkbox"] {
+  width: auto;
+  margin-right: 6px;
+  accent-color: var(--primary);
+}
+
 .flow-card {
   display: grid;
   gap: 12px;

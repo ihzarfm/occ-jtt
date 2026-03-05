@@ -30,7 +30,11 @@ func (h *Handler) createPeer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if strings.EqualFold(strings.TrimSpace(input.PeerType), "outlet") {
+	if isSiteLikePeerType(input.PeerType) {
+		if input.Managed != nil && !*input.Managed {
+			writeError(w, http.StatusBadRequest, "site peer with managed=false is not supported")
+			return
+		}
 		h.createOutletPeer(w, r, input)
 		return
 	}
@@ -46,6 +50,7 @@ func (h *Handler) createPeer(w http.ResponseWriter, r *http.Request) {
 	peer := store.Peer{
 		ID:           newID(name),
 		Name:         name,
+		Managed:      boolValueOrDefault(input.Managed, false),
 		PublicKey:    publicKey,
 		PresharedKey: strings.TrimSpace(input.PresharedKey),
 		AllowedIPs:   parseCSV(input.AllowedIPs),
@@ -67,7 +72,7 @@ func (h *Handler) createPeer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.AppendAuditLog(r, "wireguard", "create", created.Name, fmt.Sprintf("Created administrator peer %s", created.Name))
+	h.AppendAuditLog(r, "wireguard", "create", created.Name, fmt.Sprintf("Created administrator peer %s (managed=%t)", created.Name, created.Managed))
 
 	writeJSON(w, http.StatusCreated, map[string]any{
 		"state": publicState(state),
@@ -213,6 +218,7 @@ func (h *Handler) createOutletPeer(w http.ResponseWriter, r *http.Request, input
 		Type:        "outlet",
 		SiteName:    siteName,
 		Name:        fmt.Sprintf("Outlet - %s", siteName),
+		Managed:     boolValueOrDefault(input.Managed, true),
 		AllowedIPs:  []string{"0.0.0.0/0"},
 		Keepalive:   15,
 		AssignedIP:  assignments[0].AssignedIP,
@@ -234,10 +240,22 @@ func (h *Handler) createOutletPeer(w http.ResponseWriter, r *http.Request, input
 	}
 	assignedIP = created.AssignedIP
 
-	h.AppendAuditLog(r, "wireguard", "create", created.Name, fmt.Sprintf("Created outlet peer %s", created.Name))
+	h.AppendAuditLog(r, "wireguard", "create", created.Name, fmt.Sprintf("Created outlet peer %s (managed=%t)", created.Name, created.Managed))
 
 	writeJSON(w, http.StatusCreated, map[string]any{
 		"state": publicState(state),
 		"peer":  created,
 	})
+}
+
+func boolValueOrDefault(value *bool, fallback bool) bool {
+	if value == nil {
+		return fallback
+	}
+	return *value
+}
+
+func isSiteLikePeerType(value string) bool {
+	normalized := strings.ToLower(strings.TrimSpace(value))
+	return normalized == "site" || normalized == "outlet"
 }

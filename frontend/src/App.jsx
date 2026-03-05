@@ -276,6 +276,7 @@ export default function App() {
     typeof window !== "undefined" ? window.matchMedia("(max-width: 767px)").matches : false
   ));
   const [createPeerType, setCreatePeerType] = useState("outlet");
+  const [managedByAutomation, setManagedByAutomation] = useState(true);
   const [outletBrand, setOutletBrand] = useState("");
   const [outletLocation, setOutletLocation] = useState("");
   const [adminTargetMode, setAdminTargetMode] = useState("");
@@ -496,10 +497,12 @@ export default function App() {
     setCreatePeerFeedback(emptyCreatePeerFeedback);
     setError("");
     if (createPeerType === "outlet") {
+      setManagedByAutomation(true);
       setAdminTargetMode("");
       setPeerForm((current) => ({ ...current, name: "", assignedIP: "", allowedIPs: "0.0.0.0/0" }));
     }
     if (createPeerType === "administrator") {
+      setManagedByAutomation(false);
       setOutletBrand("");
       setOutletLocation("");
       setPeerForm((current) => ({ ...current, allowedIPs: "" }));
@@ -726,6 +729,7 @@ export default function App() {
             credentials: "same-origin",
             body: JSON.stringify({
               peerType: createPeerType,
+              managed: managedByAutomation,
               ...peerForm,
               name: `Administrator-${peerName}-${request.server.toUpperCase()}`,
               publicKey: autoPublicKey,
@@ -773,6 +777,7 @@ export default function App() {
           credentials: "same-origin",
           body: JSON.stringify({
             peerType: createPeerType,
+            managed: managedByAutomation,
             ...peerForm,
             name: isOutletPeer ? outletSiteName : `Administrator-${peerName}`,
             publicKey: isOutletPeer ? peerForm.publicKey : (peerForm.publicKey || generatePseudoPublicKey()),
@@ -1207,6 +1212,7 @@ export default function App() {
 
   function resetPeerForm() {
     setPeerForm(emptyPeer);
+    setManagedByAutomation(createPeerType === "outlet");
     if (createPeerType === "administrator") {
       setPeerForm((current) => ({ ...current, allowedIPs: "" }));
     }
@@ -1328,6 +1334,9 @@ export default function App() {
   }
 
   function peerManagementStatus(peer) {
+    if (typeof peer?.managed === "boolean") {
+      return peer.managed ? "managed" : "unmanaged";
+    }
     if (peer?.type === "outlet" || Array.isArray(peer?.assignments)) {
       return "managed";
     }
@@ -2344,6 +2353,29 @@ export default function App() {
                 </div>
               )}
 
+              <section className="form-section">
+                <div className="form-section-head">
+                  <strong>Automation</strong>
+                  <span>Set automation ownership for this peer</span>
+                </div>
+                <label className="create-peer-field create-peer-field-wide checkbox-field">
+                  <span>
+                    <input
+                      type="checkbox"
+                      checked={managedByAutomation}
+                      onChange={(event) => setManagedByAutomation(event.target.checked)}
+                      disabled={saving}
+                    />
+                    {" "}Managed by automation
+                  </span>
+                  {createPeerType === "outlet" ? (
+                    <small className="field-helper">For site peers, unmanaged mode is blocked for safety.</small>
+                  ) : (
+                    <small className="field-helper">Administrator peers can be managed or unmanaged.</small>
+                  )}
+                </label>
+              </section>
+
               <section className="flow-card">
                 <div className="flow-card-head">
                   <strong>{createPeerType === "outlet" ? "Flow Outlet Peer" : "Flow Administrator Peer"}</strong>
@@ -2432,10 +2464,16 @@ export default function App() {
                       {outletPeers.map((peer) => {
                         const wgIts = assignmentFor(peer, "wg-its");
                         const wgCctv = assignmentFor(peer, "wg-cctv");
+                        const managementStatus = peerManagementStatus(peer);
                         return (
                           <article className="peer-card" key={peer.id}>
                             <div>
-                              <h3>{peer.siteName || peer.name}</h3>
+                              <div className="inventory-card-head">
+                                <h3>{peer.siteName || peer.name}</h3>
+                                <span className={`inventory-pill inventory-${managementStatus}`}>
+                                  {managementStatus === "managed" ? "MANAGED" : "UNMANAGED"}
+                                </span>
+                              </div>
                               <div className="peer-detail-list">
                                 <p><strong>wg-its</strong>: {wgIts?.assignedIP || "-"}</p>
                                 <p><strong>wg-cctv</strong>: {wgCctv?.assignedIP || "-"}</p>
@@ -2467,10 +2505,17 @@ export default function App() {
                     <div className="empty">No administrator peers found.</div>
                   ) : (
                     <div className="peer-list">
-                      {administratorPeers.map((peer) => (
+                      {administratorPeers.map((peer) => {
+                        const managementStatus = peerManagementStatus(peer);
+                        return (
                         <article className="peer-card" key={peer.id}>
                           <div>
-                            <h3>{peer.name}</h3>
+                            <div className="inventory-card-head">
+                              <h3>{peer.name}</h3>
+                              <span className={`inventory-pill inventory-${managementStatus}`}>
+                                {managementStatus === "managed" ? "MANAGED" : "UNMANAGED"}
+                              </span>
+                            </div>
                             <div className="peer-detail-list">
                               <p><strong>Assigned IP</strong>: {peer.assignedIP || "-"}</p>
                               <p><strong>Public Key</strong>: {peer.publicKey || "-"}</p>
@@ -2483,11 +2528,12 @@ export default function App() {
                             type="button"
                             onClick={() => deletePeer(peer.id)}
                             disabled={saving}
-                          >
-                            Delete
-                          </button>
+                            >
+                              Delete
+                            </button>
                         </article>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </section>
@@ -2531,7 +2577,7 @@ export default function App() {
               </div>
 
               <p className="form-note">
-                Status saat ini diidentifikasi dari pola nama peer yang dibuat OCC. Untuk SSOT penuh lintas server, status managed sebaiknya nanti dibandingkan dengan inventory aktual di masing-masing server.
+                Status managed/unmanaged diambil dari field `managed` peer dengan fallback aman untuk data lama.
               </p>
 
               <section className="list-toolbar" aria-label="Inventory Search">
@@ -2561,7 +2607,7 @@ export default function App() {
                           <div className="inventory-card-head">
                             <h3>{peer.name}</h3>
                             <span className={`inventory-pill inventory-${managementStatus}`}>
-                              {managementStatus === "managed" ? "Managed" : "Unmanaged"}
+                              {managementStatus === "managed" ? "MANAGED" : "UNMANAGED"}
                             </span>
                           </div>
                           {Array.isArray(peer.assignments) && peer.assignments.length > 0 ? (

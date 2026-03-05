@@ -60,6 +60,7 @@ func NewHandler(h Handler) *Handler {
 type peerInput struct {
 	PeerType     string `json:"peerType"`
 	Name         string `json:"name"`
+	Managed      *bool  `json:"managed"`
 	PublicKey    string `json:"publicKey"`
 	PresharedKey string `json:"presharedKey"`
 	AllowedIPs   string `json:"allowedIPs"`

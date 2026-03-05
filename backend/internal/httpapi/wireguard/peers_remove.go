@@ -86,13 +86,19 @@ func (h *Handler) HandlePeerByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) removeRemotePeer(r *http.Request, peer store.Peer) error {
-	if peer.Type != "outlet" || len(peer.Assignments) == 0 {
+	if !isSiteOrOutletPeer(peer) || len(peer.Assignments) == 0 {
+		return nil
+	}
+	if !peer.Managed {
 		return nil
 	}
 
 	siteName := strings.TrimSpace(peer.SiteName)
 	if siteName == "" {
 		siteName = strings.TrimPrefix(peer.Name, "Outlet - ")
+	}
+	if siteName == "" {
+		siteName = strings.TrimPrefix(peer.Name, "Site - ")
 	}
 	if siteName == "" {
 		return errors.New("missing site name for outlet peer")
@@ -119,6 +125,11 @@ func (h *Handler) removeRemotePeer(r *http.Request, peer store.Peer) error {
 	}
 
 	return nil
+}
+
+func isSiteOrOutletPeer(peer store.Peer) bool {
+	normalizedType := strings.ToLower(strings.TrimSpace(peer.Type))
+	return normalizedType == "site" || normalizedType == "outlet" || (normalizedType == "" && len(peer.Assignments) > 0)
 }
 
 func decodePathSegment(value string) string {

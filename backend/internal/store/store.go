@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 	"sync"
 	"time"
 )
@@ -26,6 +27,7 @@ type Peer struct {
 	Name          string           `json:"name"`
 	CreatedBy     string           `json:"createdBy,omitempty"`
 	CreatedByName string           `json:"createdByName,omitempty"`
+	Managed       bool             `json:"managed"`
 	PublicKey     string           `json:"publicKey"`
 	PresharedKey  string           `json:"presharedKey"`
 	AllowedIPs    []string         `json:"allowedIPs"`
@@ -53,6 +55,30 @@ type PeerArtifact struct {
 	Filename    string `json:"filename"`
 	ContentType string `json:"contentType"`
 	Content     string `json:"content"`
+}
+
+func (p *Peer) UnmarshalJSON(data []byte) error {
+	type alias Peer
+	aux := struct {
+		*alias
+		Managed *bool `json:"managed"`
+	}{
+		alias: (*alias)(p),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	if aux.Managed == nil {
+		p.Managed = defaultManagedForLegacyPeer(*p)
+	}
+	return nil
+}
+
+func defaultManagedForLegacyPeer(peer Peer) bool {
+	peerType := strings.ToLower(strings.TrimSpace(peer.Type))
+	return peerType == "site" || peerType == "outlet" || len(peer.Assignments) > 0
 }
 
 type User struct {
