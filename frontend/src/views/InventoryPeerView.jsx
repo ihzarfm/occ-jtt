@@ -3,7 +3,8 @@ import { deletePeer, getState } from "../api/peers";
 import { getWGServerDiagnostics } from "../api/monitoring";
 import { normalizedServerID } from "../utils/validators";
 import InventorySummary from "../components/inventory/InventorySummary";
-import PeerCard from "../components/inventory/PeerCard";
+import InventoryPeerRow from "../components/inventory/InventoryPeerRow";
+import PeerDetailsModal from "../components/inventory/PeerDetailsModal";
 
 function isSitePeerRecord(peer) {
   const peerType = String(peer?.type || "").trim().toLowerCase();
@@ -67,6 +68,7 @@ export default function InventoryPeerView({ mode, active, isAdministrator }) {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [removeError, setRemoveError] = useState("");
+  const [selectedPeer, setSelectedPeer] = useState(null);
   const [wgServerDiagnostics, setWGServerDiagnostics] = useState({ loading: false, error: "", items: [], lastUpdated: "" });
 
   const loadState = useCallback(async () => {
@@ -260,29 +262,35 @@ export default function InventoryPeerView({ mode, active, isAdministrator }) {
       ) : null}
 
       {!loading && visiblePeers.length > 0 ? (
-        <div className="peer-list-grid inventory-grid">
+        <div className="inv-panel">
           {visiblePeers.map((peer) => {
             const managementStatus = peerManagementStatus(peer);
-            const isSite = Array.isArray(peer.assignments) && peer.assignments.length > 0;
             const wgIts = assignmentFor(peer, "wg-its");
             const wgCctv = assignmentFor(peer, "wg-cctv");
             return (
-              <PeerCard
+              <InventoryPeerRow
                 key={peer.id}
                 peer={peer}
                 managementStatus={managementStatus}
-                isSite={isSite}
                 wgItsIP={wgIts?.assignedIP}
                 wgCctvIP={wgCctv?.assignedIP}
                 assignedIP={peer.assignedIP}
                 creatorLabel={peerCreatorLabel(peer)}
                 createdAtLabel={peerCreatedAtLabel(peer)}
-                onCopyPublicKey={copyToClipboard}
+                onOpenDetails={setSelectedPeer}
               />
             );
           })}
         </div>
       ) : null}
+
+      <PeerDetailsModal
+        peer={selectedPeer}
+        creatorLabel={selectedPeer ? peerCreatorLabel(selectedPeer) : ""}
+        createdAtLabel={selectedPeer ? peerCreatedAtLabel(selectedPeer) : ""}
+        onCopyPublicKey={copyToClipboard}
+        onClose={() => setSelectedPeer(null)}
+      />
     </section>
   );
 }
