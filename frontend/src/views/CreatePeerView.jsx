@@ -1,5 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { createPeer as createPeerAPI, getState } from "../api/peers";
+import CreatePeerModeToggle from "../components/CreatePeerModeToggle";
+import ManagedCheckbox from "../components/ManagedCheckbox";
+import AdminIpSuggestion from "../components/AdminIpSuggestion";
+import PeerFormActions from "../components/PeerFormActions";
 import {
   adminRangeLabel,
   availableAdminIPsFor,
@@ -9,6 +13,7 @@ import {
   sanitizeAllowedIPs,
   validateAdminIP,
 } from "../utils/validators";
+import { buildAdminPeerPayload, buildSitePeerPayload } from "../utils/peerPayload";
 
 const emptyPeer = {
   name: "",
@@ -45,11 +50,6 @@ function generatePseudoPublicKey() {
   let binary = "";
   for (const b of bytes) binary += String.fromCharCode(b);
   return window.btoa(binary);
-}
-
-function isSitePeerRecord(peer) {
-  const peerType = String(peer?.type || "").trim().toLowerCase();
-  return peerType === "site" || peerType === "outlet" || Array.isArray(peer?.assignments);
 }
 
 function siteAssignmentSummary(peer) {
@@ -231,16 +231,26 @@ export default function CreatePeerView({ active, isAdministrator, onNavigate }) 
     setSaving(true);
 
     try {
-      const { response, data } = await createPeerAPI({
-        peerType: createPeerType,
-        managed: managedByAutomation,
-        ...peerForm,
-        name: isSitePeer ? sitePeerName : `Administrator-${peerName}`,
-        publicKey: isSitePeer ? peerForm.publicKey : (peerForm.publicKey || generatePseudoPublicKey()),
-        keepalive: Number(peerForm.keepalive),
-        purpose: adminPurpose,
-        targetServer: adminTargetMode,
-      });
+      const payload = isSitePeer
+        ? buildSitePeerPayload({
+            createPeerType,
+            managedByAutomation,
+            peerForm,
+            sitePeerName,
+            adminPurpose,
+            adminTargetMode,
+          })
+        : buildAdminPeerPayload({
+            createPeerType,
+            managedByAutomation,
+            peerForm,
+            peerName,
+            generatedPublicKey: generatePseudoPublicKey(),
+            adminPurpose,
+            adminTargetMode,
+          });
+
+      const { response, data } = await createPeerAPI(payload);
 
       if (!response.ok) throw new Error(data.error || "Failed to create peer");
 
@@ -279,16 +289,7 @@ export default function CreatePeerView({ active, isAdministrator, onNavigate }) 
   return (
     <section className="panel create-peer-panel">
       {error ? <div className="alert">{error}</div> : null}
-      <div className="peer-tablist" role="tablist" aria-label="Select peer type">
-        <button id="tab-site-peer" type="button" role="tab" className={`peer-tab${createPeerType === "site" ? " active" : ""}`} onClick={() => setCreatePeerType("site")} aria-selected={createPeerType === "site"} aria-controls="create-peer-form">
-          <span className="peer-tab-title">Site Peer</span>
-          <span className="peer-tab-description">Provision to WG-ITS and WG-CCTV</span>
-        </button>
-        <button id="tab-admin-peer" type="button" role="tab" className={`peer-tab${createPeerType === "administrator" ? " active" : ""}`} onClick={() => setCreatePeerType("administrator")} aria-selected={createPeerType === "administrator"} aria-controls="create-peer-form">
-          <span className="peer-tab-title">Administrator Peer</span>
-          <span className="peer-tab-description">Manual single-profile entry</span>
-        </button>
-      </div>
+      <CreatePeerModeToggle createPeerType={createPeerType} setCreatePeerType={setCreatePeerType} />
 
       <p className="form-note create-peer-note">{createPeerType === "site" ? "Auto-provision to WG-ITS and WG-CCTV" : "Single profile → .conf download"}</p>
 
@@ -362,13 +363,15 @@ export default function CreatePeerView({ active, isAdministrator, onNavigate }) 
                   }} required disabled={saving} placeholder={adminTargetMode ? (adminTargetMode === "wg-its" ? "10.21.3.10" : "10.22.3.10") : "Select target server first"} inputMode="numeric" pattern="^([0-9]{1,3}\.){3}[0-9]{1,3}$" />
                   <small className="field-helper">{adminRangeLabel(adminTargetMode)}</small>
                   {(adminAssignedIPError || adminValidationMessage) ? <small className="field-error">{adminAssignedIPError || adminValidationMessage}</small> : null}
-                  {adminTargetMode ? (
-                    <div className="ip-suggestion-list" aria-label="Suggested available IPs">
-                      {adminSuggestions.map((ip) => (
-                        <button type="button" key={ip} className="ip-suggestion-chip" onClick={() => { setPeerForm((current) => ({ ...current, assignedIP: ip })); setAdminAssignedIPError(""); }} disabled={saving}>{ip}</button>
-                      ))}
-                    </div>
-                  ) : null}
+                  <AdminIpSuggestion
+                    adminTargetMode={adminTargetMode}
+                    adminSuggestions={adminSuggestions}
+                    onPickSuggestion={(ip) => {
+                      setPeerForm((current) => ({ ...current, assignedIP: ip }));
+                      setAdminAssignedIPError("");
+                    }}
+                    saving={saving}
+                  />
                 </label>
                 <label className="create-peer-field">Allowed IPs
                   <input name="allowedIPs" value={peerForm.allowedIPs} onChange={(event) => setPeerForm((current) => ({ ...current, allowedIPs: sanitizeAllowedIPs(event.target.value) }))} disabled={saving} placeholder="Optional" inputMode="numeric" pattern="^(\d{1,3}(\.\d{1,3}){3})(/\d{1,2})?$" />
@@ -395,13 +398,12 @@ export default function CreatePeerView({ active, isAdministrator, onNavigate }) 
           </div>
         )}
 
-        <section className="form-section">
-          <div className="form-section-head"><strong>Automation</strong><span>Set automation ownership for this peer</span></div>
-          <label className="create-peer-field create-peer-field-wide checkbox-field">
-            <span><input type="checkbox" checked={managedByAutomation} onChange={(event) => setManagedByAutomation(event.target.checked)} disabled={saving} /> {" "}Managed by automation</span>
-            {createPeerType === "site" ? <small className="field-helper">For site peers, unmanaged mode is blocked for safety.</small> : <small className="field-helper">Administrator peers can be managed or unmanaged.</small>}
-          </label>
-        </section>
+        <ManagedCheckbox
+          createPeerType={createPeerType}
+          managedByAutomation={managedByAutomation}
+          setManagedByAutomation={setManagedByAutomation}
+          saving={saving}
+        />
 
         <section className="flow-card">
           <div className="flow-card-head"><strong>{createPeerType === "site" ? "Flow Site Peer" : "Flow Administrator Peer"}</strong><span>{createPeerType === "site" ? "Auto-generated assignments" : "Manual profile creation"}</span></div>
@@ -416,11 +418,13 @@ export default function CreatePeerView({ active, isAdministrator, onNavigate }) 
           <p className="site-flow-note">{createPeerType === "site" ? "Saat create dijalankan, OCC akan menyimpan satu site dengan dua assignment WireGuard dan empat file artefak untuk diunduh dari inventory." : `Administrator profile will be created for ${selectedTargetServer?.label || "selected target"} and can be downloaded as .conf.`}</p>
         </section>
 
-        <div className={`create-peer-actions${createPeerType === "administrator" ? " create-peer-actions-sticky" : ""}`}>
-          {createPeerType === "administrator" ? <div className="create-peer-action-summary"><span>Creating on</span><strong>{selectedTargetServer?.label || "Select target server"}</strong></div> : <span />}
-          <button type="button" className="secondary-button" onClick={resetPeerForm} disabled={saving}>Reset</button>
-          <button type="submit" className="primary-action-button" disabled={saving || (createPeerType === "administrator" && !adminIsReady)}>{saving ? <><span className="button-spinner" aria-hidden="true" />Creating...</> : "Create Peer"}</button>
-        </div>
+        <PeerFormActions
+          createPeerType={createPeerType}
+          selectedTargetServer={selectedTargetServer}
+          saving={saving}
+          adminIsReady={adminIsReady}
+          resetPeerForm={resetPeerForm}
+        />
       </form>
     </section>
   );
