@@ -1,178 +1,26 @@
 import { useEffect, useState } from "react";
-
-function NavIcon({ name }) {
-  const icons = {
-    dashboard: (
-      <>
-        <rect x="3" y="3" width="18" height="18" rx="4" />
-        <path d="M7 8h10M7 12h6M7 16h8" />
-      </>
-    ),
-    monitoring: (
-      <>
-        <path d="M4 17h16" />
-        <path d="M6 15l3-4 3 2 4-6 2 3" />
-        <circle cx="16" cy="7" r="1.5" fill="currentColor" stroke="none" />
-      </>
-    ),
-    createPeer: (
-      <>
-        <circle cx="9" cy="9" r="3" />
-        <path d="M4 18c1.2-2.5 3.3-4 5-4s3.8 1.5 5 4" />
-        <path d="M18 8v6M15 11h6" />
-      </>
-    ),
-    removePeer: (
-      <>
-        <circle cx="9" cy="9" r="3" />
-        <path d="M4 18c1.2-2.5 3.3-4 5-4s3.8 1.5 5 4" />
-        <path d="M15 11h6" />
-      </>
-    ),
-    updatePeer: (
-      <>
-        <circle cx="8.5" cy="8.5" r="3" />
-        <path d="M3.5 18c1.2-2.4 3.2-3.8 5-3.8" />
-        <path d="M15 7l3 3" />
-        <path d="M13.5 14.5l5-5" />
-        <path d="M12.5 17.5l2.5-.5-.5-2.5-2 3z" />
-      </>
-    ),
-    inventoryPeer: (
-      <>
-        <circle cx="8" cy="8" r="2.5" />
-        <circle cx="16" cy="8" r="2.5" />
-        <path d="M3.5 18c1-2.4 2.8-3.8 4.5-3.8S11.5 15.6 12.5 18" />
-        <path d="M11.5 18c1-2.4 2.8-3.8 4.5-3.8S19.5 15.6 20.5 18" />
-      </>
-    ),
-    serverConnection: (
-      <>
-        <rect x="4" y="4" width="16" height="6" rx="2" />
-        <rect x="4" y="14" width="16" height="6" rx="2" />
-        <path d="M8 7h.01M8 17h.01" />
-      </>
-    ),
-    mikrotikSsh: (
-      <>
-        <path d="M6 8l4 4-4 4" />
-        <path d="M11 16h7" />
-      </>
-    ),
-    mikrotikAutomation: (
-      <>
-        <rect x="5" y="4" width="12" height="16" rx="2" />
-        <path d="M9 9h4M9 13h4" />
-        <path d="M18 15l2 2" />
-        <path d="M18 11v4h-4" />
-      </>
-    ),
-    mikrotikCheckIsp: (
-      <>
-        <path d="M5 12a10 10 0 0 1 14 0" />
-        <path d="M8 15a6 6 0 0 1 8 0" />
-        <path d="M11 18a2 2 0 0 1 2 0" />
-      </>
-    ),
-    wireguardLogs: (
-      <>
-        <path d="M7 4h7l4 4v12H7z" />
-        <path d="M14 4v4h4" />
-        <path d="M10 12h5M10 16h5" />
-      </>
-    ),
-    mikrotikLogs: (
-      <>
-        <path d="M7 4h7l4 4v12H7z" />
-        <path d="M14 4v4h4" />
-        <path d="M10 12h5M10 16h5" />
-      </>
-    ),
-    userLogs: (
-      <>
-        <path d="M7 4h7l4 4v12H7z" />
-        <path d="M14 4v4h4" />
-        <path d="M10 12h5M10 16h5" />
-      </>
-    ),
-    userList: (
-      <>
-        <circle cx="8" cy="8" r="2.5" />
-        <path d="M3.5 18c1-2.4 2.8-3.8 4.5-3.8S11.5 15.6 12.5 18" />
-        <path d="M14 8h6M14 12h6M14 16h4" />
-      </>
-    ),
-    createUser: (
-      <>
-        <circle cx="9" cy="9" r="3" />
-        <path d="M4 18c1.2-2.5 3.3-4 5-4s3.8 1.5 5 4" />
-        <path d="M18 8v6M15 11h6" />
-      </>
-    ),
-    updateUser: (
-      <>
-        <circle cx="9" cy="9" r="3" />
-        <path d="M4 18c1.2-2.5 3.3-4 5-4s3.8 1.5 5 4" />
-        <path d="M15 8l3 3" />
-        <path d="M13.5 14.5l5-5" />
-      </>
-    ),
-  };
-
-  return (
-    <span className="nav-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        {icons[name] || icons.dashboard}
-      </svg>
-    </span>
-  );
-}
-
-function ThemeGlyph({ mode }) {
-  if (mode === "light") {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M15 4.5a7.5 7.5 0 1 0 4.5 12.8A8.5 8.5 0 0 1 15 4.5z" />
-      </svg>
-    );
-  }
-
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2.5v2.2M12 19.3v2.2M21.5 12h-2.2M4.7 12H2.5M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6M18.7 18.7l-1.6-1.6M6.9 6.9 5.3 5.3" />
-    </svg>
-  );
-}
-
-function RefreshGlyph() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 6v5h-5" />
-      <path d="M4 18v-5h5" />
-      <path d="M7.8 16.2A7 7 0 0 0 19 11a7 7 0 0 0-.2-1.7" />
-      <path d="M16.2 7.8A7 7 0 0 0 5 13c0 .6.1 1.1.2 1.7" />
-    </svg>
-  );
-}
-
-function ChevronDownGlyph() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m7 10 5 5 5-5" />
-    </svg>
-  );
-}
-
-function MenuGlyph() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 7h16" />
-      <path d="M4 12h16" />
-      <path d="M4 17h16" />
-    </svg>
-  );
-}
+import TopBar from "./components/TopBar";
+import SideNav from "./components/SideNav";
+import { ThemeGlyph } from "./components/Icons";
+import DashboardView from "./views/DashboardView";
+import MonitoringView from "./views/MonitoringView";
+import { getDashboardHealth, getState, createPeer as createPeerAPI, deletePeer as deletePeerAPI } from "./api/peers";
+import { getSession, login as loginAPI, logout as logoutAPI } from "./api/session";
+import { getMonitoring, getWGServerDiagnostics } from "./api/monitoring";
+import { listUsers, createUser as createUserAPI, updateUser as updateUserAPI } from "./api/users";
+import { listLogs } from "./api/logs";
+import {
+  normalizeSiteSegment,
+  normalizeAdminName,
+  sanitizeAllowedIPs,
+  isValidIPv4CIDR,
+  availableAdminIPsFor,
+  adminRangeLabel,
+  validateAdminIP,
+  normalizeUserField,
+  validateUserForm,
+} from "./utils/validators";
+import { isAdminRole, viewLabels } from "./utils/format";
 
 const emptyPeer = {
   name: "",
@@ -236,25 +84,6 @@ const allowedMonitoringGroups = [
   "WG-POS-REAL",
   "WG-POS-PROD",
 ];
-
-const viewLabels = {
-  dashboard: "Dashboard",
-  monitoring: "Monitoring",
-  createPeer: "Create Peer",
-  removePeer: "Remove Peer",
-  updatePeer: "Update Peer",
-  inventoryPeer: "Inventory Peer",
-  checkServerConnection: "Server Connection",
-  wireguardLogs: "WireGuard Logs",
-  mikrotikLogs: "Mikrotik Logs",
-  userLogs: "User Logs",
-  mikrotikSsh: "Akses Mikrotik SSH",
-  mikrotikAutomation: "Automation Script Update",
-  mikrotikCheckIsp: "Check ISP",
-  userList: "User List",
-  createUser: "Create User",
-  updateUser: "Update User",
-};
 
 export default function App() {
   const [loginForm, setLoginForm] = useState(initialLogin);
@@ -470,8 +299,8 @@ export default function App() {
       return;
     }
 
-    const available = availableAdminIPsFor(adminTargetMode);
-    const currentValidation = validateAdminIP(peerForm.assignedIP, adminTargetMode);
+    const available = getAvailableAdminIPs(adminTargetMode);
+    const currentValidation = getAdminIPValidation(peerForm.assignedIP, adminTargetMode);
     if (currentValidation) {
       setAdminAssignedIPError(currentValidation);
     } else {
@@ -504,17 +333,13 @@ export default function App() {
     setAuthChecking(true);
 
     try {
-      const response = await fetch("/api/session", {
-        method: "GET",
-        credentials: "same-origin",
-      });
+      const { response, data } = await getSession();
 
       if (!response.ok) {
         setIsAuthenticated(false);
         return;
       }
 
-      const data = await response.json();
       const nextUser = data.username || data.user || "admin";
       setLoggedInUser(nextUser);
       setLoggedInName(data.name || nextUser || "Administrator");
@@ -535,13 +360,7 @@ export default function App() {
     setLoginError("");
 
     try {
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify(loginForm),
-      });
-      const data = await response.json();
+      const { response, data } = await loginAPI(loginForm);
 
       if (!response.ok) {
         throw new Error(data.error || "Login failed");
@@ -568,15 +387,11 @@ export default function App() {
     setError("");
 
     try {
-      const response = await fetch("/api/state", {
-        method: "GET",
-        credentials: "same-origin",
-      });
+      const { response, data } = await getState();
       if (response.status === 401) {
         setIsAuthenticated(false);
         throw new Error("Session expired. Please login again.");
       }
-      const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to fetch state");
@@ -598,11 +413,7 @@ export default function App() {
     }));
 
     try {
-      const response = await fetch("/api/dashboard/health", {
-        method: "GET",
-        credentials: "same-origin",
-      });
-      const data = await response.json();
+      const { response, data } = await getDashboardHealth();
 
       if (response.status === 401) {
         setIsAuthenticated(false);
@@ -680,7 +491,7 @@ export default function App() {
     }
 
     if (!isSitePeer) {
-      const validationMessage = validateAdminIP(peerForm.assignedIP, adminTargetMode);
+      const validationMessage = getAdminIPValidation(peerForm.assignedIP, adminTargetMode);
       if (validationMessage) {
         setAdminAssignedIPError(validationMessage);
         setCreatePeerFeedback({
@@ -709,22 +520,16 @@ export default function App() {
     setSaving(true);
 
     try {
-      const response = await fetch("/api/peers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({
-          peerType: createPeerType,
-          managed: managedByAutomation,
-          ...peerForm,
-          name: isSitePeer ? sitePeerName : `Administrator-${peerName}`,
-          publicKey: isSitePeer ? peerForm.publicKey : (peerForm.publicKey || generatePseudoPublicKey()),
-          keepalive: Number(peerForm.keepalive),
-          purpose: adminPurpose,
-          targetServer: adminTargetMode,
-        }),
+      const { response, data } = await createPeerAPI({
+        peerType: createPeerType,
+        managed: managedByAutomation,
+        ...peerForm,
+        name: isSitePeer ? sitePeerName : `Administrator-${peerName}`,
+        publicKey: isSitePeer ? peerForm.publicKey : (peerForm.publicKey || generatePseudoPublicKey()),
+        keepalive: Number(peerForm.keepalive),
+        purpose: adminPurpose,
+        targetServer: adminTargetMode,
       });
-      const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to create peer");
@@ -771,11 +576,7 @@ export default function App() {
     setRemoveError("");
 
     try {
-      const response = await fetch(`/api/peers/${encodeURIComponent(id)}`, {
-        method: "DELETE",
-        credentials: "same-origin",
-      });
-      const data = await response.json();
+      const { response, data } = await deletePeerAPI(id);
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to delete peer");
@@ -798,11 +599,7 @@ export default function App() {
     }));
 
     try {
-      const response = await fetch("/api/monitoring", {
-        method: "GET",
-        credentials: "same-origin",
-      });
-      const data = await response.json();
+      const { response, data } = await getMonitoring();
 
       if (response.status === 401) {
         setIsAuthenticated(false);
@@ -837,11 +634,7 @@ export default function App() {
     }));
 
     try {
-      const response = await fetch("/api/wg-servers/diagnostics", {
-        method: "GET",
-        credentials: "same-origin",
-      });
-      const data = await response.json();
+      const { response, data } = await getWGServerDiagnostics();
 
       if (response.status === 401) {
         setIsAuthenticated(false);
@@ -874,11 +667,7 @@ export default function App() {
     setError("");
 
     try {
-      const response = await fetch("/api/users", {
-        method: "GET",
-        credentials: "same-origin",
-      });
-      const data = await response.json();
+      const { response, data } = await listUsers();
 
       if (response.status === 401) {
         setIsAuthenticated(false);
@@ -913,11 +702,7 @@ export default function App() {
     }));
 
     try {
-      const response = await fetch(`/api/logs?category=${category}`, {
-        method: "GET",
-        credentials: "same-origin",
-      });
-      const data = await response.json();
+      const { response, data } = await listLogs(category);
 
       if (response.status === 401) {
         setIsAuthenticated(false);
@@ -962,13 +747,7 @@ export default function App() {
     setError("");
 
     try {
-      const response = await fetch("/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify(userForm),
-      });
-      const data = await response.json();
+      const { response, data } = await createUserAPI(userForm);
 
       if (response.status === 403) {
         throw new Error("Administrator access required.");
@@ -1004,13 +783,7 @@ export default function App() {
     setError("");
 
     try {
-      const response = await fetch(`/api/users/${editingUsername}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify(editUserForm),
-      });
-      const data = await response.json();
+      const { response, data } = await updateUserAPI(editingUsername, editUserForm);
 
       if (response.status === 403) {
         throw new Error("Administrator access required.");
@@ -1039,161 +812,12 @@ export default function App() {
     setPeerForm((current) => ({ ...current, [name]: value }));
   }
 
-  function normalizeSiteSegment(value) {
-    return String(value || "")
-      .toUpperCase()
-      .replace(/[^A-Z0-9]/g, "");
+  function getAvailableAdminIPs(serverID) {
+    return availableAdminIPsFor(state.peers, serverID);
   }
 
-  function normalizeAdminName(value) {
-    return String(value || "")
-      .toUpperCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^A-Z0-9-]/g, "")
-      .replace(/-+/g, "-");
-  }
-
-  function sanitizeAllowedIPs(value) {
-    return String(value || "")
-      .replace(/\s+/g, "")
-      .replace(/[^0-9./]/g, "");
-  }
-
-  function isValidIPv4CIDR(value) {
-    const current = String(value || "").trim();
-    if (!current) {
-      return true;
-    }
-
-    const matcher = /^(\d{1,3}(?:\.\d{1,3}){3})(?:\/(\d{1,2}))?$/;
-    const match = current.match(matcher);
-    if (!match) {
-      return false;
-    }
-
-    const octets = match[1].split(".").map((octet) => Number(octet));
-    if (octets.some((octet) => Number.isNaN(octet) || octet < 0 || octet > 255)) {
-      return false;
-    }
-
-    if (match[2] !== undefined) {
-      const cidr = Number(match[2]);
-      if (Number.isNaN(cidr) || cidr < 0 || cidr > 32) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  function normalizedServerID(value) {
-    const current = String(value || "").toLowerCase().trim();
-    if (current === "wg-its" || current === "stg-its") {
-      return "wg-its";
-    }
-    if (current === "wg-cctv" || current === "stg-cctv") {
-      return "wg-cctv";
-    }
-    return current;
-  }
-
-  function overlayPair(serverID) {
-    const normalized = normalizedServerID(serverID);
-    if (normalized === "wg-its") {
-      return [10, 21];
-    }
-    if (normalized === "wg-cctv") {
-      return [10, 22];
-    }
-    return null;
-  }
-
-  function isIPInOverlay(ip, serverID) {
-    const octets = parseIPv4(ip);
-    const pair = overlayPair(serverID);
-    if (!octets || !pair) {
-      return false;
-    }
-    return octets[0] === pair[0] && octets[1] === pair[1];
-  }
-
-  function usedIPsForServer(serverID) {
-    const used = new Set();
-    for (const peer of state.peers || []) {
-      if (peer.assignedIP && isIPInOverlay(peer.assignedIP, serverID)) {
-        used.add(String(peer.assignedIP).split("/")[0]);
-      }
-      if (Array.isArray(peer.assignments)) {
-        for (const assignment of peer.assignments) {
-          if (assignment.assignedIP && isIPInOverlay(assignment.assignedIP, serverID)) {
-            used.add(String(assignment.assignedIP).split("/")[0]);
-          }
-        }
-      }
-    }
-    return used;
-  }
-
-  function availableAdminIPsFor(serverID) {
-    const prefix = serverID === "wg-its" ? "10.21.3." : "10.22.3.";
-    const used = usedIPsForServer(serverID);
-    const available = [];
-    for (let last = 2; last <= 254; last += 1) {
-      const ip = `${prefix}${last}`;
-      if (!used.has(ip)) {
-        available.push(ip);
-      }
-      if (available.length >= 10) {
-        break;
-      }
-    }
-    return available;
-  }
-
-  function parseIPv4(value) {
-    const matcher = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
-    const match = String(value || "").trim().match(matcher);
-    if (!match) {
-      return null;
-    }
-    const octets = match.slice(1).map((item) => Number(item));
-    if (octets.some((octet) => Number.isNaN(octet) || octet < 0 || octet > 255)) {
-      return null;
-    }
-    return octets;
-  }
-
-  function adminRangeLabel(serverID) {
-    if (serverID === "wg-its") {
-      return "Allowed IP range: 10.21.3.2 - 10.21.3.254 (reserved .1 and .255)";
-    }
-    if (serverID === "wg-cctv") {
-      return "Allowed IP range: 10.22.3.2 - 10.22.3.254 (reserved .1 and .255)";
-    }
-    return "Select target server to load allowed IP range.";
-  }
-
-  function validateAdminIP(ipValue, serverID) {
-    const octets = parseIPv4(ipValue);
-    if (!octets) {
-      return "Assigned IP must be a valid IPv4 address.";
-    }
-    if (octets[3] === 1 || octets[3] === 255) {
-      return "Reserved host (.1 or .255) is not allowed.";
-    }
-    if (octets[2] !== 3 || octets[3] < 2 || octets[3] > 254) {
-      return "Assigned IP out of allowed administrator range.";
-    }
-    if (serverID === "wg-its" && (octets[0] !== 10 || octets[1] !== 21)) {
-      return "Assigned IP must be in 10.21.3.2 - 10.21.3.254.";
-    }
-    if (serverID === "wg-cctv" && (octets[0] !== 10 || octets[1] !== 22)) {
-      return "Assigned IP must be in 10.22.3.2 - 10.22.3.254.";
-    }
-    if (isIPInOverlay(ipValue, serverID) && usedIPsForServer(serverID).has(String(ipValue).trim())) {
-      return "IP already in use.";
-    }
-    return "";
+  function getAdminIPValidation(ipValue, serverID) {
+    return validateAdminIP(ipValue, serverID, state.peers);
   }
 
   function generatePseudoPublicKey() {
@@ -1258,43 +882,9 @@ export default function App() {
     }
   }
 
-  function normalizeUserField(fieldName, value) {
-    const current = String(value || "");
-    if (fieldName === "name") {
-      return current.replace(/[^A-Za-z]/g, "");
-    }
-    if (fieldName === "nik") {
-      return current.replace(/\D/g, "").slice(0, 6);
-    }
-    return current;
-  }
-
-  function validateUserForm(form) {
-    const nameValue = String(form.name || "").trim();
-    const nikValue = String(form.nik || "").trim();
-    const errors = { ...emptyUserFormErrors };
-
-    if (!nameValue) {
-      errors.name = "Name is required.";
-    } else if (!/^[A-Za-z]+$/.test(nameValue)) {
-      errors.name = "Name must contain letters only without spaces.";
-    }
-
-    if (!nikValue) {
-      errors.nik = "NIK is required.";
-    } else if (!/^[0-9]{6}$/.test(nikValue)) {
-      errors.nik = "NIK must be exactly 6 digits.";
-    }
-
-    return errors;
-  }
-
   async function logout() {
     try {
-      await fetch("/api/logout", {
-        method: "POST",
-        credentials: "same-origin",
-      });
+      await logoutAPI();
     } catch {
       // Ignore logout transport failures and clear local UI state anyway.
     } finally {
@@ -1328,10 +918,6 @@ export default function App() {
     }));
   }
 
-  function renderNavLabel(label) {
-    return showSidebarLabels ? <span className="nav-label">{label}</span> : null;
-  }
-
   function isViewAllowed(view, admin = isAdministrator) {
     if (admin) {
       return true;
@@ -1348,10 +934,6 @@ export default function App() {
       return "Administrator";
     }
     return "Support";
-  }
-
-  function isAdminRole(role) {
-    return role === "administrator" || role === "superadmin";
   }
 
   function isSitePeerRecord(peer) {
@@ -1866,229 +1448,40 @@ export default function App() {
     }
 
     switch (activeView) {
-      case "dashboard": {
-        const dashboardCards = dashboardHealth.items.map((item, index) => ({
-          id: item.id || `dashboard-${index}`,
-          title: String(item.label || item.target || "-").toUpperCase(),
-          value: typeof item.latencyMs === "number" ? item.latencyMs.toFixed(2) : "--",
-          detail: item.error || item.target || "-",
-          tone: item.status === "good" ? "good" : "bad",
-          sparkline: buildDashboardSparkline(item.label || item.target || item.id || index),
-        }));
-
+      case "dashboard":
+        return <DashboardView state={state} dashboardHealth={dashboardHealth} buildDashboardSparkline={buildDashboardSparkline} />;
+      case "monitoring":
         return (
-          <section className="dashboard-shell">
-            <article className="panel dashboard-hero-card">
-              <div className="dashboard-hero-icon">
-                <NavIcon name="inventoryPeer" />
-              </div>
-              <p className="dashboard-hero-label">Total Peers</p>
-              <strong className="dashboard-hero-value">{state.peers.length}</strong>
-              <span className="dashboard-hero-subvalue">Registered peers</span>
-            </article>
-
-            {dashboardHealth.error ? <div className="alert">{dashboardHealth.error}</div> : null}
-
-            {dashboardCards.length > 0 ? (
-              <section className="dashboard-health-grid">
-                {dashboardCards.map((card) => (
-                  <article className="panel dashboard-endpoint-card" key={card.id}>
-                    <p className="dashboard-endpoint-title">{card.title}</p>
-                    <div className="dashboard-endpoint-metric">
-                      <strong>{card.value}</strong>
-                      <span>ms</span>
-                      <span className={`dashboard-status-dot status-${card.tone}`} aria-hidden="true" />
-                    </div>
-                    <p className="dashboard-endpoint-subtitle">{card.detail}</p>
-                    <div className="dashboard-sparkline" aria-hidden="true">
-                      {card.sparkline.map((height, index) => (
-                        <span
-                          className="dashboard-sparkline-bar"
-                          key={`${card.id}-bar-${index}`}
-                          style={{ height: `${height}px` }}
-                        />
-                      ))}
-                    </div>
-                  </article>
-                ))}
-              </section>
-            ) : (
-              <div className="empty">No dashboard health checks available yet.</div>
-            )}
-          </section>
+          <MonitoringView
+            monitoring={monitoring}
+            monitoringRefreshMs={monitoringRefreshMs}
+            monitorSearch={monitorSearch}
+            setMonitorSearch={setMonitorSearch}
+            monitorFilter={monitorFilter}
+            setMonitorFilter={setMonitorFilter}
+            monitorSort={monitorSort}
+            setMonitorSort={setMonitorSort}
+            expandedGroups={expandedGroups}
+            toggleGroup={toggleGroup}
+            extractMetricItems={extractMetricItems}
+            extractMonitoringItems={extractMonitoringItems}
+            buildMetricGroups={buildMetricGroups}
+            buildMetricBars={buildMetricBars}
+            monitoringStatus={monitoringStatus}
+          />
         );
-      }
-      case "monitoring": {
-        const metricItems = extractMetricItems(monitoring.data);
-        const items = extractMonitoringItems(monitoring.data);
-        const metricGroups = buildMetricGroups(metricItems);
-        const endpointCount = metricGroups.reduce((total, group) => total + group.total, 0);
-
-        return (
-          <section className="panel">
-            <div className="panel-head">
-              <h2>Monitoring</h2>
-              <span>{monitoring.lastUpdated ? `Last sync: ${monitoring.lastUpdated}` : "Gatus monitoring overview"}</span>
-            </div>
-
-            {monitoring.error ? <div className="alert">{monitoring.error}</div> : null}
-            {monitoring.loading ? <div className="empty">Loading monitoring data from Gatus...</div> : null}
-
-            {!monitoring.loading && metricItems.length > 0 ? (
-              <div className="monitoring-summary">
-                <div className="empty">
-                  Source: {monitoring.data?.source || "Configured metrics endpoint"}
-                </div>
-                <div className="empty">
-                  Auto refresh: every {Math.round(monitoringRefreshMs / 1000)} seconds
-                </div>
-                <div className="empty">
-                  Endpoints loaded: {endpointCount}
-                </div>
-              </div>
-            ) : null}
-
-            {!monitoring.loading && metricItems.length > 0 ? (
-              <section className="monitor-toolbar" aria-label="Monitoring Controls">
-                <label className="monitor-search">
-                  <span className="sr-only">Search endpoints</span>
-                  <input
-                    type="search"
-                    value={monitorSearch}
-                    onChange={(event) => setMonitorSearch(event.target.value)}
-                    placeholder="Search endpoints..."
-                  />
-                </label>
-
-                <label className="monitor-select">
-                  <span>Filter by:</span>
-                  <select value={monitorFilter} onChange={(event) => setMonitorFilter(event.target.value)}>
-                    <option value="none">None</option>
-                    <option value="up">Healthy</option>
-                    <option value="down">Problem</option>
-                  </select>
-                </label>
-
-                <label className="monitor-select">
-                  <span>Sort by:</span>
-                  <select value={monitorSort} onChange={(event) => setMonitorSort(event.target.value)}>
-                    <option value="group">Group</option>
-                    <option value="name">Name</option>
-                  </select>
-                </label>
-              </section>
-            ) : null}
-
-            {!monitoring.loading && !monitoring.error && items.length === 0 && metricItems.length === 0 ? (
-              <div className="empty">No monitor entries found in the Gatus response.</div>
-            ) : null}
-
-            {!monitoring.loading && metricItems.length > 0 ? (
-              <div className="monitor-groups">
-                {metricGroups.map((group) => {
-                  const isExpanded = expandedGroups[group.name] ?? true;
-
-                  return (
-                    <section className="monitor-group" key={group.name}>
-                      <button
-                        type="button"
-                        className="monitor-group-head"
-                        onClick={() => toggleGroup(group.name)}
-                      >
-                        <span className={`monitor-chevron${isExpanded ? " expanded" : ""}`}>⌃</span>
-                        <strong>{group.name}</strong>
-                        {group.downCount === 0 ? (
-                          <span className="monitor-group-ok">✓</span>
-                        ) : (
-                          <span className="monitor-group-bad">{group.downCount}</span>
-                        )}
-                      </button>
-
-                      {isExpanded ? (
-                        <div className="monitor-group-body">
-                          {group.items.map((item, index) => {
-                            const status = item.status;
-                            const itemName = item.name || item.key || `${item.metric} ${index + 1}`;
-                            const bars = buildMetricBars(item);
-                            const statusLabel = status === "down" ? "Problem" : status === "up" ? "Healthy" : "Unknown";
-
-                            return (
-                              <article className="monitor-card" key={`${group.name}-${itemName}-${index}`}>
-                                <div className="monitor-card-head">
-                                  <div>
-                                    <h3>{itemName}</h3>
-                                    <p className="monitor-subtitle">
-                                      {group.name}
-                                      {" • "}
-                                      {item.key || "-"}
-                                    </p>
-                                  </div>
-                                  <span className={`status-pill status-${status}`}>{statusLabel}</span>
-                                </div>
-                                <div className="monitor-bars" aria-hidden="true">
-                                  {bars.map((bar, barIndex) => (
-                                    <span
-                                      className={`monitor-bar monitor-bar-${bar}`}
-                                      key={`${item.key || itemName}-${barIndex}`}
-                                    />
-                                  ))}
-                                </div>
-                                <div className="monitor-meta">
-                                  <span>Success: {item.successCount}</span>
-                                  <span>Failed: {item.failureCount}</span>
-                                  <span>Type: {item.type || "-"}</span>
-                                </div>
-                              </article>
-                            );
-                          })}
-                        </div>
-                      ) : null}
-                    </section>
-                  );
-                })}
-              </div>
-            ) : null}
-
-            {!monitoring.loading && items.length > 0 ? (
-              <div className="monitoring-list">
-                {items.map((item, index) => {
-                  const status = String(monitoringStatus(item)).toLowerCase();
-                  const name = item.name || item.group || item.key || item.url || `Monitor ${index + 1}`;
-                  const target = item.url || item.hostname || item.host || item.description || "-";
-                  const latency = item.responseTime || item.response_time || item.duration || item.latency || "-";
-                  const checkedAt = item.lastCheck || item.last_checked || item.lastResponseTime || item.timestamp || "-";
-
-                  return (
-                    <article className="monitor-card" key={`${name}-${index}`}>
-                      <div className="monitor-card-head">
-                        <h3>{name}</h3>
-                        <span className={`status-pill status-${status}`}>{status}</span>
-                      </div>
-                      <p className="monitor-target">{target}</p>
-                      <div className="monitor-meta">
-                        <span>Latency: {latency}</span>
-                        <span>Checked: {checkedAt}</span>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            ) : null}
-          </section>
-        );
-      }
       case "createPeer":
         {
         const feedbackPeer = createPeerFeedback.peer;
         const feedbackSummary = createFeedbackSummary(feedbackPeer);
         const flowSteps = createFlowSteps(createPeerType);
         const selectedTargetServer = adminTargetOptions.find((item) => item.id === adminTargetMode);
-        const adminSuggestions = adminTargetMode ? availableAdminIPsFor(adminTargetMode) : [];
+        const adminSuggestions = adminTargetMode ? getAvailableAdminIPs(adminTargetMode) : [];
         const adminDownloads = administratorDownloadLinks(feedbackPeer);
         const siteSummary = siteAssignmentSummary(feedbackPeer);
         const siteDownloads = siteConfigLinks(feedbackPeer);
         const adminValidationMessage = createPeerType === "administrator" && adminTargetMode
-          ? validateAdminIP(peerForm.assignedIP, adminTargetMode)
+          ? getAdminIPValidation(peerForm.assignedIP, adminTargetMode)
           : "";
         const adminIsReady = adminTargetMode !== ""
           && peerForm.name.trim() !== ""
@@ -2268,7 +1661,7 @@ export default function App() {
                             const nextValue = String(event.target.value || "").replace(/[^0-9.]/g, "");
                             setPeerForm((current) => ({ ...current, assignedIP: nextValue }));
                             if (adminTargetMode) {
-                              setAdminAssignedIPError(validateAdminIP(nextValue, adminTargetMode));
+                              setAdminAssignedIPError(getAdminIPValidation(nextValue, adminTargetMode));
                             } else {
                               setAdminAssignedIPError("");
                             }
@@ -3207,389 +2600,40 @@ export default function App() {
 
   return (
     <main className="app-theme app-layout" data-theme={theme}>
-      <header className="topbar">
-        <button
-          type="button"
-          className="mobile-menu-toggle"
-          onClick={() => setMobileSidebarOpen(true)}
-          aria-label="Open navigation menu"
-        >
-          <MenuGlyph />
-        </button>
-        <div className="topbar-brand">
-          <div className="brand-mark topbar-mark" aria-hidden="true">
-            <span className="occ-node occ-node-top" />
-            <span className="occ-node occ-node-right" />
-            <span className="occ-node occ-node-bottom" />
-            <span className="occ-node occ-node-left" />
-            <span className="occ-node occ-node-bottom-right" />
-            <span className="occ-node occ-node-bottom-left" />
-            <span className="occ-ring" />
-            <span className="occ-user-head" />
-            <span className="occ-user-body" />
-          </div>
-          <div>
-            <strong>OCC</strong>
-            <p>Operation Control Center</p>
-          </div>
-        </div>
-
-        <div className="topbar-actions">
-          <button className="ghost" onClick={handleTopRefresh} disabled={saving || loading || monitoring.loading}>
-            <span className="button-icon" aria-hidden="true">
-              <RefreshGlyph />
-            </span>
-            Refresh Data
-          </button>
-          <button
-            type="button"
-            className="theme-toggle"
-            onClick={toggleTheme}
-            aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
-            title={theme === "light" ? "Dark mode" : "Light mode"}
-          >
-            <span className="theme-toggle-icon" aria-hidden="true">
-              <ThemeGlyph mode={theme} />
-            </span>
-          </button>
-          <div className="topbar-user">
-            <button
-              type="button"
-              className={`user-trigger${userMenuOpen ? " active" : ""}`}
-              onClick={() => setUserMenuOpen((current) => !current)}
-              aria-expanded={userMenuOpen}
-            >
-              <span className="user-avatar" aria-hidden="true">
-                {loggedInName.trim().slice(0, 1).toUpperCase() || "A"}
-              </span>
-              <span className="user-summary">
-                <strong>{loggedInName || "Administrator"}</strong>
-                <small>{`${loggedInNIK || loggedInUser || "000000"} - ${(loggedInRole || "administrator").toUpperCase()}`}</small>
-              </span>
-              <span className="user-chevron" aria-hidden="true">
-                <ChevronDownGlyph />
-              </span>
-            </button>
-
-            {userMenuOpen ? (
-              <div className="user-dropdown">
-                <p className="user-dropdown-title">Account Menu</p>
-                <div className="user-meta-row">
-                  <span>Name</span>
-                  <strong>{loggedInName || "Administrator"}</strong>
-                </div>
-                <div className="user-meta-row">
-                  <span>NIK</span>
-                  <strong>{loggedInNIK || "-"}</strong>
-                </div>
-                <div className="user-meta-row">
-                  <span>Role</span>
-                  <strong>{(loggedInRole || "administrator").toUpperCase()}</strong>
-                </div>
-                <button type="button" className="danger user-logout" onClick={logout}>
-                  Logout
-                </button>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </header>
+      <TopBar
+        theme={theme}
+        toggleTheme={toggleTheme}
+        handleTopRefresh={handleTopRefresh}
+        saving={saving}
+        loading={loading}
+        monitoringLoading={monitoring.loading}
+        userMenuOpen={userMenuOpen}
+        setUserMenuOpen={setUserMenuOpen}
+        loggedInName={loggedInName}
+        loggedInNIK={loggedInNIK}
+        loggedInUser={loggedInUser}
+        loggedInRole={loggedInRole}
+        logout={logout}
+        onOpenMobileMenu={() => setMobileSidebarOpen(true)}
+      />
 
       <div className={`workspace${!isMobileViewport && !sidebarExpanded ? " sidebar-collapsed" : ""}${isMobileViewport ? " mobile-workspace" : ""}`}>
-        {isMobileViewport ? (
-          <button
-            type="button"
-            className={`sidebar-backdrop${mobileSidebarOpen ? " open" : ""}`}
-            aria-label="Close navigation menu"
-            onClick={() => setMobileSidebarOpen(false)}
-          />
-        ) : null}
-        <aside className={`sidebar${showSidebarLabels ? " expanded" : " collapsed"}${isMobileViewport ? " mobile-drawer" : ""}${isMobileViewport && mobileSidebarOpen ? " mobile-open" : ""}`}>
-          <nav
-            className="sidebar-nav"
-            aria-label="Primary Navigation"
-            onClick={(event) => {
-              if (!isMobileViewport) {
-                return;
-              }
-              if (event.target.closest(".nav-subitem")) {
-                setMobileSidebarOpen(false);
-              }
-            }}
-          >
-            <div className="nav-group">
-              <button
-                type="button"
-                className="nav-group-toggle nav-group-static"
-                aria-label="General"
-                title="General"
-              >
-                {renderNavLabel("General")}
-                {showSidebarLabels ? <span className="nav-group-chevron nav-group-chevron-right">›</span> : null}
-              </button>
-              <div className="nav-group-body">
-                <button
-                  type="button"
-                  className={`nav-subitem${activeView === "dashboard" ? " active" : ""}`}
-                  onClick={() => setActiveView("dashboard")}
-                  aria-label="Dashboard"
-                  title="Dashboard"
-                >
-                  <NavIcon name="dashboard" />
-                  {renderNavLabel("Dashboard")}
-                </button>
-
-                <button
-                  type="button"
-                  className={`nav-subitem${activeView === "monitoring" ? " active" : ""}`}
-                  onClick={() => setActiveView("monitoring")}
-                  aria-label="Monitoring"
-                  title="Monitoring"
-                >
-                  <NavIcon name="monitoring" />
-                  {renderNavLabel("Monitoring")}
-                </button>
-              </div>
-            </div>
-
-            <div className="nav-group">
-              <button
-                type="button"
-                className={`nav-group-toggle${sidebarGroupsOpen.wireguard ? " open" : ""}`}
-                onClick={() => toggleSidebarGroup("wireguard")}
-                aria-expanded={sidebarGroupsOpen.wireguard}
-                aria-label="WireGuard"
-                title="WireGuard"
-              >
-                {renderNavLabel("WireGuard")}
-                {showSidebarLabels ? <span className={`nav-group-chevron${sidebarGroupsOpen.wireguard ? " open" : ""}`}>⌃</span> : null}
-              </button>
-              {sidebarGroupsOpen.wireguard ? (
-                <div className="nav-group-body">
-                  <button
-                    type="button"
-                    className={`nav-subitem${activeView === "createPeer" ? " active" : ""}`}
-                    onClick={() => setActiveView("createPeer")}
-                    aria-label="Create Peer"
-                    title="Create Peer"
-                  >
-                    <NavIcon name="createPeer" />
-                    {renderNavLabel("Create Peer")}
-                  </button>
-                  {isAdministrator ? (
-                    <>
-                      <button
-                        type="button"
-                        className={`nav-subitem${activeView === "removePeer" ? " active" : ""}`}
-                        onClick={() => setActiveView("removePeer")}
-                        aria-label="Remove Peer"
-                        title="Remove Peer"
-                      >
-                        <NavIcon name="removePeer" />
-                        {renderNavLabel("Remove Peer")}
-                      </button>
-                      <button
-                        type="button"
-                        className={`nav-subitem${activeView === "updatePeer" ? " active" : ""}`}
-                        onClick={() => setActiveView("updatePeer")}
-                        aria-label="Update Peer"
-                        title="Update Peer"
-                      >
-                        <NavIcon name="updatePeer" />
-                        {renderNavLabel("Update Peer")}
-                      </button>
-                      <button
-                        type="button"
-                        className={`nav-subitem${activeView === "inventoryPeer" ? " active" : ""}`}
-                        onClick={() => setActiveView("inventoryPeer")}
-                        aria-label="Inventory Peer"
-                        title="Inventory Peer"
-                      >
-                        <NavIcon name="inventoryPeer" />
-                        {renderNavLabel("Inventory Peer")}
-                      </button>
-                      <button
-                        type="button"
-                        className={`nav-subitem${activeView === "checkServerConnection" ? " active" : ""}`}
-                        onClick={() => setActiveView("checkServerConnection")}
-                        aria-label="Server Connection"
-                        title="Server Connection"
-                      >
-                        <NavIcon name="serverConnection" />
-                        {renderNavLabel("Server Connection")}
-                      </button>
-                    </>
-                  ) : null}
-                </div>
-              ) : null}
-            </div>
-
-            {isAdministrator ? (
-              <>
-                <div className="nav-group">
-                  <button
-                    type="button"
-                    className={`nav-group-toggle${sidebarGroupsOpen.mikrotik ? " open" : ""}`}
-                    onClick={() => toggleSidebarGroup("mikrotik")}
-                    aria-expanded={sidebarGroupsOpen.mikrotik}
-                    aria-label="Mikrotik"
-                    title="Mikrotik"
-                  >
-                    {renderNavLabel("Mikrotik")}
-                    {showSidebarLabels ? <span className={`nav-group-chevron${sidebarGroupsOpen.mikrotik ? " open" : ""}`}>⌃</span> : null}
-                  </button>
-                  {sidebarGroupsOpen.mikrotik ? (
-                    <div className="nav-group-body">
-                      <button
-                        type="button"
-                        className={`nav-subitem${activeView === "mikrotikSsh" ? " active" : ""}`}
-                        onClick={() => setActiveView("mikrotikSsh")}
-                        aria-label="Akses Mikrotik SSH"
-                        title="Akses Mikrotik SSH"
-                      >
-                        <NavIcon name="mikrotikSsh" />
-                        {renderNavLabel("Akses Mikrotik SSH")}
-                      </button>
-                      <button
-                        type="button"
-                        className={`nav-subitem${activeView === "mikrotikAutomation" ? " active" : ""}`}
-                        onClick={() => setActiveView("mikrotikAutomation")}
-                        aria-label="Automation Script Update"
-                        title="Automation Script Update"
-                      >
-                        <NavIcon name="mikrotikAutomation" />
-                        {renderNavLabel("Automation Script Update")}
-                      </button>
-                      <button
-                        type="button"
-                        className={`nav-subitem${activeView === "mikrotikCheckIsp" ? " active" : ""}`}
-                        onClick={() => setActiveView("mikrotikCheckIsp")}
-                        aria-label="Check ISP"
-                        title="Check ISP"
-                      >
-                        <NavIcon name="mikrotikCheckIsp" />
-                        {renderNavLabel("Check ISP")}
-                      </button>
-                    </div>
-                  ) : null}
-                </div>
-
-                <div className="nav-group">
-                  <button
-                    type="button"
-                    className={`nav-group-toggle${sidebarGroupsOpen.logs ? " open" : ""}`}
-                    onClick={() => toggleSidebarGroup("logs")}
-                    aria-expanded={sidebarGroupsOpen.logs}
-                    aria-label="Logs"
-                    title="Logs"
-                  >
-                    {renderNavLabel("Logs")}
-                    {showSidebarLabels ? <span className={`nav-group-chevron${sidebarGroupsOpen.logs ? " open" : ""}`}>⌃</span> : null}
-                  </button>
-                  {sidebarGroupsOpen.logs ? (
-                    <div className="nav-group-body">
-                      <button
-                        type="button"
-                        className={`nav-subitem${activeView === "wireguardLogs" ? " active" : ""}`}
-                        onClick={() => setActiveView("wireguardLogs")}
-                        aria-label="WireGuard Logs"
-                        title="WireGuard Logs"
-                      >
-                        <NavIcon name="wireguardLogs" />
-                        {renderNavLabel("WireGuard Logs")}
-                      </button>
-                      <button
-                        type="button"
-                        className={`nav-subitem${activeView === "mikrotikLogs" ? " active" : ""}`}
-                        onClick={() => setActiveView("mikrotikLogs")}
-                        aria-label="Mikrotik Logs"
-                        title="Mikrotik Logs"
-                      >
-                        <NavIcon name="mikrotikLogs" />
-                        {renderNavLabel("Mikrotik Logs")}
-                      </button>
-                      <button
-                        type="button"
-                        className={`nav-subitem${activeView === "userLogs" ? " active" : ""}`}
-                        onClick={() => setActiveView("userLogs")}
-                        aria-label="User Logs"
-                        title="User Logs"
-                      >
-                        <NavIcon name="userLogs" />
-                        {renderNavLabel("User Logs")}
-                      </button>
-                    </div>
-                  ) : null}
-                </div>
-
-                <div className="nav-group">
-                  <button
-                    type="button"
-                    className={`nav-group-toggle${sidebarGroupsOpen.userManagement ? " open" : ""}`}
-                    onClick={() => toggleSidebarGroup("userManagement")}
-                    aria-expanded={sidebarGroupsOpen.userManagement}
-                    aria-label="User Management"
-                    title="User Management"
-                  >
-                    {renderNavLabel("User Management")}
-                    {showSidebarLabels ? <span className={`nav-group-chevron${sidebarGroupsOpen.userManagement ? " open" : ""}`}>⌃</span> : null}
-                  </button>
-                  {sidebarGroupsOpen.userManagement ? (
-                    <div className="nav-group-body">
-                      <button
-                        type="button"
-                        className={`nav-subitem${activeView === "userList" ? " active" : ""}`}
-                        onClick={() => setActiveView("userList")}
-                        aria-label="User List"
-                        title="User List"
-                      >
-                        <NavIcon name="userList" />
-                        {renderNavLabel("User List")}
-                      </button>
-                      <button
-                        type="button"
-                        className={`nav-subitem${activeView === "createUser" ? " active" : ""}`}
-                        onClick={() => setActiveView("createUser")}
-                        aria-label="Create User"
-                        title="Create User"
-                      >
-                        <NavIcon name="createUser" />
-                        {renderNavLabel("Create User")}
-                      </button>
-                      <button
-                        type="button"
-                        className={`nav-subitem${activeView === "updateUser" ? " active" : ""}`}
-                        onClick={() => {
-                          if (users.length > 0 && !editingUsername) {
-                            selectUserForEdit(users[0]);
-                          }
-                          setActiveView("updateUser");
-                        }}
-                        aria-label="Update User"
-                        title="Update User"
-                      >
-                        <NavIcon name="updateUser" />
-                        {renderNavLabel("Update User")}
-                      </button>
-                    </div>
-                  ) : null}
-                </div>
-              </>
-            ) : null}
-          </nav>
-          <div className="sidebar-footer">
-            <button
-              type="button"
-              className="sidebar-collapse"
-              onClick={() => setSidebarExpanded((current) => !current)}
-              aria-label={sidebarExpanded ? "Collapse" : "Expand"}
-              title={sidebarExpanded ? "Collapse" : "Expand"}
-            >
-              <span className="sidebar-collapse-icon" aria-hidden="true">{sidebarExpanded ? "‹" : "›"}</span>
-              {showSidebarLabels ? <span className="sidebar-collapse-label">Collapse</span> : null}
-            </button>
-          </div>
-        </aside>
+        <SideNav
+          activeView={activeView}
+          setActiveView={setActiveView}
+          isAdministrator={isAdministrator}
+          users={users}
+          editingUsername={editingUsername}
+          selectUserForEdit={selectUserForEdit}
+          sidebarGroupsOpen={sidebarGroupsOpen}
+          toggleSidebarGroup={toggleSidebarGroup}
+          showSidebarLabels={showSidebarLabels}
+          isMobileViewport={isMobileViewport}
+          mobileSidebarOpen={mobileSidebarOpen}
+          setMobileSidebarOpen={setMobileSidebarOpen}
+          sidebarExpanded={sidebarExpanded}
+          setSidebarExpanded={setSidebarExpanded}
+        />
 
         <section className="content-area">
           <section className="content-header">
