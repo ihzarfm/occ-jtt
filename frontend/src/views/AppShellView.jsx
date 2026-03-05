@@ -11,6 +11,7 @@ import InventoryPeerView from "./InventoryPeerView";
 import LogsView from "./LogsView";
 import UsersView from "./UsersView";
 import SettingsView from "./SettingsView";
+import { MikrotikShell } from "../modules/mikrotik";
 
 const initialLogin = { username: "", password: "" };
 
@@ -35,7 +36,6 @@ export default function AppShellView() {
   const [sidebarGroupsOpen, setSidebarGroupsOpen] = useState({
     wireguard: true,
     logs: true,
-    mikrotik: true,
     userManagement: true,
   });
 
@@ -111,6 +111,12 @@ export default function AppShellView() {
       setActiveView("dashboard");
     }
   }, [activeView, isSuperadmin]);
+
+  useEffect(() => {
+    if (activeView === "mikrotikSsh" || activeView === "mikrotikAutomation" || activeView === "mikrotikCheckIsp") {
+      setActiveView("mikrotik");
+    }
+  }, [activeView]);
 
   const updateLoginField = (event) => {
     const { name, value } = event.target;
@@ -196,21 +202,8 @@ export default function AppShellView() {
         return <UsersView active mode="update" />;
       case "settings":
         return <SettingsView active />;
-      case "mikrotikSsh":
-      case "mikrotikAutomation":
-      case "mikrotikCheckIsp":
-        return (
-          <section className="panel">
-            <div className="panel-head">
-              <h2>{viewLabels[activeView]}</h2>
-              <span>Not implemented yet</span>
-            </div>
-            <div className="placeholder-panel">
-              <strong>Not implemented yet</strong>
-              <p>Feature ini belum diimplementasikan.</p>
-            </div>
-          </section>
-        );
+      case "mikrotik":
+        return <MikrotikShell active role={loggedInRole} />;
       default:
         return null;
     }

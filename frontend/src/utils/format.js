@@ -6,6 +6,7 @@ export const viewLabels = {
   updatePeer: "Update Peer",
   inventoryPeer: "Inventory Peer",
   checkServerConnection: "Server Connection",
+  mikrotik: "Mikrotik",
   wireguardLogs: "WireGuard Logs",
   mikrotikLogs: "Mikrotik Logs",
   userLogs: "User Logs",

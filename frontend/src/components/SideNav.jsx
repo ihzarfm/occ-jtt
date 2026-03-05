@@ -103,26 +103,16 @@ export default function SideNav({
           {isAdministrator ? (
             <>
               <div className="nav-group">
-                <button type="button" className={`nav-group-toggle${sidebarGroupsOpen.mikrotik ? " open" : ""}`} onClick={() => toggleSidebarGroup("mikrotik")} aria-expanded={sidebarGroupsOpen.mikrotik} aria-label="Mikrotik" title="Mikrotik">
+                <button type="button" className="nav-group-toggle nav-group-static" aria-label="Mikrotik" title="Mikrotik">
                   {renderNavLabel("Mikrotik")}
-                  {showSidebarLabels ? <span className={`nav-group-chevron${sidebarGroupsOpen.mikrotik ? " open" : ""}`}>⌃</span> : null}
+                  {showSidebarLabels ? <span className="nav-group-chevron nav-group-chevron-right">›</span> : null}
                 </button>
-                {sidebarGroupsOpen.mikrotik ? (
-                  <div className="nav-group-body">
-                    <button type="button" className={`nav-subitem${activeView === "mikrotikSsh" ? " active" : ""}`} onClick={() => setActiveView("mikrotikSsh")} aria-label="Akses Mikrotik SSH" title="Akses Mikrotik SSH">
-                      <NavIcon name="mikrotikSsh" />
-                      {renderNavLabel("Akses Mikrotik SSH")}
-                    </button>
-                    <button type="button" className={`nav-subitem${activeView === "mikrotikAutomation" ? " active" : ""}`} onClick={() => setActiveView("mikrotikAutomation")} aria-label="Automation Script Update" title="Automation Script Update">
-                      <NavIcon name="mikrotikAutomation" />
-                      {renderNavLabel("Automation Script Update")}
-                    </button>
-                    <button type="button" className={`nav-subitem${activeView === "mikrotikCheckIsp" ? " active" : ""}`} onClick={() => setActiveView("mikrotikCheckIsp")} aria-label="Check ISP" title="Check ISP">
-                      <NavIcon name="mikrotikCheckIsp" />
-                      {renderNavLabel("Check ISP")}
-                    </button>
-                  </div>
-                ) : null}
+                <div className="nav-group-body">
+                  <button type="button" className={`nav-subitem${activeView === "mikrotik" ? " active" : ""}`} onClick={() => setActiveView("mikrotik")} aria-label="Mikrotik" title="Mikrotik">
+                    <NavIcon name="mikrotikSsh" />
+                    {renderNavLabel("Mikrotik")}
+                  </button>
+                </div>
               </div>
 
               <div className="nav-group">
