@@ -47,8 +47,8 @@ type Handler struct {
 	CurrentUser         func(*http.Request) (store.User, bool)
 	RequireRole         func(http.ResponseWriter, *http.Request, string) bool
 	AppendAuditLog      func(*http.Request, string, string, string, string)
-	CreateOutletOnWG    func(context.Context, string, string) (RemoteScriptResult, error)
-	RemoveOutletFromWG  func(context.Context, string, string) (RemoteScriptResult, error)
+	CreateSiteOnWG      func(context.Context, string, string) (RemoteScriptResult, error)
+	RemoveSiteFromWG    func(context.Context, string, string) (RemoteScriptResult, error)
 	PingLatency         func(context.Context, string) (float64, error)
 	SSHHandshakeLatency func(context.Context, WGServerConfig) (float64, error)
 }
@@ -61,6 +61,7 @@ type peerInput struct {
 	PeerType     string `json:"peerType"`
 	Name         string `json:"name"`
 	Managed      *bool  `json:"managed"`
+	TargetServer string `json:"targetServer"`
 	PublicKey    string `json:"publicKey"`
 	PresharedKey string `json:"presharedKey"`
 	AllowedIPs   string `json:"allowedIPs"`
@@ -74,7 +75,7 @@ type peerTarget struct {
 	AssignedIP string
 }
 
-type outletApplyTiming struct {
+type siteApplyTiming struct {
 	Total       time.Duration
 	SSHConnect  time.Duration
 	UploadWrite time.Duration

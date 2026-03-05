@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -30,19 +31,48 @@ func (h *Handler) createPeer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if isSiteLikePeerType(input.PeerType) {
+	if isSitePeerType(input.PeerType) {
 		if input.Managed != nil && !*input.Managed {
 			writeError(w, http.StatusBadRequest, "site peer with managed=false is not supported")
 			return
 		}
-		h.createOutletPeer(w, r, input)
+		h.createSitePeer(w, r, input)
 		return
 	}
 
+	requestStartedAt := time.Now()
+	validateStartedAt := time.Now()
+	var (
+		tValidate   time.Duration
+		tWriteState time.Duration
+		errMessage  string
+		assignedIP  string
+	)
+
+	managed := boolValueOrDefault(input.Managed, false)
 	name := strings.TrimSpace(input.Name)
 	publicKey := strings.TrimSpace(input.PublicKey)
-	assignedIP := strings.TrimSpace(input.AssignedIP)
+	assignedIP = strings.TrimSpace(input.AssignedIP)
+	defer func() {
+		log.Printf(
+			"%s",
+			formatAdministratorPeerTimingLog(administratorPeerTimingLog{
+				Peer:        name,
+				PeerType:    "administrator",
+				Managed:     managed,
+				ServerScope: strings.TrimSpace(input.TargetServer),
+				AssignedIP:  assignedIP,
+				TValidate:   tValidate,
+				TWriteState: tWriteState,
+				Total:       time.Since(requestStartedAt),
+				Err:         errMessage,
+			}),
+		)
+	}()
+
+	tValidate = time.Since(validateStartedAt)
 	if name == "" || publicKey == "" || assignedIP == "" {
+		errMessage = "name, publicKey, and assignedIP are required"
 		writeError(w, http.StatusBadRequest, "name, publicKey, and assignedIP are required")
 		return
 	}
@@ -50,7 +80,7 @@ func (h *Handler) createPeer(w http.ResponseWriter, r *http.Request) {
 	peer := store.Peer{
 		ID:           newID(name),
 		Name:         name,
-		Managed:      boolValueOrDefault(input.Managed, false),
+		Managed:      managed,
 		PublicKey:    publicKey,
 		PresharedKey: strings.TrimSpace(input.PresharedKey),
 		AllowedIPs:   parseCSV(input.AllowedIPs),
@@ -66,11 +96,15 @@ func (h *Handler) createPeer(w http.ResponseWriter, r *http.Request) {
 		peer.AllowedIPs = []string{"0.0.0.0/0"}
 	}
 
+	writeStateStartedAt := time.Now()
 	state, created, err := h.Store.AddPeer(peer)
+	tWriteState = time.Since(writeStateStartedAt)
 	if err != nil {
+		errMessage = "failed to save peer"
 		writeError(w, http.StatusInternalServerError, "failed to save peer")
 		return
 	}
+	assignedIP = created.AssignedIP
 
 	h.AppendAuditLog(r, "wireguard", "create", created.Name, fmt.Sprintf("Created administrator peer %s (managed=%t)", created.Name, created.Managed))
 
@@ -80,7 +114,7 @@ func (h *Handler) createPeer(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *Handler) createOutletPeer(w http.ResponseWriter, r *http.Request, input peerInput) {
+func (h *Handler) createSitePeer(w http.ResponseWriter, r *http.Request, input peerInput) {
 	requestStartedAt := time.Now()
 	validateStartedAt := time.Now()
 	ctx := r.Context()
@@ -93,41 +127,31 @@ func (h *Handler) createOutletPeer(w http.ResponseWriter, r *http.Request, input
 		tWriteState time.Duration
 		tRender     time.Duration
 		tArtifacts  time.Duration
-		assignedIP  string
+		managed     bool
 		errMessage  string
 	)
+	managed = boolValueOrDefault(input.Managed, true)
 
-	applyTimings := map[string]outletApplyTiming{
-		"stg-its":  {},
-		"stg-cctv": {},
-	}
+	applyTimings := map[string]siteApplyTiming{}
+	assignedIPsByServer := map[string]string{}
 
 	defer func() {
-		its := applyTimings["stg-its"]
-		cctv := applyTimings["stg-cctv"]
-		log.Printf(
-			"[timing] mode=outlet peer=%q assigned_ip=%q t_validate=%dms t_alloc_ip=%dms t_gen_keys=%dms t_write_state=%dms t_render=%dms t_artifacts=%dms apply_its_total=%dms apply_its_ssh_connect=%dms apply_its_upload_write=%dms apply_its_remote_exec=%dms apply_its_err=%q apply_cctv_total=%dms apply_cctv_ssh_connect=%dms apply_cctv_upload_write=%dms apply_cctv_remote_exec=%dms apply_cctv_err=%q total=%dms err=%q",
-			siteName,
-			assignedIP,
-			durationMillis(tValidate),
-			durationMillis(tAllocIP),
-			durationMillis(tGenKeys),
-			durationMillis(tWriteState),
-			durationMillis(tRender),
-			durationMillis(tArtifacts),
-			durationMillis(its.Total),
-			durationMillis(its.SSHConnect),
-			durationMillis(its.UploadWrite),
-			durationMillis(its.RemoteExec),
-			its.Err,
-			durationMillis(cctv.Total),
-			durationMillis(cctv.SSHConnect),
-			durationMillis(cctv.UploadWrite),
-			durationMillis(cctv.RemoteExec),
-			cctv.Err,
-			durationMillis(time.Since(requestStartedAt)),
-			errMessage,
-		)
+		log.Printf("%s", formatSitePeerTimingLog(sitePeerTimingLog{
+			Peer:                siteName,
+			PeerType:            "site",
+			Managed:             managed,
+			Servers:             mapKeysSorted(applyTimings),
+			AssignedIPsByServer: assignedIPsByServer,
+			TValidate:           tValidate,
+			TAllocIP:            tAllocIP,
+			TGenKeys:            tGenKeys,
+			TWriteState:         tWriteState,
+			TRender:             tRender,
+			TArtifacts:          tArtifacts,
+			ApplyTimings:        applyTimings,
+			Total:               time.Since(requestStartedAt),
+			Err:                 errMessage,
+		}))
 	}()
 
 	if siteName == "" {
@@ -143,14 +167,14 @@ func (h *Handler) createOutletPeer(w http.ResponseWriter, r *http.Request, input
 
 	for _, serverConfig := range h.ListWGServers() {
 		applyStartedAt := time.Now()
-		result, err := h.CreateOutletOnWG(ctx, serverConfig.ID, siteName)
+		result, err := h.CreateSiteOnWG(ctx, serverConfig.ID, siteName)
 		timing := applyTimings[serverConfig.ID]
 		timing.Total = time.Since(applyStartedAt)
 		timing.RemoteExec = timing.Total
 		if err != nil {
-			timing.Err = err.Error()
+			timing.Err = shortTimingError(err.Error())
 			applyTimings[serverConfig.ID] = timing
-			errMessage = err.Error()
+			errMessage = fmt.Sprintf("server_id=%s reason=%s", serverConfig.ID, shortTimingError(err.Error()))
 			writeError(w, http.StatusBadGateway, err.Error())
 			return
 		}
@@ -159,9 +183,9 @@ func (h *Handler) createOutletPeer(w http.ResponseWriter, r *http.Request, input
 			if message == "" {
 				message = fmt.Sprintf("remote create failed on %s", serverConfig.Name)
 			}
-			timing.Err = message
+			timing.Err = shortTimingError(message)
 			applyTimings[serverConfig.ID] = timing
-			errMessage = message
+			errMessage = fmt.Sprintf("server_id=%s reason=%s", serverConfig.ID, shortTimingError(message))
 			writeError(w, http.StatusBadGateway, message)
 			return
 		}
@@ -174,9 +198,7 @@ func (h *Handler) createOutletPeer(w http.ResponseWriter, r *http.Request, input
 			AssignedIP:    result.AssignedIP,
 			OverlayCIDR:   result.Overlay,
 		})
-		if assignedIP == "" {
-			assignedIP = result.AssignedIP
-		}
+		assignedIPsByServer[serverConfig.ID] = result.AssignedIP
 
 		renderStartedAt := time.Now()
 		confContent := result.PeerContent
@@ -215,9 +237,9 @@ func (h *Handler) createOutletPeer(w http.ResponseWriter, r *http.Request, input
 
 	peer := store.Peer{
 		ID:          newID(siteName),
-		Type:        "outlet",
+		Type:        "site",
 		SiteName:    siteName,
-		Name:        fmt.Sprintf("Outlet - %s", siteName),
+		Name:        fmt.Sprintf("Site - %s", siteName),
 		Managed:     boolValueOrDefault(input.Managed, true),
 		AllowedIPs:  []string{"0.0.0.0/0"},
 		Keepalive:   15,
@@ -238,9 +260,9 @@ func (h *Handler) createOutletPeer(w http.ResponseWriter, r *http.Request, input
 		writeError(w, http.StatusInternalServerError, "failed to save peer")
 		return
 	}
-	assignedIP = created.AssignedIP
+	managed = created.Managed
 
-	h.AppendAuditLog(r, "wireguard", "create", created.Name, fmt.Sprintf("Created outlet peer %s (managed=%t)", created.Name, created.Managed))
+	h.AppendAuditLog(r, "wireguard", "create", created.Name, fmt.Sprintf("Created site peer %s (managed=%t)", created.Name, created.Managed))
 
 	writeJSON(w, http.StatusCreated, map[string]any{
 		"state": publicState(state),
@@ -255,7 +277,101 @@ func boolValueOrDefault(value *bool, fallback bool) bool {
 	return *value
 }
 
-func isSiteLikePeerType(value string) bool {
-	normalized := strings.ToLower(strings.TrimSpace(value))
-	return normalized == "site" || normalized == "outlet"
+type sitePeerTimingLog struct {
+	Peer                string
+	PeerType            string
+	Managed             bool
+	Servers             []string
+	AssignedIPsByServer map[string]string
+	TValidate           time.Duration
+	TAllocIP            time.Duration
+	TGenKeys            time.Duration
+	TWriteState         time.Duration
+	TRender             time.Duration
+	TArtifacts          time.Duration
+	ApplyTimings        map[string]siteApplyTiming
+	Total               time.Duration
+	Err                 string
+}
+
+type administratorPeerTimingLog struct {
+	Peer        string
+	PeerType    string
+	Managed     bool
+	ServerScope string
+	AssignedIP  string
+	TValidate   time.Duration
+	TWriteState time.Duration
+	Total       time.Duration
+	Err         string
+}
+
+func formatSitePeerTimingLog(data sitePeerTimingLog) string {
+	servers := strings.Join(data.Servers, ",")
+	builder := strings.Builder{}
+	builder.WriteString(fmt.Sprintf("[timing] mode=site peer=%q peerType=%q managed=%t servers=%q", data.Peer, data.PeerType, data.Managed, servers))
+	for _, serverID := range data.Servers {
+		if ip := strings.TrimSpace(data.AssignedIPsByServer[serverID]); ip != "" {
+			builder.WriteString(fmt.Sprintf(" assigned_ip_%s=%q", sanitizeTimingKey(serverID), ip))
+		}
+	}
+	builder.WriteString(fmt.Sprintf(" t_validate=%dms t_alloc_ip=%dms t_gen_keys=%dms t_write_state=%dms t_render=%dms t_artifacts=%dms",
+		durationMillis(data.TValidate),
+		durationMillis(data.TAllocIP),
+		durationMillis(data.TGenKeys),
+		durationMillis(data.TWriteState),
+		durationMillis(data.TRender),
+		durationMillis(data.TArtifacts),
+	))
+	for _, serverID := range data.Servers {
+		timing := data.ApplyTimings[serverID]
+		key := sanitizeTimingKey(serverID)
+		builder.WriteString(fmt.Sprintf(" apply_%s_total=%dms apply_%s_ssh_connect=%dms apply_%s_upload_write=%dms apply_%s_remote_exec=%dms apply_%s_err=%q",
+			key, durationMillis(timing.Total),
+			key, durationMillis(timing.SSHConnect),
+			key, durationMillis(timing.UploadWrite),
+			key, durationMillis(timing.RemoteExec),
+			key, shortTimingError(timing.Err),
+		))
+	}
+	builder.WriteString(fmt.Sprintf(" total=%dms err=%q", durationMillis(data.Total), shortTimingError(data.Err)))
+	return builder.String()
+}
+
+func formatAdministratorPeerTimingLog(data administratorPeerTimingLog) string {
+	return fmt.Sprintf(
+		"[timing] mode=administrator peer=%q peerType=%q managed=%t serverScope=%q assigned_ip=%q t_validate=%dms t_write_state=%dms total=%dms err=%q",
+		data.Peer,
+		data.PeerType,
+		data.Managed,
+		data.ServerScope,
+		data.AssignedIP,
+		durationMillis(data.TValidate),
+		durationMillis(data.TWriteState),
+		durationMillis(data.Total),
+		shortTimingError(data.Err),
+	)
+}
+
+func mapKeysSorted[V any](items map[string]V) []string {
+	keys := make([]string, 0, len(items))
+	for key := range items {
+		keys = append(keys, key)
+	}
+	slices.Sort(keys)
+	return keys
+}
+
+func sanitizeTimingKey(value string) string {
+	value = strings.ToLower(strings.TrimSpace(value))
+	value = strings.ReplaceAll(value, "-", "_")
+	return strings.ReplaceAll(value, " ", "_")
+}
+
+func shortTimingError(value string) string {
+	trimmed := strings.TrimSpace(value)
+	if len(trimmed) <= 160 {
+		return trimmed
+	}
+	return trimmed[:157] + "..."
 }
