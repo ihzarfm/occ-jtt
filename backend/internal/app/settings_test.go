@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"occ-jtt/backend/internal/httpapi/wireguard"
 	"occ-jtt/backend/internal/store"
 )
 
@@ -133,5 +134,94 @@ func TestEffectiveWGSettingsFallback(t *testing.T) {
 	}
 	if len(settings.WG.Profiles) == 0 {
 		t.Fatalf("expected fallback profiles")
+	}
+}
+
+func TestNormalizeWGSettingsIDsPrefersCanonicalOverLegacyAlias(t *testing.T) {
+	input := store.Settings{
+		WG: store.WGSettings{
+			ActiveProfile: "staging",
+			Profiles: map[string]store.WGProfileSettings{
+				"staging": {
+					Servers: map[string]store.WGServerSettings{
+						"wg-its": {
+							ID:           "wg-its",
+							Enabled:      true,
+							DisplayName:  "wg-its",
+							OverlayCIDR:  "10.21.0.0/22",
+							EndpointHost: "10.21.0.1",
+							EndpointPort: 22,
+							SSHUser:      "raph",
+							SSHKeyPath:   "~/.ssh/id_ed25519",
+						},
+						"stg-its": {
+							ID:           "stg-its",
+							Enabled:      true,
+							DisplayName:  "stg-its",
+							OverlayCIDR:  "10.21.0.0/22",
+							EndpointHost: "10.99.0.1",
+							EndpointPort: 22,
+							SSHUser:      "legacy",
+							SSHKeyPath:   "~/.ssh/id_ed25519",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	normalized := normalizeWGSettingsIDs(input, false)
+	profile := normalized.WG.Profiles["staging"]
+	if len(profile.Servers) != 1 {
+		t.Fatalf("expected deduplicated server map, got %d", len(profile.Servers))
+	}
+	server := profile.Servers["wg-its"]
+	if server.EndpointHost != "10.21.0.1" {
+		t.Fatalf("expected canonical entry to win, got %s", server.EndpointHost)
+	}
+}
+
+func TestListWGServersFromSettingsCanonicalizesLegacyIDs(t *testing.T) {
+	stateStore, err := store.New(filepath.Join(t.TempDir(), "state.json"))
+	if err != nil {
+		t.Fatalf("failed to create store: %v", err)
+	}
+
+	legacy := store.Settings{
+		WG: store.WGSettings{
+			ActiveProfile: "staging",
+			Profiles: map[string]store.WGProfileSettings{
+				"staging": {
+					Servers: map[string]store.WGServerSettings{
+						"stg-its": {
+							ID:           "stg-its",
+							Enabled:      true,
+							DisplayName:  "stg-its",
+							OverlayCIDR:  "10.21.0.0/22",
+							EndpointHost: "10.21.0.1",
+							EndpointPort: 22,
+							SSHUser:      "raph",
+							SSHKeyPath:   "~/.ssh/id_ed25519",
+						},
+					},
+				},
+			},
+		},
+	}
+	if _, err := stateStore.UpdateSettings(legacy); err != nil {
+		t.Fatalf("failed to save settings: %v", err)
+	}
+
+	s := &server{
+		store:     stateStore,
+		wgServers: defaultWGServers(),
+	}
+
+	servers := s.listWGServersFromSettings()
+	if len(servers) != 1 {
+		t.Fatalf("expected one server, got %d", len(servers))
+	}
+	if servers[0].ID != wireguard.ServerWGITS {
+		t.Fatalf("expected canonical id %s, got %s", wireguard.ServerWGITS, servers[0].ID)
 	}
 }

@@ -411,34 +411,14 @@ func formatAdministratorPeerTimingLog(data administratorPeerTimingLog) string {
 }
 
 func resolveServerForScope(serverScope string, servers []WGServerConfig) (WGServerConfig, bool) {
-	scope := strings.ToLower(strings.TrimSpace(serverScope))
+	scope := strings.ToLower(CanonicalizeServerID(serverScope))
 	if scope == "" {
 		return WGServerConfig{}, false
 	}
 
 	for _, server := range servers {
-		if strings.EqualFold(strings.TrimSpace(server.ID), scope) {
+		if strings.EqualFold(CanonicalizeServerID(server.ID), scope) {
 			return server, true
-		}
-	}
-
-	aliases := []string{scope}
-	switch scope {
-	case "wg-its":
-		aliases = append(aliases, "stg-its")
-	case "stg-its":
-		aliases = append(aliases, "wg-its")
-	case "wg-cctv":
-		aliases = append(aliases, "stg-cctv")
-	case "stg-cctv":
-		aliases = append(aliases, "wg-cctv")
-	}
-
-	for _, alias := range aliases[1:] {
-		for _, server := range servers {
-			if strings.EqualFold(strings.TrimSpace(server.ID), alias) {
-				return server, true
-			}
 		}
 	}
 

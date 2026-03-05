@@ -8,10 +8,8 @@ import (
 )
 
 var serverOverlayByID = map[string]string{
-	"stg-its":  "10.21.0.0/22",
-	"wg-its":   "10.21.0.0/22",
-	"stg-cctv": "10.22.0.0/22",
-	"wg-cctv":  "10.22.0.0/22",
+	"wg-its":  "10.21.0.0/22",
+	"wg-cctv": "10.22.0.0/22",
 }
 
 var overlayCIDRResolver func(string) (string, bool)
@@ -21,7 +19,7 @@ func setOverlayCIDRResolver(resolver func(string) (string, bool)) {
 }
 
 func overlayPrefixForServerID(serverID string) (netip.Prefix, bool) {
-	normalized := strings.ToLower(strings.TrimSpace(serverID))
+	normalized := strings.ToLower(CanonicalizeServerID(serverID))
 	cidr, ok := serverOverlayByID[normalized]
 	if overlayCIDRResolver != nil {
 		if resolvedCIDR, resolved := overlayCIDRResolver(normalized); resolved {
@@ -40,15 +38,7 @@ func overlayPrefixForServerID(serverID string) (netip.Prefix, bool) {
 }
 
 func normalizeTargetServer(value string) string {
-	normalized := strings.ToLower(strings.TrimSpace(value))
-	switch normalized {
-	case "wg-its", "stg-its":
-		return "wg-its"
-	case "wg-cctv", "stg-cctv":
-		return "wg-cctv"
-	default:
-		return normalized
-	}
+	return strings.ToLower(CanonicalizeServerID(value))
 }
 
 func parseIPv4(value string) (netip.Addr, bool) {

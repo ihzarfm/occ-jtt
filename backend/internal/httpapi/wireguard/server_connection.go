@@ -85,7 +85,16 @@ func (h *Handler) HandleWGServers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, h.ListWGServers())
+	servers := h.ListWGServers()
+	items := make([]WGServerConfig, 0, len(servers))
+	for _, server := range servers {
+		server.ID = CanonicalizeServerID(server.ID)
+		if strings.TrimSpace(server.Name) == "" || strings.EqualFold(server.Name, "stg-its") || strings.EqualFold(server.Name, "stg-cctv") {
+			server.Name = server.ID
+		}
+		items = append(items, server)
+	}
+	writeJSON(w, http.StatusOK, items)
 }
 
 func (h *Handler) HandleWGServerDiagnostics(w http.ResponseWriter, r *http.Request) {
@@ -99,12 +108,17 @@ func (h *Handler) HandleWGServerDiagnostics(w http.ResponseWriter, r *http.Reque
 	checkedAt := time.Now().UTC().Format(time.RFC3339)
 
 	for _, serverConfig := range servers {
+		canonicalID := CanonicalizeServerID(serverConfig.ID)
+		displayName := strings.TrimSpace(serverConfig.Name)
+		if displayName == "" || strings.EqualFold(displayName, serverConfig.ID) || strings.EqualFold(displayName, "stg-its") || strings.EqualFold(displayName, "stg-cctv") {
+			displayName = canonicalID
+		}
 		pingLatencyMs, pingErr := h.PingLatency(r.Context(), serverConfig.Host)
 		sshDurationMs, sshErr := h.SSHHandshakeLatency(r.Context(), serverConfig)
 
 		items = append(items, map[string]any{
-			"id":            serverConfig.ID,
-			"name":          serverConfig.Name,
+			"id":            canonicalID,
+			"name":          displayName,
 			"host":          serverConfig.Host,
 			"sshUser":       serverConfig.SSHUser,
 			"sshPort":       serverConfig.SSHPort,

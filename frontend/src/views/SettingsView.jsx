@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { getSettings, testWGConnection, updateSettings } from "../api/settings";
+import { normalizedServerID } from "../utils/validators";
 
 const emptySettings = {
   wg: {
@@ -16,6 +17,32 @@ function cloneSettings(input) {
   return JSON.parse(JSON.stringify(input));
 }
 
+function canonicalizeSettings(input) {
+  const next = cloneSettings(input);
+  const profiles = next?.wg?.profiles || {};
+  Object.keys(profiles).forEach((profileName) => {
+    const profile = profiles[profileName] || {};
+    const servers = profile.servers || {};
+    const normalizedServers = {};
+    Object.entries(servers).forEach(([serverID, server]) => {
+      const canonical = normalizedServerID(serverID);
+      if (!canonical) return;
+      if (normalizedServers[canonical]) return;
+      normalizedServers[canonical] = {
+        ...(server || {}),
+        id: normalizedServerID(server?.id || canonical),
+      };
+      if (!normalizedServers[canonical].displayName || normalizedServerID(normalizedServers[canonical].displayName) === canonical) {
+        normalizedServers[canonical].displayName = canonical.toUpperCase();
+      }
+    });
+    profile.servers = normalizedServers;
+    profiles[profileName] = profile;
+  });
+  next.wg.profiles = profiles;
+  return next;
+}
+
 export default function SettingsView({ active }) {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -30,7 +57,7 @@ export default function SettingsView({ active }) {
     try {
       const { response, data } = await getSettings();
       if (!response.ok) throw new Error(data.error || "Failed to fetch settings");
-      const next = { ...emptySettings, ...data, wg: { ...emptySettings.wg, ...(data?.wg || {}) } };
+      const next = canonicalizeSettings({ ...emptySettings, ...data, wg: { ...emptySettings.wg, ...(data?.wg || {}) } });
       if (!next.wg.profiles || Object.keys(next.wg.profiles).length === 0) {
         next.wg.profiles = { staging: { servers: {} } };
       }
@@ -75,9 +102,9 @@ export default function SettingsView({ active }) {
     setBanner("");
     setError("");
     try {
-      const { response, data } = await updateSettings(settings);
+      const { response, data } = await updateSettings(canonicalizeSettings(settings));
       if (!response.ok) throw new Error(data.error || "Failed to save settings");
-      setSettings((current) => ({ ...current, wg: data.wg || current.wg }));
+      setSettings((current) => canonicalizeSettings({ ...current, wg: data.wg || current.wg }));
       setBanner("Saved");
     } catch (err) {
       setError(err.message);
@@ -138,8 +165,8 @@ export default function SettingsView({ active }) {
             return (
               <section className="form-section" key={serverID}>
                 <div className="form-section-head">
-                  <strong>{server.displayName || serverID}</strong>
-                  <span>{serverID}</span>
+                  <strong>{String(server.displayName || serverID).toUpperCase()}</strong>
+                  <span>{normalizedServerID(serverID)}</span>
                 </div>
                 <div className="create-peer-form-grid">
                   <label>

@@ -169,8 +169,9 @@ func (s *server) runRemoteScript(ctx context.Context, serverConfig wireguard.WGS
 }
 
 func (s *server) serverByID(id string) (wireguard.WGServerConfig, bool) {
+	targetCanonical := wireguard.CanonicalizeServerID(id)
 	for _, serverConfig := range s.activeWGServers() {
-		if serverConfig.ID == id {
+		if wireguard.CanonicalizeServerID(serverConfig.ID) == targetCanonical {
 			return serverConfig, true
 		}
 	}
@@ -186,7 +187,7 @@ func (s *server) activeWGServers() []wireguard.WGServerConfig {
 }
 
 func (s *server) listWGServersFromSettings() []wireguard.WGServerConfig {
-	settings := s.effectiveWGSettings()
+	settings := normalizeWGSettingsIDs(s.effectiveWGSettings(), true)
 	activeProfile := strings.TrimSpace(settings.WG.ActiveProfile)
 	if activeProfile == "" {
 		return nil
@@ -199,7 +200,7 @@ func (s *server) listWGServersFromSettings() []wireguard.WGServerConfig {
 	servers := make([]wireguard.WGServerConfig, 0, len(profile.Servers))
 	defaultByID := map[string]wireguard.WGServerConfig{}
 	for _, current := range s.wgServers {
-		defaultByID[current.ID] = current
+		defaultByID[wireguard.CanonicalizeServerID(current.ID)] = current
 	}
 
 	for serverID, serverSetting := range profile.Servers {
@@ -207,20 +208,23 @@ func (s *server) listWGServersFromSettings() []wireguard.WGServerConfig {
 			continue
 		}
 
-		base := defaultByID[serverID]
+		canonicalID := wireguard.CanonicalizeServerID(serverID)
+		base := defaultByID[canonicalID]
 		if base.ID == "" {
 			base = wireguard.WGServerConfig{
-				ID:   serverID,
-				Name: serverID,
+				ID:   canonicalID,
+				Name: canonicalID,
 			}
 		}
 
-		base.ID = serverID
+		base.ID = canonicalID
 		if strings.TrimSpace(serverSetting.ID) != "" {
-			base.ID = strings.TrimSpace(serverSetting.ID)
+			base.ID = wireguard.CanonicalizeServerID(serverSetting.ID)
 		}
 		if strings.TrimSpace(serverSetting.DisplayName) != "" {
 			base.Name = strings.TrimSpace(serverSetting.DisplayName)
+		} else if strings.TrimSpace(base.Name) == "" {
+			base.Name = base.ID
 		}
 		if strings.TrimSpace(serverSetting.EndpointHost) != "" {
 			base.Host = strings.TrimSpace(serverSetting.EndpointHost)
@@ -256,6 +260,7 @@ func (s *server) effectiveWGSettings() store.Settings {
 	if len(settings.WG.Profiles) == 0 {
 		settings = defaultWGSettingsFromServers(s.wgServers)
 	}
+	settings = normalizeWGSettingsIDs(settings, false)
 	if strings.TrimSpace(settings.WG.ActiveProfile) == "" {
 		settings.WG.ActiveProfile = "staging"
 	}
@@ -275,10 +280,15 @@ func defaultWGSettingsFromServers(servers []wireguard.WGServerConfig) store.Sett
 	}
 
 	for _, serverConfig := range servers {
-		settings.WG.Profiles["staging"].Servers[serverConfig.ID] = store.WGServerSettings{
-			ID:           serverConfig.ID,
+		canonicalID := wireguard.CanonicalizeServerID(serverConfig.ID)
+		serverName := strings.TrimSpace(serverConfig.Name)
+		if serverName == "" || strings.EqualFold(serverName, serverConfig.ID) || strings.EqualFold(serverName, canonicalID) {
+			serverName = canonicalID
+		}
+		settings.WG.Profiles["staging"].Servers[canonicalID] = store.WGServerSettings{
+			ID:           canonicalID,
 			Enabled:      true,
-			DisplayName:  serverConfig.Name,
+			DisplayName:  serverName,
 			OverlayCIDR:  serverConfig.OverlayCIDR,
 			EndpointHost: serverConfig.Host,
 			EndpointPort: serverConfig.SSHPort,
@@ -296,8 +306,8 @@ func defaultWGSettingsFromServers(servers []wireguard.WGServerConfig) store.Sett
 func defaultWGServers() []wireguard.WGServerConfig {
 	return []wireguard.WGServerConfig{
 		{
-			ID:              "stg-cctv",
-			Name:            "stg-cctv",
+			ID:              wireguard.ServerWGCCTV,
+			Name:            wireguard.ServerWGCCTV,
 			Host:            "192.168.21.254",
 			SSHUser:         "raph",
 			SSHPort:         22,
@@ -312,8 +322,8 @@ func defaultWGServers() []wireguard.WGServerConfig {
 			RemoveScript:    "/usr/local/bin/occ-wg-remove-peer",
 		},
 		{
-			ID:              "stg-its",
-			Name:            "stg-its",
+			ID:              wireguard.ServerWGITS,
+			Name:            wireguard.ServerWGITS,
 			Host:            "192.168.22.254",
 			SSHUser:         "raph",
 			SSHPort:         22,
@@ -596,7 +606,7 @@ func (s *server) handleState(w http.ResponseWriter, r *http.Request) {
 func (s *server) handleSettings(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		settings := s.effectiveWGSettings()
+		settings := normalizeWGSettingsIDs(s.effectiveWGSettings(), false)
 		writeJSON(w, http.StatusOK, map[string]any{
 			"wg": settings.WG,
 		})
@@ -606,6 +616,7 @@ func (s *server) handleSettings(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusBadRequest, "invalid settings payload")
 			return
 		}
+		input = normalizeWGSettingsIDs(input, true)
 		if err := validateWGSettings(input.WG); err != nil {
 			writeError(w, http.StatusBadRequest, err.Error())
 			return
@@ -621,6 +632,58 @@ func (s *server) handleSettings(w http.ResponseWriter, r *http.Request) {
 	default:
 		methodNotAllowed(w)
 	}
+}
+
+func normalizeWGSettingsIDs(settings store.Settings, logWarnings bool) store.Settings {
+	if settings.WG.Profiles == nil {
+		return settings
+	}
+
+	for profileName, profile := range settings.WG.Profiles {
+		if profile.Servers == nil {
+			continue
+		}
+
+		normalizedServers := make(map[string]store.WGServerSettings, len(profile.Servers))
+		fromCanonicalKey := make(map[string]bool, len(profile.Servers))
+
+		for serverKey, serverValue := range profile.Servers {
+			canonicalKey := wireguard.CanonicalizeServerID(serverKey)
+			if canonicalKey == "" {
+				continue
+			}
+			serverValue.ID = wireguard.CanonicalizeServerID(serverValue.ID)
+			if strings.TrimSpace(serverValue.ID) == "" {
+				serverValue.ID = canonicalKey
+			}
+			if strings.TrimSpace(serverValue.DisplayName) == "" ||
+				strings.EqualFold(strings.TrimSpace(serverValue.DisplayName), serverKey) ||
+				strings.EqualFold(strings.TrimSpace(serverValue.DisplayName), serverValue.ID) {
+				serverValue.DisplayName = canonicalKey
+			}
+
+			keyIsCanonical := strings.EqualFold(strings.TrimSpace(serverKey), canonicalKey)
+			existing, exists := normalizedServers[canonicalKey]
+			if !exists || (!fromCanonicalKey[canonicalKey] && keyIsCanonical) {
+				normalizedServers[canonicalKey] = serverValue
+				fromCanonicalKey[canonicalKey] = keyIsCanonical
+				continue
+			}
+
+			if logWarnings {
+				chosen := existing.ID
+				if chosen == "" {
+					chosen = canonicalKey
+				}
+				log.Printf("settings profile %s has duplicate server alias for %s; keeping %s, ignoring %s", profileName, canonicalKey, chosen, strings.TrimSpace(serverKey))
+			}
+		}
+
+		profile.Servers = normalizedServers
+		settings.WG.Profiles[profileName] = profile
+	}
+
+	return settings
 }
 
 func (s *server) handleSettingsWGTestConnection(w http.ResponseWriter, r *http.Request) {
@@ -648,7 +711,9 @@ func (s *server) handleSettingsWGTestConnection(w http.ResponseWriter, r *http.R
 		writeError(w, http.StatusBadRequest, "profile not found")
 		return
 	}
-	serverCfg, ok := profile.Servers[strings.TrimSpace(input.ServerID)]
+
+	requestedServerID := wireguard.CanonicalizeServerID(input.ServerID)
+	serverCfg, ok := profile.Servers[requestedServerID]
 	if !ok {
 		writeError(w, http.StatusBadRequest, "server not found in profile")
 		return
@@ -657,7 +722,7 @@ func (s *server) handleSettingsWGTestConnection(w http.ResponseWriter, r *http.R
 	runtimeServers := s.listWGServersFromSettings()
 	var target wireguard.WGServerConfig
 	for _, current := range runtimeServers {
-		if current.ID == serverCfg.ID || current.ID == input.ServerID {
+		if wireguard.CanonicalizeServerID(current.ID) == requestedServerID {
 			target = current
 			break
 		}

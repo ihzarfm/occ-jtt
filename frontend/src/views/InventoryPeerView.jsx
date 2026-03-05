@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { deletePeer, getState } from "../api/peers";
 import { getWGServerDiagnostics } from "../api/monitoring";
+import { normalizedServerID } from "../utils/validators";
 
 function isSitePeerRecord(peer) {
   const peerType = String(peer?.type || "").trim().toLowerCase();
@@ -17,7 +18,18 @@ function peerManagementStatus(peer) {
 
 function assignmentFor(peer, interfaceName) {
   if (!Array.isArray(peer?.assignments)) return null;
-  return peer.assignments.find((assignment) => assignment.interfaceName === interfaceName) || null;
+  return peer.assignments.find((assignment) => {
+    const iface = String(assignment.interfaceName || "").trim().toLowerCase();
+    const serverID = normalizedServerID(assignment.serverId);
+    return iface === interfaceName || serverID === interfaceName;
+  }) || null;
+}
+
+function canonicalServerLabel(serverNameOrID) {
+  const canonical = normalizedServerID(serverNameOrID);
+  if (canonical === "wg-its") return "WG-ITS";
+  if (canonical === "wg-cctv") return "WG-CCTV";
+  return String(serverNameOrID || "").toUpperCase();
 }
 
 function peerCreatorLabel(peer) {
@@ -130,7 +142,7 @@ export default function InventoryPeerView({ mode, active, isAdministrator }) {
         </div>
 
         {wgServerDiagnostics.error ? <div className="alert">{wgServerDiagnostics.error}</div> : null}
-        {wgServerDiagnostics.loading ? <div className="empty">Testing connectivity to staging WireGuard servers...</div> : null}
+        {wgServerDiagnostics.loading ? <div className="empty">Testing connectivity to WireGuard servers...</div> : null}
 
         {!wgServerDiagnostics.loading && wgServerDiagnostics.items.length === 0 && !wgServerDiagnostics.error ? <div className="empty">No server diagnostics available yet.</div> : null}
 
@@ -141,7 +153,7 @@ export default function InventoryPeerView({ mode, active, isAdministrator }) {
               return (
                 <article className="server-card" key={item.id}>
                   <div className="server-card-head">
-                    <h3>{item.name}</h3>
+                    <h3>{canonicalServerLabel(item.id || item.name)}</h3>
                     <span className={`status-pill status-${healthy ? "up" : "down"}`}>{healthy ? "Healthy" : "Bad Connection"}</span>
                   </div>
                   <div className="config-grid">
@@ -279,12 +291,12 @@ export default function InventoryPeerView({ mode, active, isAdministrator }) {
                 <div className="peer-actions">
                   {Array.isArray(peer.artifacts) && peer.artifacts.length > 0 ? (
                     <div className="artifact-list artifact-list-stacked">
-                      {["stg-its", "stg-cctv"].map((serverName) => {
-                        const items = peer.artifacts.filter((artifact) => artifact.serverName === serverName);
+                      {["wg-its", "wg-cctv"].map((serverName) => {
+                        const items = peer.artifacts.filter((artifact) => normalizedServerID(artifact.serverId || artifact.serverName) === serverName);
                         if (items.length === 0) return null;
                         return (
                           <div className="artifact-group" key={`${peer.id}-${serverName}`}>
-                            <span className="artifact-group-title">{serverName}</span>
+                            <span className="artifact-group-title">{canonicalServerLabel(serverName)}</span>
                             <div className="artifact-group-actions">
                               {items.map((artifact) => (
                                 <a className="ghost" href={`/api/peers/${encodeURIComponent(peer.id)}/artifacts/${encodeURIComponent(artifact.id)}`} key={`${peer.id}-${artifact.id}`}>{artifact.kind.toUpperCase()}</a>

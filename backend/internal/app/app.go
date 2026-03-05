@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 	"sync"
 
 	"occ-jtt/backend/internal/config"
@@ -134,18 +133,10 @@ func (a *App) Run() error {
 			return sshHandshakeLatency(ctx, serverConfig)
 		},
 		ResolveOverlayCIDR: func(serverID string) (string, bool) {
-			normalized := strings.ToLower(strings.TrimSpace(serverID))
+			normalized := wireguard.CanonicalizeServerID(serverID)
 			for _, serverConfig := range s.activeWGServers() {
-				currentID := strings.ToLower(strings.TrimSpace(serverConfig.ID))
-				match := currentID == normalized
-				if !match {
-					match = (normalized == "wg-its" && currentID == "stg-its") ||
-						(normalized == "stg-its" && currentID == "wg-its") ||
-						(normalized == "wg-cctv" && currentID == "stg-cctv") ||
-						(normalized == "stg-cctv" && currentID == "wg-cctv")
-				}
-				if match && strings.TrimSpace(serverConfig.OverlayCIDR) != "" {
-					return strings.TrimSpace(serverConfig.OverlayCIDR), true
+				if wireguard.CanonicalizeServerID(serverConfig.ID) == normalized && serverConfig.OverlayCIDR != "" {
+					return serverConfig.OverlayCIDR, true
 				}
 			}
 			return "", false
@@ -156,9 +147,14 @@ func (a *App) Run() error {
 		Servers: func() []general.DashboardServer {
 			servers := make([]general.DashboardServer, 0, len(s.wgServers))
 			for _, serverConfig := range s.wgServers {
+				serverID := wireguard.CanonicalizeServerID(serverConfig.ID)
+				serverName := serverConfig.Name
+				if serverName == "" || serverName == serverConfig.ID {
+					serverName = serverID
+				}
 				servers = append(servers, general.DashboardServer{
-					ID:   serverConfig.ID,
-					Name: serverConfig.Name,
+					ID:   serverID,
+					Name: serverName,
 					Host: serverConfig.Host,
 				})
 			}
