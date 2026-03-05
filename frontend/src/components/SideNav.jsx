@@ -5,9 +5,6 @@ export default function SideNav({
   activeView,
   setActiveView,
   isAdministrator,
-  users,
-  editingUsername,
-  selectUserForEdit,
   sidebarGroupsOpen,
   toggleSidebarGroup,
   showSidebarLabels,
@@ -168,12 +165,7 @@ export default function SideNav({
                     <button
                       type="button"
                       className={`nav-subitem${activeView === "updateUser" ? " active" : ""}`}
-                      onClick={() => {
-                        if (users.length > 0 && !editingUsername) {
-                          selectUserForEdit(users[0]);
-                        }
-                        setActiveView("updateUser");
-                      }}
+                      onClick={() => setActiveView("updateUser")}
                       aria-label="Update User"
                       title="Update User"
                     >
