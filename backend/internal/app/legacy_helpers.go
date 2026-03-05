@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"os/user"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -338,15 +339,23 @@ func (s *server) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username := strings.TrimSpace(input.Username)
+	identifier := strings.TrimSpace(input.Username)
 	password := strings.TrimSpace(input.Password)
-	if username == "" || password == "" {
+	if identifier == "" || password == "" {
 		writeError(w, http.StatusBadRequest, "username and password are required")
 		return
 	}
 
-	user, ok := s.store.Authenticate(username, password)
-	if !ok {
+	user, err := s.findUserForLogin(identifier)
+	if err != nil {
+		if errors.Is(err, errMultipleUsersForLogin) {
+			writeError(w, http.StatusBadRequest, "multiple users found, use NIK")
+			return
+		}
+		writeError(w, http.StatusUnauthorized, "invalid username or password")
+		return
+	}
+	if user.Password != password {
 		writeError(w, http.StatusUnauthorized, "invalid username or password")
 		return
 	}
@@ -371,10 +380,12 @@ func (s *server) handleLogin(w http.ResponseWriter, r *http.Request) {
 	})
 
 	writeJSON(w, http.StatusOK, map[string]string{
-		"message": "login successful",
-		"user":    user.Username,
-		"name":    user.Name,
-		"role":    user.Role,
+		"message":  "login successful",
+		"user":     user.Username,
+		"username": user.Username,
+		"name":     user.Name,
+		"nik":      user.NIK,
+		"role":     user.Role,
 	})
 }
 
@@ -391,10 +402,45 @@ func (s *server) handleSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, map[string]string{
-		"user": user.Username,
-		"name": user.Name,
-		"role": user.Role,
+		"user":     user.Username,
+		"username": user.Username,
+		"name":     user.Name,
+		"nik":      user.NIK,
+		"role":     user.Role,
 	})
+}
+
+var (
+	loginNIKPattern          = regexp.MustCompile(`^[0-9]{6}$`)
+	errUserNotFoundForLogin  = errors.New("user not found for login")
+	errMultipleUsersForLogin = errors.New("multiple users for login")
+)
+
+func (s *server) findUserForLogin(identifier string) (store.User, error) {
+	users := s.store.ListUsers()
+	if loginNIKPattern.MatchString(identifier) {
+		for _, user := range users {
+			if user.NIK == identifier {
+				return user, nil
+			}
+		}
+		return store.User{}, errUserNotFoundForLogin
+	}
+
+	matches := make([]store.User, 0, 1)
+	for _, user := range users {
+		if strings.EqualFold(user.Name, identifier) || strings.EqualFold(user.Username, identifier) {
+			matches = append(matches, user)
+		}
+	}
+
+	if len(matches) == 0 {
+		return store.User{}, errUserNotFoundForLogin
+	}
+	if len(matches) > 1 {
+		return store.User{}, errMultipleUsersForLogin
+	}
+	return matches[0], nil
 }
 
 func (s *server) handleLogout(w http.ResponseWriter, r *http.Request) {

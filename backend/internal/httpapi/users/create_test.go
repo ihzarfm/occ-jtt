@@ -4,7 +4,7 @@ import "testing"
 
 func TestNormalizeUserInputAcceptsSuperadmin(t *testing.T) {
 	user, err := normalizeUserInput(userInput{
-		Name:     "Root User",
+		Name:     "RootUser",
 		NIK:      "123456",
 		Password: "secret",
 		Role:     "superadmin",
@@ -19,12 +19,36 @@ func TestNormalizeUserInputAcceptsSuperadmin(t *testing.T) {
 
 func TestNormalizeUserInputRejectsUnknownRole(t *testing.T) {
 	_, err := normalizeUserInput(userInput{
-		Name:     "Root User",
+		Name:     "RootUser",
 		NIK:      "123456",
 		Password: "secret",
 		Role:     "owner",
 	})
 	if err == nil {
 		t.Fatalf("expected error for unsupported role")
+	}
+}
+
+func TestNormalizeUserInputRejectsInvalidNIK(t *testing.T) {
+	_, err := normalizeUserInput(userInput{
+		Name:     "Rafi",
+		NIK:      "12A456",
+		Password: "secret",
+		Role:     "support",
+	})
+	if err == nil {
+		t.Fatalf("expected error for invalid nik")
+	}
+}
+
+func TestNormalizeUserInputRejectsInvalidName(t *testing.T) {
+	_, err := normalizeUserInput(userInput{
+		Name:     "Rafi Admin",
+		NIK:      "123456",
+		Password: "secret",
+		Role:     "support",
+	})
+	if err == nil {
+		t.Fatalf("expected error for invalid name")
 	}
 }

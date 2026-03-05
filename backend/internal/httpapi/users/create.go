@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"occ-jtt/backend/internal/store"
@@ -57,8 +58,11 @@ func normalizeUserInput(input userInput) (store.User, error) {
 	if name == "" {
 		return store.User{}, errors.New("name is required")
 	}
+	if !namePattern.MatchString(name) {
+		return store.User{}, errors.New("name must contain letters only without spaces")
+	}
 	if !isValidNIK(nik) {
-		return store.User{}, errors.New("nik must be 6 digits")
+		return store.User{}, errors.New("nik must be exactly 6 numeric digits")
 	}
 	if password == "" {
 		return store.User{}, errors.New("password is required")
@@ -76,14 +80,10 @@ func normalizeUserInput(input userInput) (store.User, error) {
 	}, nil
 }
 
+var namePattern = regexp.MustCompile(`^[A-Za-z]+$`)
+
 func isValidNIK(value string) bool {
-	if len(value) != 6 {
-		return false
-	}
-	for _, char := range value {
-		if char < '0' || char > '9' {
-			return false
-		}
-	}
-	return true
+	return nikPattern.MatchString(value)
 }
+
+var nikPattern = regexp.MustCompile(`^[0-9]{6}$`)

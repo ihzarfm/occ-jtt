@@ -204,6 +204,11 @@ const emptyUserForm = {
   role: "support",
 };
 
+const emptyUserFormErrors = {
+  name: "",
+  nik: "",
+};
+
 const emptyCreatePeerFeedback = {
   type: "",
   title: "",
@@ -260,6 +265,7 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState("admin");
   const [loggedInName, setLoggedInName] = useState("Administrator");
+  const [loggedInNIK, setLoggedInNIK] = useState("000000");
   const [loggedInRole, setLoggedInRole] = useState("administrator");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [activeView, setActiveView] = useState("dashboard");
@@ -309,6 +315,8 @@ export default function App() {
   const [userSearch, setUserSearch] = useState("");
   const [userForm, setUserForm] = useState(emptyUserForm);
   const [editUserForm, setEditUserForm] = useState(emptyUserForm);
+  const [userFormErrors, setUserFormErrors] = useState(emptyUserFormErrors);
+  const [editUserFormErrors, setEditUserFormErrors] = useState(emptyUserFormErrors);
   const [editingUsername, setEditingUsername] = useState("");
   const [monitoring, setMonitoring] = useState({
     loading: false,
@@ -513,8 +521,10 @@ export default function App() {
       }
 
       const data = await response.json();
-      setLoggedInUser(data.user || "admin");
-      setLoggedInName(data.name || data.user || "Administrator");
+      const nextUser = data.username || data.user || "admin";
+      setLoggedInUser(nextUser);
+      setLoggedInName(data.name || nextUser || "Administrator");
+      setLoggedInNIK(data.nik || (/^[0-9]{6}$/.test(nextUser) ? nextUser : ""));
       setLoggedInRole(data.role || "administrator");
       setIsAuthenticated(true);
       await loadState();
@@ -543,8 +553,10 @@ export default function App() {
         throw new Error(data.error || "Login failed");
       }
 
-      const nextUser = data.user || loginForm.username;
+      const nextUser = data.username || data.user || loginForm.username;
+      const nextNIK = data.nik || (/^[0-9]{6}$/.test(nextUser) ? nextUser : "");
       setLoggedInUser(nextUser);
+      setLoggedInNIK(nextNIK);
       setLoggedInName(data.name || nextUser);
       setLoggedInRole(data.role || "administrator");
       setIsAuthenticated(true);
@@ -998,6 +1010,12 @@ export default function App() {
 
   async function createUserAccount(event) {
     event.preventDefault();
+    const validationErrors = validateUserForm(userForm);
+    setUserFormErrors(validationErrors);
+    if (validationErrors.name || validationErrors.nik) {
+      return;
+    }
+
     setSaving(true);
     setError("");
 
@@ -1018,6 +1036,7 @@ export default function App() {
       }
 
       setUserForm(emptyUserForm);
+      setUserFormErrors(emptyUserFormErrors);
       await loadUsers();
       setActiveView("userList");
     } catch (err) {
@@ -1031,6 +1050,11 @@ export default function App() {
     event.preventDefault();
     if (!editingUsername) {
       setError("Select a user first.");
+      return;
+    }
+    const validationErrors = validateUserForm(editUserForm);
+    setEditUserFormErrors(validationErrors);
+    if (validationErrors.name || validationErrors.nik) {
       return;
     }
 
@@ -1198,12 +1222,51 @@ export default function App() {
 
   function updateUserField(event) {
     const { name, value } = event.target;
-    setUserForm((current) => ({ ...current, [name]: value }));
+    const nextValue = normalizeUserField(name, value);
+    setUserForm((current) => ({ ...current, [name]: nextValue }));
+    if (name === "name" || name === "nik") {
+      setUserFormErrors((current) => ({ ...current, [name]: "" }));
+    }
   }
 
   function updateEditUserField(event) {
     const { name, value } = event.target;
-    setEditUserForm((current) => ({ ...current, [name]: value }));
+    const nextValue = normalizeUserField(name, value);
+    setEditUserForm((current) => ({ ...current, [name]: nextValue }));
+    if (name === "name" || name === "nik") {
+      setEditUserFormErrors((current) => ({ ...current, [name]: "" }));
+    }
+  }
+
+  function normalizeUserField(fieldName, value) {
+    const current = String(value || "");
+    if (fieldName === "name") {
+      return current.replace(/[^A-Za-z]/g, "");
+    }
+    if (fieldName === "nik") {
+      return current.replace(/\D/g, "").slice(0, 6);
+    }
+    return current;
+  }
+
+  function validateUserForm(form) {
+    const nameValue = String(form.name || "").trim();
+    const nikValue = String(form.nik || "").trim();
+    const errors = { ...emptyUserFormErrors };
+
+    if (!nameValue) {
+      errors.name = "Name is required.";
+    } else if (!/^[A-Za-z]+$/.test(nameValue)) {
+      errors.name = "Name must contain letters only without spaces.";
+    }
+
+    if (!nikValue) {
+      errors.nik = "NIK is required.";
+    } else if (!/^[0-9]{6}$/.test(nikValue)) {
+      errors.nik = "NIK must be exactly 6 digits.";
+    }
+
+    return errors;
   }
 
   async function logout() {
@@ -1217,6 +1280,7 @@ export default function App() {
     } finally {
       setIsAuthenticated(false);
       setLoggedInUser("admin");
+      setLoggedInNIK("000000");
       setLoggedInName("Administrator");
       setLoggedInRole("administrator");
       setLoginForm(initialLogin);
@@ -1224,7 +1288,9 @@ export default function App() {
       setError("");
       setUsers([]);
       setUserForm(emptyUserForm);
+      setUserFormErrors(emptyUserFormErrors);
       setEditUserForm(emptyUserForm);
+      setEditUserFormErrors(emptyUserFormErrors);
       setEditingUsername("");
       setActiveView("dashboard");
       setUserMenuOpen(false);
@@ -1284,6 +1350,7 @@ export default function App() {
     if (!user) {
       setEditingUsername("");
       setEditUserForm(emptyUserForm);
+      setEditUserFormErrors(emptyUserFormErrors);
       return;
     }
 
@@ -1294,6 +1361,7 @@ export default function App() {
       password: "",
       role: user.role || "support",
     });
+    setEditUserFormErrors(emptyUserFormErrors);
   }
 
   function peerCreatorLabel(peer) {
@@ -2821,20 +2889,32 @@ export default function App() {
 
             <form className="settings-form" onSubmit={createUserAccount}>
               <label>
-                Name
-                <input name="name" value={userForm.name} onChange={updateUserField} required />
+                Name <span className="required-indicator">*</span>
+                <input
+                  name="name"
+                  value={userForm.name}
+                  onChange={updateUserField}
+                  pattern="[A-Za-z]+"
+                  title="Letters only, no spaces"
+                  aria-invalid={userFormErrors.name ? "true" : "false"}
+                  required
+                />
+                {userFormErrors.name ? <small className="field-error">{userFormErrors.name}</small> : null}
               </label>
               <label>
-                NIK (6 digits)
+                NIK (6 digits) <span className="required-indicator">*</span>
                 <input
                   name="nik"
                   value={userForm.nik}
                   onChange={updateUserField}
                   inputMode="numeric"
                   pattern="[0-9]{6}"
+                  title="Exactly 6 digits"
                   maxLength={6}
+                  aria-invalid={userFormErrors.nik ? "true" : "false"}
                   required
                 />
+                {userFormErrors.nik ? <small className="field-error">{userFormErrors.nik}</small> : null}
               </label>
               <label>
                 Password
@@ -2886,11 +2966,20 @@ export default function App() {
 
                 <form className="settings-form" onSubmit={updateUserAccount}>
                   <label>
-                    Name
-                    <input name="name" value={editUserForm.name} onChange={updateEditUserField} required />
+                    Name <span className="required-indicator">*</span>
+                    <input
+                      name="name"
+                      value={editUserForm.name}
+                      onChange={updateEditUserField}
+                      pattern="[A-Za-z]+"
+                      title="Letters only, no spaces"
+                      aria-invalid={editUserFormErrors.name ? "true" : "false"}
+                      required
+                    />
+                    {editUserFormErrors.name ? <small className="field-error">{editUserFormErrors.name}</small> : null}
                   </label>
                   <label>
-                    NIK (6 digits)
+                    NIK (6 digits) <span className="required-indicator">*</span>
                     <input
                       name="nik"
                       value={editUserForm.nik}
@@ -2898,9 +2987,12 @@ export default function App() {
                       inputMode="numeric"
                       pattern="[0-9]{6}"
                       maxLength={6}
+                      title="Exactly 6 digits"
+                      aria-invalid={editUserFormErrors.nik ? "true" : "false"}
                       required
                       disabled={users.find((user) => user.username === editingUsername)?.builtIn}
                     />
+                    {editUserFormErrors.nik ? <small className="field-error">{editUserFormErrors.nik}</small> : null}
                   </label>
                   <label>
                     Password
@@ -3107,7 +3199,7 @@ export default function App() {
               </span>
               <span className="user-summary">
                 <strong>{loggedInName || "Administrator"}</strong>
-                <small>{`${loggedInUser || "admin"}@occ.local`}</small>
+                <small>{`${loggedInNIK || loggedInUser || "000000"} - ${(loggedInRole || "administrator").toUpperCase()}`}</small>
               </span>
               <span className="user-chevron" aria-hidden="true">
                 <ChevronDownGlyph />
@@ -3122,12 +3214,12 @@ export default function App() {
                   <strong>{loggedInName || "Administrator"}</strong>
                 </div>
                 <div className="user-meta-row">
-                  <span>Username</span>
-                  <strong>{loggedInUser || "admin"}</strong>
+                  <span>NIK</span>
+                  <strong>{loggedInNIK || "-"}</strong>
                 </div>
                 <div className="user-meta-row">
                   <span>Role</span>
-                  <strong>{roleLabel(loggedInRole)}</strong>
+                  <strong>{(loggedInRole || "administrator").toUpperCase()}</strong>
                 </div>
                 <button type="button" className="danger user-logout" onClick={logout}>
                   Logout
