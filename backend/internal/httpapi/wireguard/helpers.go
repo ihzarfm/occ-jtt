@@ -83,6 +83,14 @@ func isRemotePeerNotFoundError(message string) bool {
 	return strings.Contains(normalized, "peer not found")
 }
 
+func isRemotePeerAlreadyExistsError(message string) bool {
+	normalized := strings.ToLower(strings.TrimSpace(message))
+	if normalized == "" {
+		return false
+	}
+	return strings.Contains(normalized, "peer already exists")
+}
+
 func remoteArtifactNote(serverConfig WGServerConfig, remotePath string) string {
 	return fmt.Sprintf(
 		"Artifact is stored on %s (%s) at %s.\nFetch it directly on the server or extend the wrapper to return file contents to OCC.\n",

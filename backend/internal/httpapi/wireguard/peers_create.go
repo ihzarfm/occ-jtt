@@ -1,6 +1,7 @@
 package wireguard
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -176,6 +177,7 @@ func (h *Handler) createSitePeer(w http.ResponseWriter, r *http.Request, input p
 
 	applyTimings := map[string]siteApplyTiming{}
 	assignedIPsByServer := map[string]string{}
+	successfulServerConfigs := make([]WGServerConfig, 0, len(h.ListWGServers()))
 
 	defer func() {
 		log.Printf("%s", formatSitePeerTimingLog(sitePeerTimingLog{
@@ -216,8 +218,14 @@ func (h *Handler) createSitePeer(w http.ResponseWriter, r *http.Request, input p
 		if err != nil {
 			timing.Err = shortTimingError(err.Error())
 			applyTimings[serverConfig.ID] = timing
+			status := classifySiteCreateError(err.Error())
 			errMessage = fmt.Sprintf("server_id=%s reason=%s", serverConfig.ID, shortTimingError(err.Error()))
-			writeError(w, http.StatusBadGateway, err.Error())
+			rollbackErrors := h.rollbackCreatedSitePeers(ctx, siteName, successfulServerConfigs, applyTimings)
+			errorResponse := errMessage
+			if len(rollbackErrors) > 0 {
+				errorResponse = fmt.Sprintf("%s rollback=%s", errMessage, strings.Join(rollbackErrors, "; "))
+			}
+			writeError(w, status, errorResponse)
 			return
 		}
 		if !result.OK || !result.Applied {
@@ -228,7 +236,13 @@ func (h *Handler) createSitePeer(w http.ResponseWriter, r *http.Request, input p
 			timing.Err = shortTimingError(message)
 			applyTimings[serverConfig.ID] = timing
 			errMessage = fmt.Sprintf("server_id=%s reason=%s", serverConfig.ID, shortTimingError(message))
-			writeError(w, http.StatusBadGateway, message)
+			status := classifySiteCreateError(message)
+			rollbackErrors := h.rollbackCreatedSitePeers(ctx, siteName, successfulServerConfigs, applyTimings)
+			errorResponse := errMessage
+			if len(rollbackErrors) > 0 {
+				errorResponse = fmt.Sprintf("%s rollback=%s", errMessage, strings.Join(rollbackErrors, "; "))
+			}
+			writeError(w, status, errorResponse)
 			return
 		}
 		assignedAddr, ok := parseIPv4(result.AssignedIP)
@@ -237,10 +251,16 @@ func (h *Handler) createSitePeer(w http.ResponseWriter, r *http.Request, input p
 			timing.Err = shortTimingError(message)
 			applyTimings[serverConfig.ID] = timing
 			errMessage = fmt.Sprintf("server_id=%s reason=%s", serverConfig.ID, shortTimingError(message))
-			writeError(w, http.StatusBadGateway, message)
+			rollbackErrors := h.rollbackCreatedSitePeers(ctx, siteName, successfulServerConfigs, applyTimings)
+			errorResponse := errMessage
+			if len(rollbackErrors) > 0 {
+				errorResponse = fmt.Sprintf("%s rollback=%s", errMessage, strings.Join(rollbackErrors, "; "))
+			}
+			writeError(w, http.StatusBadRequest, errorResponse)
 			return
 		}
 		applyTimings[serverConfig.ID] = timing
+		successfulServerConfigs = append(successfulServerConfigs, serverConfig)
 
 		assignments = append(assignments, store.PeerAssignment{
 			ServerID:      serverConfig.ID,
@@ -380,12 +400,14 @@ func formatSitePeerTimingLog(data sitePeerTimingLog) string {
 	for _, serverID := range data.Servers {
 		timing := data.ApplyTimings[serverID]
 		key := sanitizeTimingKey(serverID)
-		builder.WriteString(fmt.Sprintf(" apply_%s_total=%dms apply_%s_ssh_connect=%dms apply_%s_upload_write=%dms apply_%s_remote_exec=%dms apply_%s_err=%q",
+		builder.WriteString(fmt.Sprintf(" apply_%s_total=%dms apply_%s_ssh_connect=%dms apply_%s_upload_write=%dms apply_%s_remote_exec=%dms apply_%s_err=%q apply_%s_rollback_attempted=%t apply_%s_rollback_err=%q",
 			key, durationMillis(timing.Total),
 			key, durationMillis(timing.SSHConnect),
 			key, durationMillis(timing.UploadWrite),
 			key, durationMillis(timing.RemoteExec),
 			key, shortTimingError(timing.Err),
+			key, timing.RollbackAttempted,
+			key, shortTimingError(timing.RollbackErr),
 		))
 	}
 	builder.WriteString(fmt.Sprintf(" total=%dms err=%q", durationMillis(data.Total), shortTimingError(data.Err)))
@@ -423,6 +445,56 @@ func resolveServerForScope(serverScope string, servers []WGServerConfig) (WGServ
 	}
 
 	return WGServerConfig{}, false
+}
+
+func classifySiteCreateError(message string) int {
+	switch {
+	case isRemotePeerAlreadyExistsError(message):
+		return http.StatusConflict
+	case strings.Contains(strings.ToLower(strings.TrimSpace(message)), "out of allowed site range"):
+		return http.StatusBadRequest
+	default:
+		return http.StatusBadGateway
+	}
+}
+
+func (h *Handler) rollbackCreatedSitePeers(ctx context.Context, siteName string, servers []WGServerConfig, timings map[string]siteApplyTiming) []string {
+	rollbackErrors := make([]string, 0)
+
+	// Rollback in reverse order to undo most recent successful apply first.
+	for index := len(servers) - 1; index >= 0; index-- {
+		serverConfig := servers[index]
+		timing := timings[serverConfig.ID]
+		timing.RollbackAttempted = true
+
+		result, err := h.RemoveSiteFromWG(ctx, serverConfig.ID, siteName)
+		if err != nil {
+			if !isRemotePeerNotFoundError(err.Error()) {
+				timing.RollbackErr = shortTimingError(err.Error())
+				rollbackErrors = append(rollbackErrors, fmt.Sprintf("server_id=%s reason=%s", serverConfig.ID, shortTimingError(err.Error())))
+			}
+			timings[serverConfig.ID] = timing
+			continue
+		}
+
+		if !result.OK || !result.Removed {
+			message := result.Error
+			if message == "" {
+				message = fmt.Sprintf("remote rollback failed on %s", serverConfig.ID)
+			}
+			if !isRemotePeerNotFoundError(message) {
+				timing.RollbackErr = shortTimingError(message)
+				rollbackErrors = append(rollbackErrors, fmt.Sprintf("server_id=%s reason=%s", serverConfig.ID, shortTimingError(message)))
+			}
+			timings[serverConfig.ID] = timing
+			continue
+		}
+
+		timing.RollbackErr = ""
+		timings[serverConfig.ID] = timing
+	}
+
+	return rollbackErrors
 }
 
 func mapKeysSorted[V any](items map[string]V) []string {

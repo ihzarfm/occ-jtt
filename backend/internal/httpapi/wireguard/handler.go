@@ -80,9 +80,11 @@ type peerTarget struct {
 }
 
 type siteApplyTiming struct {
-	Total       time.Duration
-	SSHConnect  time.Duration
-	UploadWrite time.Duration
-	RemoteExec  time.Duration
-	Err         string
+	Total             time.Duration
+	SSHConnect        time.Duration
+	UploadWrite       time.Duration
+	RemoteExec        time.Duration
+	Err               string
+	RollbackAttempted bool
+	RollbackErr       string
 }
