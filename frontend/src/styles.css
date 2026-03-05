@@ -2328,6 +2328,11 @@ button {
   background: linear-gradient(90deg, var(--primary-strong) 0%, var(--primary) 100%);
 }
 
+.role-superadmin {
+  color: #ffffff;
+  background: linear-gradient(90deg, #b91c1c 0%, #7f1d1d 100%);
+}
+
 .role-support {
   color: #ffffff;
   background: linear-gradient(90deg, #16a34a 0%, #15803d 100%);

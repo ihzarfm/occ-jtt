@@ -63,8 +63,8 @@ func normalizeUserInput(input userInput) (store.User, error) {
 	if password == "" {
 		return store.User{}, errors.New("password is required")
 	}
-	if role != "support" && role != "administrator" {
-		return store.User{}, errors.New("role must be support or administrator")
+	if role != "support" && role != "administrator" && role != "superadmin" {
+		return store.User{}, errors.New("role must be support, administrator, or superadmin")
 	}
 
 	return store.User{

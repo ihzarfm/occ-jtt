@@ -485,11 +485,33 @@ func (s *server) requireRole(w http.ResponseWriter, r *http.Request, role string
 		writeError(w, http.StatusUnauthorized, "authentication required")
 		return false
 	}
-	if user.Role != role {
+	if !hasRequiredRole(user.Role, role) {
 		writeError(w, http.StatusForbidden, "insufficient permissions")
 		return false
 	}
 	return true
+}
+
+func hasRequiredRole(actualRole, requiredRole string) bool {
+	actual := strings.ToLower(strings.TrimSpace(actualRole))
+	required := strings.ToLower(strings.TrimSpace(requiredRole))
+
+	ranks := map[string]int{
+		"support":       1,
+		"administrator": 2,
+		"superadmin":    3,
+	}
+
+	actualRank, ok := ranks[actual]
+	if !ok {
+		return false
+	}
+	requiredRank, ok := ranks[required]
+	if !ok {
+		return false
+	}
+
+	return actualRank >= requiredRank
 }
 
 func (s *server) currentUser(r *http.Request) (store.User, bool) {

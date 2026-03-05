@@ -326,7 +326,7 @@ export default function App() {
   const [monitorFilter, setMonitorFilter] = useState("none");
   const [monitorSort, setMonitorSort] = useState("group");
   const [expandedGroups, setExpandedGroups] = useState({});
-  const isAdministrator = loggedInRole === "administrator";
+  const isAdministrator = loggedInRole === "administrator" || loggedInRole === "superadmin";
   const showSidebarLabels = isMobileViewport || sidebarExpanded;
 
   useEffect(() => {
@@ -1255,6 +1255,9 @@ export default function App() {
   }
 
   function roleLabel(role) {
+    if (role === "superadmin") {
+      return "Superadmin";
+    }
     return role === "administrator" ? "Administrator" : "Support";
   }
 
@@ -2842,6 +2845,7 @@ export default function App() {
                 <select name="role" value={userForm.role} onChange={updateUserField}>
                   <option value="support">Support</option>
                   <option value="administrator">Administrator</option>
+                  <option value="superadmin">Superadmin</option>
                 </select>
               </label>
 
@@ -2912,6 +2916,7 @@ export default function App() {
                     >
                       <option value="support">Support</option>
                       <option value="administrator">Administrator</option>
+                      <option value="superadmin">Superadmin</option>
                     </select>
                   </label>
 
