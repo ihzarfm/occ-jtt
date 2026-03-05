@@ -272,7 +272,6 @@ export default function InventoryPeerView({ mode, active, isAdministrator }) {
                 peer={peer}
                 managementStatus={managementStatus}
                 isSite={isSite}
-                peerTypeLabel={isSite ? "Site" : "Administrator"}
                 wgItsIP={wgIts?.assignedIP}
                 wgCctvIP={wgCctv?.assignedIP}
                 assignedIP={peer.assignedIP}
