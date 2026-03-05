@@ -10,6 +10,7 @@ import CreatePeerView from "./CreatePeerView";
 import InventoryPeerView from "./InventoryPeerView";
 import LogsView from "./LogsView";
 import UsersView from "./UsersView";
+import SettingsView from "./SettingsView";
 
 const initialLogin = { username: "", password: "" };
 
@@ -39,6 +40,7 @@ export default function AppShellView() {
   });
 
   const isAdministrator = isAdminRole(loggedInRole);
+  const isSuperadmin = String(loggedInRole || "").toLowerCase() === "superadmin";
   const showSidebarLabels = isMobileViewport || sidebarExpanded;
 
   useEffect(() => {
@@ -103,6 +105,12 @@ export default function AppShellView() {
       setActiveView("createPeer");
     }
   }, [activeView, isAdministrator]);
+
+  useEffect(() => {
+    if (activeView === "settings" && !isSuperadmin) {
+      setActiveView("dashboard");
+    }
+  }, [activeView, isSuperadmin]);
 
   const updateLoginField = (event) => {
     const { name, value } = event.target;
@@ -186,6 +194,8 @@ export default function AppShellView() {
         return <UsersView active mode="create" />;
       case "updateUser":
         return <UsersView active mode="update" />;
+      case "settings":
+        return <SettingsView active />;
       case "mikrotikSsh":
       case "mikrotikAutomation":
       case "mikrotikCheckIsp":
@@ -245,6 +255,7 @@ export default function AppShellView() {
           activeView={activeView}
           setActiveView={setActiveView}
           isAdministrator={isAdministrator}
+          isSuperadmin={isSuperadmin}
           sidebarGroupsOpen={sidebarGroupsOpen}
           toggleSidebarGroup={toggleSidebarGroup}
           showSidebarLabels={showSidebarLabels}

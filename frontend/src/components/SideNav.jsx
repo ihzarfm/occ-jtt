@@ -5,6 +5,7 @@ export default function SideNav({
   activeView,
   setActiveView,
   isAdministrator,
+  isSuperadmin,
   sidebarGroupsOpen,
   toggleSidebarGroup,
   showSidebarLabels,
@@ -172,6 +173,18 @@ export default function SideNav({
                       <NavIcon name="updateUser" />
                       {renderNavLabel("Update User")}
                     </button>
+                    {isSuperadmin ? (
+                      <button
+                        type="button"
+                        className={`nav-subitem${activeView === "settings" ? " active" : ""}`}
+                        onClick={() => setActiveView("settings")}
+                        aria-label="Settings"
+                        title="Settings"
+                      >
+                        <NavIcon name="settings" />
+                        {renderNavLabel("Settings")}
+                      </button>
+                    ) : null}
                   </div>
                 ) : null}
               </div>

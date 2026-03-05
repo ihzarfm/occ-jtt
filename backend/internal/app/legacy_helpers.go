@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/netip"
 	"os"
 	"os/exec"
 	"os/user"
@@ -168,12 +169,128 @@ func (s *server) runRemoteScript(ctx context.Context, serverConfig wireguard.WGS
 }
 
 func (s *server) serverByID(id string) (wireguard.WGServerConfig, bool) {
-	for _, serverConfig := range s.wgServers {
+	for _, serverConfig := range s.activeWGServers() {
 		if serverConfig.ID == id {
 			return serverConfig, true
 		}
 	}
 	return wireguard.WGServerConfig{}, false
+}
+
+func (s *server) activeWGServers() []wireguard.WGServerConfig {
+	servers := s.listWGServersFromSettings()
+	if len(servers) > 0 {
+		return servers
+	}
+	return append([]wireguard.WGServerConfig(nil), s.wgServers...)
+}
+
+func (s *server) listWGServersFromSettings() []wireguard.WGServerConfig {
+	settings := s.effectiveWGSettings()
+	activeProfile := strings.TrimSpace(settings.WG.ActiveProfile)
+	if activeProfile == "" {
+		return nil
+	}
+	profile, ok := settings.WG.Profiles[activeProfile]
+	if !ok {
+		return nil
+	}
+
+	servers := make([]wireguard.WGServerConfig, 0, len(profile.Servers))
+	defaultByID := map[string]wireguard.WGServerConfig{}
+	for _, current := range s.wgServers {
+		defaultByID[current.ID] = current
+	}
+
+	for serverID, serverSetting := range profile.Servers {
+		if !serverSetting.Enabled {
+			continue
+		}
+
+		base := defaultByID[serverID]
+		if base.ID == "" {
+			base = wireguard.WGServerConfig{
+				ID:   serverID,
+				Name: serverID,
+			}
+		}
+
+		base.ID = serverID
+		if strings.TrimSpace(serverSetting.ID) != "" {
+			base.ID = strings.TrimSpace(serverSetting.ID)
+		}
+		if strings.TrimSpace(serverSetting.DisplayName) != "" {
+			base.Name = strings.TrimSpace(serverSetting.DisplayName)
+		}
+		if strings.TrimSpace(serverSetting.EndpointHost) != "" {
+			base.Host = strings.TrimSpace(serverSetting.EndpointHost)
+			base.WireGuardIP = base.Host
+			base.DefaultEndpoint = base.Host
+		}
+		if serverSetting.EndpointPort > 0 {
+			base.SSHPort = serverSetting.EndpointPort
+		}
+		if strings.TrimSpace(serverSetting.SSHUser) != "" {
+			base.SSHUser = strings.TrimSpace(serverSetting.SSHUser)
+		}
+		if strings.TrimSpace(serverSetting.SSHKeyPath) != "" {
+			base.KeyPath = strings.TrimSpace(serverSetting.SSHKeyPath)
+		}
+		if strings.TrimSpace(serverSetting.OverlayCIDR) != "" {
+			base.OverlayCIDR = strings.TrimSpace(serverSetting.OverlayCIDR)
+		}
+		if strings.TrimSpace(serverSetting.Scripts.CreateSitePeer) != "" {
+			base.CreateScript = strings.TrimSpace(serverSetting.Scripts.CreateSitePeer)
+		}
+		if strings.TrimSpace(serverSetting.Scripts.RemovePeer) != "" {
+			base.RemoveScript = strings.TrimSpace(serverSetting.Scripts.RemovePeer)
+		}
+
+		servers = append(servers, base)
+	}
+	return servers
+}
+
+func (s *server) effectiveWGSettings() store.Settings {
+	settings := s.store.GetSettings()
+	if len(settings.WG.Profiles) == 0 {
+		settings = defaultWGSettingsFromServers(s.wgServers)
+	}
+	if strings.TrimSpace(settings.WG.ActiveProfile) == "" {
+		settings.WG.ActiveProfile = "staging"
+	}
+	return settings
+}
+
+func defaultWGSettingsFromServers(servers []wireguard.WGServerConfig) store.Settings {
+	settings := store.Settings{
+		WG: store.WGSettings{
+			ActiveProfile: "staging",
+			Profiles: map[string]store.WGProfileSettings{
+				"staging": {
+					Servers: map[string]store.WGServerSettings{},
+				},
+			},
+		},
+	}
+
+	for _, serverConfig := range servers {
+		settings.WG.Profiles["staging"].Servers[serverConfig.ID] = store.WGServerSettings{
+			ID:           serverConfig.ID,
+			Enabled:      true,
+			DisplayName:  serverConfig.Name,
+			OverlayCIDR:  serverConfig.OverlayCIDR,
+			EndpointHost: serverConfig.Host,
+			EndpointPort: serverConfig.SSHPort,
+			SSHUser:      serverConfig.SSHUser,
+			SSHKeyPath:   serverConfig.KeyPath,
+			Scripts: store.WGServerScriptsSettings{
+				CreateSitePeer: serverConfig.CreateScript,
+				RemovePeer:     serverConfig.RemoveScript,
+			},
+		}
+	}
+	return settings
 }
 
 func defaultWGServers() []wireguard.WGServerConfig {
@@ -474,6 +591,144 @@ func (s *server) handleState(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, publicState(s.store.GetState()))
+}
+
+func (s *server) handleSettings(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		settings := s.effectiveWGSettings()
+		writeJSON(w, http.StatusOK, map[string]any{
+			"wg": settings.WG,
+		})
+	case http.MethodPut:
+		var input store.Settings
+		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+			writeError(w, http.StatusBadRequest, "invalid settings payload")
+			return
+		}
+		if err := validateWGSettings(input.WG); err != nil {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		state, err := s.store.UpdateSettings(input)
+		if err != nil {
+			writeError(w, http.StatusInternalServerError, "failed to save settings")
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]any{
+			"wg": state.Settings.WG,
+		})
+	default:
+		methodNotAllowed(w)
+	}
+}
+
+func (s *server) handleSettingsWGTestConnection(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		methodNotAllowed(w)
+		return
+	}
+
+	var input struct {
+		Profile  string `json:"profile"`
+		ServerID string `json:"serverId"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid test connection payload")
+		return
+	}
+
+	settings := s.effectiveWGSettings()
+	profileName := strings.TrimSpace(input.Profile)
+	if profileName == "" {
+		profileName = strings.TrimSpace(settings.WG.ActiveProfile)
+	}
+	profile, ok := settings.WG.Profiles[profileName]
+	if !ok {
+		writeError(w, http.StatusBadRequest, "profile not found")
+		return
+	}
+	serverCfg, ok := profile.Servers[strings.TrimSpace(input.ServerID)]
+	if !ok {
+		writeError(w, http.StatusBadRequest, "server not found in profile")
+		return
+	}
+
+	runtimeServers := s.listWGServersFromSettings()
+	var target wireguard.WGServerConfig
+	for _, current := range runtimeServers {
+		if current.ID == serverCfg.ID || current.ID == input.ServerID {
+			target = current
+			break
+		}
+	}
+	if target.ID == "" {
+		target = wireguard.WGServerConfig{
+			ID:          serverCfg.ID,
+			Name:        serverCfg.DisplayName,
+			Host:        serverCfg.EndpointHost,
+			SSHPort:     serverCfg.EndpointPort,
+			SSHUser:     serverCfg.SSHUser,
+			KeyPath:     serverCfg.SSHKeyPath,
+			OverlayCIDR: serverCfg.OverlayCIDR,
+		}
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), 7*time.Second)
+	defer cancel()
+
+	latency, err := sshHandshakeLatency(ctx, target)
+	if err != nil {
+		writeJSON(w, http.StatusOK, map[string]any{
+			"ok":        false,
+			"latencyMs": 0,
+			"error":     err.Error(),
+		})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{
+		"ok":        true,
+		"latencyMs": latency,
+		"error":     "",
+	})
+}
+
+func validateWGSettings(settings store.WGSettings) error {
+	activeProfile := strings.TrimSpace(settings.ActiveProfile)
+	if activeProfile == "" {
+		return errors.New("activeProfile is required")
+	}
+	if len(settings.Profiles) == 0 {
+		return errors.New("profiles are required")
+	}
+	profile, ok := settings.Profiles[activeProfile]
+	if !ok {
+		return errors.New("activeProfile must exist in profiles")
+	}
+	if len(profile.Servers) == 0 {
+		return errors.New("active profile must define at least one server")
+	}
+
+	for serverID, server := range profile.Servers {
+		if !server.Enabled {
+			continue
+		}
+		if strings.TrimSpace(server.EndpointHost) == "" {
+			return fmt.Errorf("endpointHost is required for enabled server %s", serverID)
+		}
+		if strings.TrimSpace(server.SSHUser) == "" {
+			return fmt.Errorf("sshUser is required for enabled server %s", serverID)
+		}
+		keyPath := strings.TrimSpace(server.SSHKeyPath)
+		if keyPath == "" || (!strings.Contains(keyPath, "/") && !strings.HasPrefix(keyPath, "~")) {
+			return fmt.Errorf("sshKeyPath is invalid for enabled server %s", serverID)
+		}
+		if _, err := netip.ParsePrefix(strings.TrimSpace(server.OverlayCIDR)); err != nil {
+			return fmt.Errorf("invalid overlayCIDR for server %s", serverID)
+		}
+	}
+	return nil
 }
 
 func (s *server) handleApp(w http.ResponseWriter, r *http.Request) {

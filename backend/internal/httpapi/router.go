@@ -19,6 +19,8 @@ type Routes struct {
 	Logs                http.HandlerFunc
 	Users               http.HandlerFunc
 	UserByID            http.HandlerFunc
+	Settings            http.HandlerFunc
+	SettingsWGTest      http.HandlerFunc
 	App                 http.HandlerFunc
 }
 
@@ -40,6 +42,8 @@ func NewRouter(routes Routes) http.Handler {
 	mux.HandleFunc("/api/logs", routes.Logs)
 	mux.HandleFunc("/api/users", routes.Users)
 	mux.HandleFunc("/api/users/", routes.UserByID)
+	mux.HandleFunc("/api/settings", routes.Settings)
+	mux.HandleFunc("/api/settings/wg/test-connection", routes.SettingsWGTest)
 	mux.HandleFunc("/", routes.App)
 	return mux
 }

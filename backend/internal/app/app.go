@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 
 	"occ-jtt/backend/internal/config"
@@ -108,20 +109,20 @@ func (a *App) Run() error {
 	})
 	wireguardHandler := wireguard.NewHandler(wireguard.Handler{
 		Store:         s.store,
-		ListWGServers: func() []wireguard.WGServerConfig { return s.wgServers },
+		ListWGServers: func() []wireguard.WGServerConfig { return s.activeWGServers() },
 		CurrentUser:   s.currentUser,
 		RequireRole:   s.requireRole,
 		AppendAuditLog: func(r *http.Request, category, action, target, message string) {
 			s.appendAuditLog(r, category, action, target, message)
 		},
-		CreateOutletOnWG: func(ctx context.Context, serverID, siteName string) (wireguard.RemoteScriptResult, error) {
+		CreateSiteOnWG: func(ctx context.Context, serverID, siteName string) (wireguard.RemoteScriptResult, error) {
 			serverConfig, ok := s.serverByID(serverID)
 			if !ok {
 				return wireguard.RemoteScriptResult{}, fmt.Errorf("unknown server mapping: %s", serverID)
 			}
 			return s.runRemoteScript(ctx, serverConfig, serverConfig.CreateScript, siteName)
 		},
-		RemoveOutletFromWG: func(ctx context.Context, serverID, siteName string) (wireguard.RemoteScriptResult, error) {
+		RemoveSiteFromWG: func(ctx context.Context, serverID, siteName string) (wireguard.RemoteScriptResult, error) {
 			serverConfig, ok := s.serverByID(serverID)
 			if !ok {
 				return wireguard.RemoteScriptResult{}, fmt.Errorf("unknown server mapping: %s", serverID)
@@ -131,6 +132,23 @@ func (a *App) Run() error {
 		PingLatency: pingLatency,
 		SSHHandshakeLatency: func(ctx context.Context, serverConfig wireguard.WGServerConfig) (float64, error) {
 			return sshHandshakeLatency(ctx, serverConfig)
+		},
+		ResolveOverlayCIDR: func(serverID string) (string, bool) {
+			normalized := strings.ToLower(strings.TrimSpace(serverID))
+			for _, serverConfig := range s.activeWGServers() {
+				currentID := strings.ToLower(strings.TrimSpace(serverConfig.ID))
+				match := currentID == normalized
+				if !match {
+					match = (normalized == "wg-its" && currentID == "stg-its") ||
+						(normalized == "stg-its" && currentID == "wg-its") ||
+						(normalized == "wg-cctv" && currentID == "stg-cctv") ||
+						(normalized == "stg-cctv" && currentID == "wg-cctv")
+				}
+				if match && strings.TrimSpace(serverConfig.OverlayCIDR) != "" {
+					return strings.TrimSpace(serverConfig.OverlayCIDR), true
+				}
+			}
+			return "", false
 		},
 	})
 	dashboardHandler := general.NewDashboardHandler(general.DashboardDeps{
@@ -169,6 +187,8 @@ func (a *App) Run() error {
 		Logs:                s.withRole("administrator", logsHandler.Handle),
 		Users:               s.withRole("administrator", usersHandler.HandleUsers),
 		UserByID:            s.withRole("administrator", usersHandler.HandleUserByID),
+		Settings:            s.withRole("superadmin", s.handleSettings),
+		SettingsWGTest:      s.withRole("superadmin", s.handleSettingsWGTestConnection),
 		App:                 s.handleApp,
 	})
 	handler := withCORS(withLogging(router))

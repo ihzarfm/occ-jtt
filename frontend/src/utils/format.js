@@ -15,6 +15,7 @@ export const viewLabels = {
   userList: "User List",
   createUser: "Create User",
   updateUser: "Update User",
+  settings: "Settings",
 };
 
 export function roleLabel(role) {

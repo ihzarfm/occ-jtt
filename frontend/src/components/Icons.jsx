@@ -117,6 +117,13 @@ export function NavIcon({ name }) {
         <path d="M13.5 14.5l5-5" />
       </>
     ),
+    settings: (
+      <>
+        <circle cx="12" cy="12" r="2.5" />
+        <path d="M19 12h2M3 12h2M12 19v2M12 3v2" />
+        <path d="m16.8 16.8 1.4 1.4M5.8 5.8 7.2 7.2M16.8 7.2l1.4-1.4M5.8 18.2l1.4-1.4" />
+      </>
+    ),
   };
 
   return (

@@ -51,9 +51,13 @@ type Handler struct {
 	RemoveSiteFromWG    func(context.Context, string, string) (RemoteScriptResult, error)
 	PingLatency         func(context.Context, string) (float64, error)
 	SSHHandshakeLatency func(context.Context, WGServerConfig) (float64, error)
+	ResolveOverlayCIDR  func(string) (string, bool)
 }
 
 func NewHandler(h Handler) *Handler {
+	if h.ResolveOverlayCIDR != nil {
+		setOverlayCIDRResolver(h.ResolveOverlayCIDR)
+	}
 	return &h
 }
 

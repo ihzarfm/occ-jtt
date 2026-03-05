@@ -14,9 +14,21 @@ var serverOverlayByID = map[string]string{
 	"wg-cctv":  "10.22.0.0/22",
 }
 
+var overlayCIDRResolver func(string) (string, bool)
+
+func setOverlayCIDRResolver(resolver func(string) (string, bool)) {
+	overlayCIDRResolver = resolver
+}
+
 func overlayPrefixForServerID(serverID string) (netip.Prefix, bool) {
 	normalized := strings.ToLower(strings.TrimSpace(serverID))
 	cidr, ok := serverOverlayByID[normalized]
+	if overlayCIDRResolver != nil {
+		if resolvedCIDR, resolved := overlayCIDRResolver(normalized); resolved {
+			cidr = resolvedCIDR
+			ok = true
+		}
+	}
 	if !ok {
 		return netip.Prefix{}, false
 	}

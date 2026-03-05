@@ -104,11 +104,42 @@ type AuditLog struct {
 	CreatedAt string `json:"createdAt"`
 }
 
+type WGServerScriptsSettings struct {
+	CreateSitePeer string `json:"createSitePeer"`
+	RemovePeer     string `json:"removePeer"`
+}
+
+type WGServerSettings struct {
+	ID           string                  `json:"id"`
+	Enabled      bool                    `json:"enabled"`
+	DisplayName  string                  `json:"displayName"`
+	OverlayCIDR  string                  `json:"overlayCIDR"`
+	EndpointHost string                  `json:"endpointHost"`
+	EndpointPort int                     `json:"endpointPort"`
+	SSHUser      string                  `json:"sshUser"`
+	SSHKeyPath   string                  `json:"sshKeyPath"`
+	Scripts      WGServerScriptsSettings `json:"scripts"`
+}
+
+type WGProfileSettings struct {
+	Servers map[string]WGServerSettings `json:"servers"`
+}
+
+type WGSettings struct {
+	ActiveProfile string                       `json:"activeProfile"`
+	Profiles      map[string]WGProfileSettings `json:"profiles"`
+}
+
+type Settings struct {
+	WG WGSettings `json:"wg"`
+}
+
 type State struct {
-	Network NetworkConfig `json:"network"`
-	Peers   []Peer        `json:"peers"`
-	Users   []User        `json:"users"`
-	Logs    []AuditLog    `json:"logs"`
+	Network  NetworkConfig `json:"network"`
+	Peers    []Peer        `json:"peers"`
+	Users    []User        `json:"users"`
+	Logs     []AuditLog    `json:"logs"`
+	Settings Settings      `json:"settings"`
 }
 
 type Store struct {
@@ -130,6 +161,11 @@ func DefaultState() State {
 		Peers: []Peer{},
 		Users: []User{},
 		Logs:  []AuditLog{},
+		Settings: Settings{
+			WG: WGSettings{
+				Profiles: map[string]WGProfileSettings{},
+			},
+		},
 	}
 }
 
@@ -621,6 +657,38 @@ func (s *Store) AddLog(entry AuditLog) (AuditLog, error) {
 	return entry, nil
 }
 
+func (s *Store) GetSettings() Settings {
+	if s.db != nil {
+		state, err := s.loadStatePostgres()
+		if err != nil {
+			return DefaultState().Settings
+		}
+		return cloneSettings(state.Settings)
+	}
+
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return cloneSettings(s.state.Settings)
+}
+
+func (s *Store) UpdateSettings(settings Settings) (State, error) {
+	if s.db != nil {
+		return s.updateStatePostgres(func(state *State) error {
+			state.Settings = settings
+			return nil
+		})
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.state.Settings = settings
+	if err := s.saveLocked(); err != nil {
+		return State{}, err
+	}
+	return cloneState(s.state), nil
+}
+
 func (s *Store) saveLocked() error {
 	data, err := json.MarshalIndent(s.state, "", "  ")
 	if err != nil {
@@ -735,6 +803,9 @@ func normalizeState(state State) State {
 	if state.Logs == nil {
 		state.Logs = []AuditLog{}
 	}
+	if state.Settings.WG.Profiles == nil {
+		state.Settings.WG.Profiles = map[string]WGProfileSettings{}
+	}
 	return state
 }
 
@@ -745,11 +816,31 @@ func cloneState(state State) State {
 	}
 
 	return State{
-		Network: state.Network,
-		Peers:   peers,
-		Users:   cloneUsers(state.Users),
-		Logs:    cloneLogs(state.Logs),
+		Network:  state.Network,
+		Peers:    peers,
+		Users:    cloneUsers(state.Users),
+		Logs:     cloneLogs(state.Logs),
+		Settings: cloneSettings(state.Settings),
 	}
+}
+
+func cloneSettings(settings Settings) Settings {
+	cloned := Settings{
+		WG: WGSettings{
+			ActiveProfile: settings.WG.ActiveProfile,
+			Profiles:      map[string]WGProfileSettings{},
+		},
+	}
+	for profileName, profile := range settings.WG.Profiles {
+		nextProfile := WGProfileSettings{
+			Servers: map[string]WGServerSettings{},
+		}
+		for serverID, server := range profile.Servers {
+			nextProfile.Servers[serverID] = server
+		}
+		cloned.WG.Profiles[profileName] = nextProfile
+	}
+	return cloned
 }
 
 func clonePeer(peer Peer) Peer {
