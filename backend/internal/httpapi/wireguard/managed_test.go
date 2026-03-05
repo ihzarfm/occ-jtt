@@ -32,7 +32,7 @@ func TestCreatePeerRejectsUnmanagedOutletPeer(t *testing.T) {
 func TestRemoveRemotePeerSkipsUnmanagedOutletPeer(t *testing.T) {
 	calls := 0
 	handler := &Handler{
-		RemoveOutletFromWG: func(_ context.Context, _ string, _ string) (RemoteScriptResult, error) {
+		RemoveSiteFromWG: func(_ context.Context, _ string, _ string) (RemoteScriptResult, error) {
 			calls++
 			return RemoteScriptResult{}, nil
 		},
