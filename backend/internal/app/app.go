@@ -85,6 +85,16 @@ func New(config Config) (*App, error) {
 	}); err != nil {
 		return nil, fmt.Errorf("failed to initialize administrator user: %w", err)
 	}
+	if err := s.store.EnsureUser(store.User{
+		Username: "superadmin",
+		Name:     "Superadmin",
+		NIK:      "999999",
+		Password: "123123",
+		Role:     "superadmin",
+		BuiltIn:  true,
+	}); err != nil {
+		return nil, fmt.Errorf("failed to initialize superadmin user: %w", err)
+	}
 
 	return &App{
 		config: config,

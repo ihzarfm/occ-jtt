@@ -133,7 +133,17 @@
       "role": "administrator",
       "builtIn": true,
       "createdAt": "2026-03-02T16:35:01Z",
-      "updatedAt": "2026-03-06T04:10:56Z"
+      "updatedAt": "2026-03-06T07:19:37Z"
+    },
+    {
+      "username": "superadmin",
+      "name": "Superadmin",
+      "nik": "999999",
+      "password": "123123",
+      "role": "superadmin",
+      "builtIn": true,
+      "createdAt": "2026-03-06T07:19:37Z",
+      "updatedAt": "2026-03-06T07:19:37Z"
     }
   ],
   "logs": [
