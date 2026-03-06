@@ -8,83 +8,30 @@
   },
   "peers": [
     {
-      "id": "rafi99-1772487493",
-      "type": "outlet",
-      "siteName": "rafi99",
-      "name": "Outlet - rafi99",
-      "createdBy": "admin",
-      "createdByName": "Administrator",
-      "publicKey": "",
+      "id": "administrator-its-rafi-1772741283",
+      "name": "Administrator-ITS-RAFI",
+      "createdBy": "001154",
+      "createdByName": "rafi",
+      "managed": false,
+      "serverScope": "wg-its",
+      "publicKey": "F0J5eAcMtInq5Hp2WPFjMiywuY91O2ftTrY3nFwGO8o=",
       "presharedKey": "",
       "allowedIPs": [
         "0.0.0.0/0"
       ],
       "endpoint": "",
-      "keepalive": 15,
-      "assignedIP": "10.21.0.6",
-      "assignments": [
-        {
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "interfaceName": "wg-cctv",
-          "assignedIP": "10.21.0.6",
-          "overlayCIDR": "10.21.0.0/22"
-        },
-        {
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "interfaceName": "wg-its",
-          "assignedIP": "10.22.0.8",
-          "overlayCIDR": "10.22.0.0/22"
-        }
-      ],
-      "artifacts": [
-        {
-          "id": "stg-cctv-conf",
-          "kind": "conf",
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "filename": "rafi99-stg-cctv.conf",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "[Interface]\nAddress = 10.21.0.6/22\nPrivateKey = OCFL2PPomPqDGU+qsr3pTG9TAU05ZQ66EuqN80avnnw=\n\n[Peer]\nPublicKey = 3tuc4848WyMQSjFpI420cg1jilE/59lFDSNGJOn9pSA=\nPresharedKey = X+N+dh7j95xerdpqP1O5WTa9JVuniReI3VdX379BIZE=\nAllowedIPs = 10.21.0.0/22\nEndpoint = 192.168.21.254:51821\nPersistentKeepalive = 15\n"
-        },
-        {
-          "id": "stg-cctv-rsc",
-          "kind": "rsc",
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "filename": "rafi99-stg-cctv.rsc",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "/interface wireguard add name=wg-cctv private-key=\"OCFL2PPomPqDGU+qsr3pTG9TAU05ZQ66EuqN80avnnw=\"\n/ip address add address=10.21.0.6/22 interface=wg-cctv\n/interface wireguard peers add name=RAFI99 interface=wg-cctv public-key=\"3tuc4848WyMQSjFpI420cg1jilE/59lFDSNGJOn9pSA=\" preshared-key=\"X+N+dh7j95xerdpqP1O5WTa9JVuniReI3VdX379BIZE=\" endpoint-address=192.168.21.254 endpoint-port=51821 allowed-address=10.21.0.0/22\n"
-        },
-        {
-          "id": "stg-its-conf",
-          "kind": "conf",
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "filename": "rafi99-stg-its.conf",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "[Interface]\nAddress = 10.22.0.8/22\nPrivateKey = wGNywGMYmGK9M4bzQayPzY+kYflq9m0v2Yjhzhq+NWQ=\n\n[Peer]\nPublicKey = PDUIME4/MQNpYQCezpGif9I/R1muZuAKroRi/dr4DXg=\nPresharedKey = TNQsoEVLSv64pztQX2nBA4XxtjA4PgoAQeqIXAISZTE=\nAllowedIPs = 10.22.0.0/22\nEndpoint = 192.168.22.254:51822\nPersistentKeepalive = 15\n"
-        },
-        {
-          "id": "stg-its-rsc",
-          "kind": "rsc",
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "filename": "rafi99-stg-its.rsc",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "/interface wireguard add name=wg-its private-key=\"wGNywGMYmGK9M4bzQayPzY+kYflq9m0v2Yjhzhq+NWQ=\"\n/ip address add address=10.22.0.8/22 interface=wg-its\n/interface wireguard peers add name=RAFI99 interface=wg-its public-key=\"PDUIME4/MQNpYQCezpGif9I/R1muZuAKroRi/dr4DXg=\" preshared-key=\"TNQsoEVLSv64pztQX2nBA4XxtjA4PgoAQeqIXAISZTE=\" endpoint-address=192.168.22.254 endpoint-port=51822 allowed-address=10.22.0.0/22\n"
-        }
-      ],
-      "createdAt": "2026-03-02T21:38:13Z"
+      "keepalive": 25,
+      "assignedIP": "10.21.3.2",
+      "createdAt": "2026-03-05T20:08:03Z"
     },
     {
-      "id": "rafi2-1772486779",
-      "type": "outlet",
-      "siteName": "rafi2",
-      "name": "Outlet - rafi2",
-      "createdBy": "admin",
-      "createdByName": "Administrator",
+      "id": "wsc-kemang-1772741201",
+      "type": "site",
+      "siteName": "WSC-KEMANG",
+      "name": "Site - WSC-KEMANG",
+      "createdBy": "001154",
+      "createdByName": "rafi",
+      "managed": false,
       "publicKey": "",
       "presharedKey": "",
       "allowedIPs": [
@@ -92,427 +39,91 @@
       ],
       "endpoint": "",
       "keepalive": 15,
-      "assignedIP": "10.21.0.5",
+      "assignedIP": "10.22.0.2",
       "assignments": [
         {
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
+          "serverId": "wg-cctv",
+          "serverName": "wg-cctv",
           "interfaceName": "wg-cctv",
-          "assignedIP": "10.21.0.5",
-          "overlayCIDR": "10.21.0.0/22"
-        },
-        {
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "interfaceName": "wg-its",
-          "assignedIP": "10.22.0.6",
-          "overlayCIDR": "10.22.0.0/22"
-        }
-      ],
-      "artifacts": [
-        {
-          "id": "stg-cctv-conf",
-          "kind": "conf",
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "filename": "rafi2-stg-cctv.conf",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "[Interface]\nAddress = 10.21.0.5/22\nPrivateKey = eHHf8Vd3DDKO1edtYxH07BUQzOQam3nMq9hdl/R0SUI=\n\n[Peer]\nPublicKey = 3tuc4848WyMQSjFpI420cg1jilE/59lFDSNGJOn9pSA=\nPresharedKey = 7aVV1yX0+J3FP2BFfhKymGnhOv/cjujXPzoqyqr+/rs=\nAllowedIPs = 10.21.0.0/22\nEndpoint = 192.168.21.254:51821\nPersistentKeepalive = 15\n"
-        },
-        {
-          "id": "stg-cctv-rsc",
-          "kind": "rsc",
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "filename": "rafi2-stg-cctv.rsc",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "/interface wireguard add name=wg-cctv private-key=\"eHHf8Vd3DDKO1edtYxH07BUQzOQam3nMq9hdl/R0SUI=\"\n/ip address add address=10.21.0.5/22 interface=wg-cctv\n/interface wireguard peers add name=RAFI2 interface=wg-cctv public-key=\"3tuc4848WyMQSjFpI420cg1jilE/59lFDSNGJOn9pSA=\" preshared-key=\"7aVV1yX0+J3FP2BFfhKymGnhOv/cjujXPzoqyqr+/rs=\" endpoint-address=192.168.21.254 endpoint-port=51821 allowed-address=10.21.0.0/22\n"
-        },
-        {
-          "id": "stg-its-conf",
-          "kind": "conf",
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "filename": "rafi2-stg-its.conf",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "[Interface]\nAddress = 10.22.0.6/22\nPrivateKey = uBIbyf5RDIMQI4LkM1wAUOdX/g1vjszjsvTK5M0EFUc=\n\n[Peer]\nPublicKey = PDUIME4/MQNpYQCezpGif9I/R1muZuAKroRi/dr4DXg=\nPresharedKey = 8FzHJXY6cTdQy3fJB397BcJPxtFZUeyM1J6T0hRCgMg=\nAllowedIPs = 10.22.0.0/22\nEndpoint = 192.168.22.254:51822\nPersistentKeepalive = 15\n"
-        },
-        {
-          "id": "stg-its-rsc",
-          "kind": "rsc",
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "filename": "rafi2-stg-its.rsc",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "/interface wireguard add name=wg-its private-key=\"uBIbyf5RDIMQI4LkM1wAUOdX/g1vjszjsvTK5M0EFUc=\"\n/ip address add address=10.22.0.6/22 interface=wg-its\n/interface wireguard peers add name=RAFI2 interface=wg-its public-key=\"PDUIME4/MQNpYQCezpGif9I/R1muZuAKroRi/dr4DXg=\" preshared-key=\"8FzHJXY6cTdQy3fJB397BcJPxtFZUeyM1J6T0hRCgMg=\" endpoint-address=192.168.22.254 endpoint-port=51822 allowed-address=10.22.0.0/22\n"
-        }
-      ],
-      "createdAt": "2026-03-02T21:26:19Z"
-    },
-    {
-      "id": "test123123-1772483176",
-      "type": "outlet",
-      "siteName": "test123123",
-      "name": "Outlet - test123123",
-      "publicKey": "",
-      "presharedKey": "",
-      "allowedIPs": [
-        "0.0.0.0/0"
-      ],
-      "endpoint": "",
-      "keepalive": 15,
-      "assignedIP": "10.21.0.4",
-      "assignments": [
-        {
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "interfaceName": "wg-cctv",
-          "assignedIP": "10.21.0.4",
-          "overlayCIDR": "10.21.0.0/22"
-        },
-        {
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "interfaceName": "wg-its",
-          "assignedIP": "10.22.0.5",
-          "overlayCIDR": "10.22.0.0/22"
-        }
-      ],
-      "artifacts": [
-        {
-          "id": "stg-cctv-conf",
-          "kind": "conf",
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "filename": "test123123-stg-cctv.conf",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "Artifact is stored on stg-cctv (192.168.21.254) at /opt/occ-wg/peers/test123123-stg-cctv.conf.\nFetch it directly on the server or extend the wrapper to return file contents to OCC.\n"
-        },
-        {
-          "id": "stg-cctv-rsc",
-          "kind": "rsc",
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "filename": "test123123-stg-cctv.rsc",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "Artifact is stored on stg-cctv (192.168.21.254) at /opt/occ-wg/peers/test123123-stg-cctv.rsc.\nFetch it directly on the server or extend the wrapper to return file contents to OCC.\n"
-        },
-        {
-          "id": "stg-its-conf",
-          "kind": "conf",
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "filename": "test123123-stg-its.conf",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "Artifact is stored on stg-its (192.168.22.254) at /opt/occ-wg/peers/test123123-stg-its.conf.\nFetch it directly on the server or extend the wrapper to return file contents to OCC.\n"
-        },
-        {
-          "id": "stg-its-rsc",
-          "kind": "rsc",
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "filename": "test123123-stg-its.rsc",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "Artifact is stored on stg-its (192.168.22.254) at /opt/occ-wg/peers/test123123-stg-its.rsc.\nFetch it directly on the server or extend the wrapper to return file contents to OCC.\n"
-        }
-      ],
-      "createdAt": "2026-03-02T20:26:16Z"
-    },
-    {
-      "id": "test2-1772483125",
-      "type": "outlet",
-      "siteName": "test2",
-      "name": "Outlet - test2",
-      "publicKey": "",
-      "presharedKey": "",
-      "allowedIPs": [
-        "0.0.0.0/0"
-      ],
-      "endpoint": "",
-      "keepalive": 15,
-      "assignedIP": "10.21.0.3",
-      "assignments": [
-        {
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "interfaceName": "wg-cctv",
-          "assignedIP": "10.21.0.3",
-          "overlayCIDR": "10.21.0.0/22"
-        },
-        {
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "interfaceName": "wg-its",
-          "assignedIP": "10.22.0.4",
-          "overlayCIDR": "10.22.0.0/22"
-        }
-      ],
-      "artifacts": [
-        {
-          "id": "stg-cctv-conf",
-          "kind": "conf",
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "filename": "test2-stg-cctv.conf",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "Artifact is stored on stg-cctv (192.168.21.254) at /opt/occ-wg/peers/test2-stg-cctv.conf.\nFetch it directly on the server or extend the wrapper to return file contents to OCC.\n"
-        },
-        {
-          "id": "stg-cctv-rsc",
-          "kind": "rsc",
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "filename": "test2-stg-cctv.rsc",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "Artifact is stored on stg-cctv (192.168.21.254) at /opt/occ-wg/peers/test2-stg-cctv.rsc.\nFetch it directly on the server or extend the wrapper to return file contents to OCC.\n"
-        },
-        {
-          "id": "stg-its-conf",
-          "kind": "conf",
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "filename": "test2-stg-its.conf",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "Artifact is stored on stg-its (192.168.22.254) at /opt/occ-wg/peers/test2-stg-its.conf.\nFetch it directly on the server or extend the wrapper to return file contents to OCC.\n"
-        },
-        {
-          "id": "stg-its-rsc",
-          "kind": "rsc",
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "filename": "test2-stg-its.rsc",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "Artifact is stored on stg-its (192.168.22.254) at /opt/occ-wg/peers/test2-stg-its.rsc.\nFetch it directly on the server or extend the wrapper to return file contents to OCC.\n"
-        }
-      ],
-      "createdAt": "2026-03-02T20:25:25Z"
-    },
-    {
-      "id": "outletv-1772479761",
-      "type": "outlet",
-      "siteName": "outletv",
-      "name": "Outlet - outletv",
-      "publicKey": "",
-      "presharedKey": "",
-      "allowedIPs": [
-        "0.0.0.0/0"
-      ],
-      "endpoint": "",
-      "keepalive": 15,
-      "assignedIP": "10.21.0.3",
-      "assignments": [
-        {
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "interfaceName": "wg-cctv",
-          "assignedIP": "10.21.0.3",
-          "overlayCIDR": "10.21.0.0/22"
-        },
-        {
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "interfaceName": "wg-its",
-          "assignedIP": "10.22.0.3",
-          "overlayCIDR": "10.22.0.0/22"
-        }
-      ],
-      "artifacts": [
-        {
-          "id": "stg-cctv-conf",
-          "kind": "conf",
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "filename": "outletv-stg-cctv.conf",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "[Interface]\nAddress = 10.21.0.3/22\nPrivateKey = iAafZtnYMQwCIcYSoy8YYVVbX70MMDBfC9wToEqNql8=\n\n[Peer]\nPublicKey = Warning: Permanently added '192.168.21.254' (ED25519) to the list of known hosts.\r\nawk: fatal: cannot open file `/etc/wireguard/wg0.conf' for reading: Permission denied\nPresharedKey = M1sG7WVaJ2lMSiOkxrs091slbPbU8ZHfb9pHcPzaSe8=\nAllowedIPs = 10.21.0.0/22\nEndpoint = 192.168.21.254:51820\nPersistentKeepalive = 15\n"
-        },
-        {
-          "id": "stg-cctv-rsc",
-          "kind": "rsc",
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "filename": "outletv-stg-cctv.rsc",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "/interface wireguard add name=wg-cctv private-key=\"iAafZtnYMQwCIcYSoy8YYVVbX70MMDBfC9wToEqNql8=\"\n/ip address add address=10.21.0.3/22 interface=wg-cctv\n/interface wireguard peers add name=wg-cctv interface=wg-cctv \\\npublic-key=\"Warning: Permanently added '192.168.21.254' (ED25519) to the list of known hosts.\r\nawk: fatal: cannot open file `/etc/wireguard/wg0.conf' for reading: Permission denied\" \\\npreshared-key=\"M1sG7WVaJ2lMSiOkxrs091slbPbU8ZHfb9pHcPzaSe8=\" \\\nendpoint-address=192.168.21.254 \\\nendpoint-port=51820 \\\nallowed-address=10.21.0.0/22\n"
-        },
-        {
-          "id": "stg-its-conf",
-          "kind": "conf",
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "filename": "outletv-stg-its.conf",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "[Interface]\nAddress = 10.22.0.3/22\nPrivateKey = MAflVwDNWPF7s0ZzCwAaYXUMhXNGj6+g3kguDDtGvW4=\n\n[Peer]\nPublicKey = Warning: Permanently added '192.168.22.254' (ED25519) to the list of known hosts.\r\nawk: cannot open /etc/wireguard/wg0.conf (Permission denied)\nPresharedKey = ufsbADh5UDt14OBKwKVyKosecGsHqPDodpqdX6rHCtw=\nAllowedIPs = 10.22.0.0/22\nEndpoint = 192.168.22.254:51820\nPersistentKeepalive = 15\n"
-        },
-        {
-          "id": "stg-its-rsc",
-          "kind": "rsc",
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "filename": "outletv-stg-its.rsc",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "/interface wireguard add name=wg-its private-key=\"MAflVwDNWPF7s0ZzCwAaYXUMhXNGj6+g3kguDDtGvW4=\"\n/ip address add address=10.22.0.3/22 interface=wg-its\n/interface wireguard peers add name=wg-its interface=wg-its \\\npublic-key=\"Warning: Permanently added '192.168.22.254' (ED25519) to the list of known hosts.\r\nawk: cannot open /etc/wireguard/wg0.conf (Permission denied)\" \\\npreshared-key=\"ufsbADh5UDt14OBKwKVyKosecGsHqPDodpqdX6rHCtw=\" \\\nendpoint-address=192.168.22.254 \\\nendpoint-port=51820 \\\nallowed-address=10.22.0.0/22\n"
-        }
-      ],
-      "createdAt": "2026-03-02T19:29:21Z"
-    },
-    {
-      "id": "outlet-b-1772479751",
-      "type": "outlet",
-      "siteName": "outlet-b",
-      "name": "Outlet - outlet-b",
-      "publicKey": "",
-      "presharedKey": "",
-      "allowedIPs": [
-        "0.0.0.0/0"
-      ],
-      "endpoint": "",
-      "keepalive": 15,
-      "assignedIP": "10.21.0.2",
-      "assignments": [
-        {
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "interfaceName": "wg-cctv",
-          "assignedIP": "10.21.0.2",
-          "overlayCIDR": "10.21.0.0/22"
-        },
-        {
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "interfaceName": "wg-its",
           "assignedIP": "10.22.0.2",
           "overlayCIDR": "10.22.0.0/22"
-        }
-      ],
-      "artifacts": [
-        {
-          "id": "stg-cctv-conf",
-          "kind": "conf",
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "filename": "outlet-b-stg-cctv.conf",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "[Interface]\nAddress = 10.21.0.2/22\nPrivateKey = KEQXFrsMu7yhw8j95dLEbzPWkcs3rmaH7wmFVe1DOXM=\n\n[Peer]\nPublicKey = Warning: Permanently added '192.168.21.254' (ED25519) to the list of known hosts.\r\nawk: fatal: cannot open file `/etc/wireguard/wg0.conf' for reading: Permission denied\nPresharedKey = qRk3vQOxgC8JdoMIdG3yl9cawZtdocKYSuZa0Ar+fPI=\nAllowedIPs = 10.21.0.0/22\nEndpoint = 192.168.21.254:51820\nPersistentKeepalive = 15\n"
         },
         {
-          "id": "stg-cctv-rsc",
-          "kind": "rsc",
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "filename": "outlet-b-stg-cctv.rsc",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "/interface wireguard add name=wg-cctv private-key=\"KEQXFrsMu7yhw8j95dLEbzPWkcs3rmaH7wmFVe1DOXM=\"\n/ip address add address=10.21.0.2/22 interface=wg-cctv\n/interface wireguard peers add name=wg-cctv interface=wg-cctv \\\npublic-key=\"Warning: Permanently added '192.168.21.254' (ED25519) to the list of known hosts.\r\nawk: fatal: cannot open file `/etc/wireguard/wg0.conf' for reading: Permission denied\" \\\npreshared-key=\"qRk3vQOxgC8JdoMIdG3yl9cawZtdocKYSuZa0Ar+fPI=\" \\\nendpoint-address=192.168.21.254 \\\nendpoint-port=51820 \\\nallowed-address=10.21.0.0/22\n"
-        },
-        {
-          "id": "stg-its-conf",
-          "kind": "conf",
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "filename": "outlet-b-stg-its.conf",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "[Interface]\nAddress = 10.22.0.2/22\nPrivateKey = GODEPcjwq6VPsULdNrWN2r9+WGFsx4ecDeFXPeHf9HA=\n\n[Peer]\nPublicKey = Warning: Permanently added '192.168.22.254' (ED25519) to the list of known hosts.\r\nawk: cannot open /etc/wireguard/wg0.conf (Permission denied)\nPresharedKey = SfiIapq7ZKthSVI7G7UI3p/tbrxVf5XMUKt19brDGEM=\nAllowedIPs = 10.22.0.0/22\nEndpoint = 192.168.22.254:51820\nPersistentKeepalive = 15\n"
-        },
-        {
-          "id": "stg-its-rsc",
-          "kind": "rsc",
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "filename": "outlet-b-stg-its.rsc",
-          "contentType": "text/plain; charset=utf-8",
-          "content": "/interface wireguard add name=wg-its private-key=\"GODEPcjwq6VPsULdNrWN2r9+WGFsx4ecDeFXPeHf9HA=\"\n/ip address add address=10.22.0.2/22 interface=wg-its\n/interface wireguard peers add name=wg-its interface=wg-its \\\npublic-key=\"Warning: Permanently added '192.168.22.254' (ED25519) to the list of known hosts.\r\nawk: cannot open /etc/wireguard/wg0.conf (Permission denied)\" \\\npreshared-key=\"SfiIapq7ZKthSVI7G7UI3p/tbrxVf5XMUKt19brDGEM=\" \\\nendpoint-address=192.168.22.254 \\\nendpoint-port=51820 \\\nallowed-address=10.22.0.0/22\n"
-        }
-      ],
-      "createdAt": "2026-03-02T19:29:11Z"
-    },
-    {
-      "id": "outlet-test1-1772479428",
-      "type": "outlet",
-      "siteName": "OUTLET-TEST1",
-      "name": "Outlet - OUTLET-TEST1",
-      "publicKey": "",
-      "presharedKey": "",
-      "allowedIPs": [
-        "0.0.0.0/0"
-      ],
-      "endpoint": "",
-      "keepalive": 15,
-      "assignedIP": "10.21.0.4",
-      "assignments": [
-        {
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "interfaceName": "wg-cctv",
-          "assignedIP": "10.21.0.4",
-          "overlayCIDR": "10.21.0.0/22"
-        },
-        {
-          "serverId": "stg-its",
-          "serverName": "stg-its",
+          "serverId": "wg-its",
+          "serverName": "wg-its",
           "interfaceName": "wg-its",
-          "assignedIP": "10.22.0.4",
-          "overlayCIDR": "10.22.0.0/22"
+          "assignedIP": "10.21.0.2",
+          "overlayCIDR": "10.21.0.0/22"
         }
       ],
       "artifacts": [
         {
-          "id": "stg-cctv-conf",
+          "id": "wg-cctv-conf",
           "kind": "conf",
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "filename": "OUTLET-TEST1-stg-cctv.conf",
+          "serverId": "wg-cctv",
+          "serverName": "wg-cctv",
+          "filename": "wsc-kemang-stg-cctv.conf",
           "contentType": "text/plain; charset=utf-8",
-          "content": "[Interface]\nAddress = 10.21.0.4/22\nPrivateKey = gBiHU16QB9CHI3ZfYYSYaMNgjGfto5yYvlYqptRJjWc=\n\n[Peer]\nPublicKey = Warning: Permanently added '192.168.21.254' (ED25519) to the list of known hosts.\r\nawk: fatal: cannot open file `/etc/wireguard/wg0.conf' for reading: Permission denied\nPresharedKey = DOtr3V/s0ppfe+okiqC4da5iyR0DHZLoNMO49JpPrKs=\nAllowedIPs = 10.21.0.0/22\nEndpoint = 192.168.21.254:51820\nPersistentKeepalive = 15\n"
+          "content": "[Interface]\nAddress = 10.22.0.2/22\nPrivateKey = qKgUf/5s7w32Q3zu8kYF3lqGfXpoF2o0Ub3VvXkx5Gs=\n\n[Peer]\nPublicKey = 3tuc4848WyMQSjFpI420cg1jilE/59lFDSNGJOn9pSA=\nPresharedKey = rqHGuPP/mNGoFBh4AY0eQHE3vAbjVFVabKr0lthBdpU=\nAllowedIPs = 10.22.0.0/22\nEndpoint = 192.168.21.254:51821\nPersistentKeepalive = 15\n"
         },
         {
-          "id": "stg-cctv-rsc",
+          "id": "wg-cctv-rsc",
           "kind": "rsc",
-          "serverId": "stg-cctv",
-          "serverName": "stg-cctv",
-          "filename": "OUTLET-TEST1-stg-cctv.rsc",
+          "serverId": "wg-cctv",
+          "serverName": "wg-cctv",
+          "filename": "wsc-kemang-stg-cctv.rsc",
           "contentType": "text/plain; charset=utf-8",
-          "content": "/interface wireguard add name=wg-cctv private-key=\"gBiHU16QB9CHI3ZfYYSYaMNgjGfto5yYvlYqptRJjWc=\"\n/ip address add address=10.21.0.4/22 interface=wg-cctv\n/interface wireguard peers add name=wg-cctv interface=wg-cctv \\\npublic-key=\"Warning: Permanently added '192.168.21.254' (ED25519) to the list of known hosts.\r\nawk: fatal: cannot open file `/etc/wireguard/wg0.conf' for reading: Permission denied\" \\\npreshared-key=\"DOtr3V/s0ppfe+okiqC4da5iyR0DHZLoNMO49JpPrKs=\" \\\nendpoint-address=192.168.21.254 \\\nendpoint-port=51820 \\\nallowed-address=10.21.0.0/22\n"
+          "content": "/interface wireguard add name=wg-cctv private-key=\"qKgUf/5s7w32Q3zu8kYF3lqGfXpoF2o0Ub3VvXkx5Gs=\"\n/ip address add address=10.22.0.2/22 interface=wg-cctv\n/interface wireguard peers add name=WSC-KEMANG interface=wg-cctv public-key=\"3tuc4848WyMQSjFpI420cg1jilE/59lFDSNGJOn9pSA=\" preshared-key=\"rqHGuPP/mNGoFBh4AY0eQHE3vAbjVFVabKr0lthBdpU=\" endpoint-address=192.168.21.254 endpoint-port=51821 allowed-address=10.22.0.0/22\n"
         },
         {
-          "id": "stg-its-conf",
+          "id": "wg-its-conf",
           "kind": "conf",
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "filename": "OUTLET-TEST1-stg-its.conf",
+          "serverId": "wg-its",
+          "serverName": "wg-its",
+          "filename": "wsc-kemang-stg-its.conf",
           "contentType": "text/plain; charset=utf-8",
-          "content": "[Interface]\nAddress = 10.22.0.4/22\nPrivateKey = iGLIYAGx+nmmZrFmz3jna8V0Xnz5vPylwXslToRz+XU=\n\n[Peer]\nPublicKey = Warning: Permanently added '192.168.22.254' (ED25519) to the list of known hosts.\r\nawk: cannot open /etc/wireguard/wg0.conf (Permission denied)\nPresharedKey = SZ6ao5+6aY9+61Xy3drVfXuYvG8PjoymWwNGJco45E8=\nAllowedIPs = 10.22.0.0/22\nEndpoint = 192.168.22.254:51820\nPersistentKeepalive = 15\n"
+          "content": "[Interface]\nAddress = 10.21.0.2/22\nPrivateKey = uAcsJ62w42ESYkEKFJs+tL+wpevIeS/0ssPkeHPKEX8=\n\n[Peer]\nPublicKey = PDUIME4/MQNpYQCezpGif9I/R1muZuAKroRi/dr4DXg=\nPresharedKey = h0VOMo9l1BzIh1eB1ekZa2F1IloxIyIv3GA7v1+/vh4=\nAllowedIPs = 10.21.0.0/22\nEndpoint = 192.168.22.254:51822\nPersistentKeepalive = 15\n"
         },
         {
-          "id": "stg-its-rsc",
+          "id": "wg-its-rsc",
           "kind": "rsc",
-          "serverId": "stg-its",
-          "serverName": "stg-its",
-          "filename": "OUTLET-TEST1-stg-its.rsc",
+          "serverId": "wg-its",
+          "serverName": "wg-its",
+          "filename": "wsc-kemang-stg-its.rsc",
           "contentType": "text/plain; charset=utf-8",
-          "content": "/interface wireguard add name=wg-its private-key=\"iGLIYAGx+nmmZrFmz3jna8V0Xnz5vPylwXslToRz+XU=\"\n/ip address add address=10.22.0.4/22 interface=wg-its\n/interface wireguard peers add name=wg-its interface=wg-its \\\npublic-key=\"Warning: Permanently added '192.168.22.254' (ED25519) to the list of known hosts.\r\nawk: cannot open /etc/wireguard/wg0.conf (Permission denied)\" \\\npreshared-key=\"SZ6ao5+6aY9+61Xy3drVfXuYvG8PjoymWwNGJco45E8=\" \\\nendpoint-address=192.168.22.254 \\\nendpoint-port=51820 \\\nallowed-address=10.22.0.0/22\n"
+          "content": "/interface wireguard add name=wg-its private-key=\"uAcsJ62w42ESYkEKFJs+tL+wpevIeS/0ssPkeHPKEX8=\"\n/ip address add address=10.21.0.2/22 interface=wg-its\n/interface wireguard peers add name=WSC-KEMANG interface=wg-its public-key=\"PDUIME4/MQNpYQCezpGif9I/R1muZuAKroRi/dr4DXg=\" preshared-key=\"h0VOMo9l1BzIh1eB1ekZa2F1IloxIyIv3GA7v1+/vh4=\" endpoint-address=192.168.22.254 endpoint-port=51822 allowed-address=10.21.0.0/22\n"
         }
       ],
-      "createdAt": "2026-03-02T19:23:48Z"
+      "createdAt": "2026-03-05T20:06:41Z"
     }
   ],
   "users": [
+    {
+      "username": "112233",
+      "name": "its",
+      "nik": "000001",
+      "password": "itshwg",
+      "role": "support",
+      "createdAt": "2026-03-02T21:53:33Z",
+      "updatedAt": "2026-03-05T15:44:53Z"
+    },
     {
       "username": "123123",
       "name": "erick",
       "nik": "123123",
       "password": "123123",
-      "role": "administrator",
+      "role": "support",
       "createdAt": "2026-03-02T16:35:44Z",
-      "updatedAt": "2026-03-02T16:35:44Z"
+      "updatedAt": "2026-03-03T07:09:21Z"
     },
     {
       "username": "001154",
       "name": "rafi",
       "nik": "001154",
       "password": "123123",
-      "role": "support",
+      "role": "superadmin",
       "createdAt": "2026-03-02T16:35:30Z",
-      "updatedAt": "2026-03-02T17:20:19Z"
+      "updatedAt": "2026-03-05T14:58:08Z"
     },
     {
       "username": "admin",
@@ -522,10 +133,1650 @@
       "role": "administrator",
       "builtIn": true,
       "createdAt": "2026-03-02T16:35:01Z",
-      "updatedAt": "2026-03-02T21:38:02Z"
+      "updatedAt": "2026-03-06T04:10:56Z"
     }
   ],
   "logs": [
+    {
+      "id": "wireguard-create-administrator-its-rafi-1772741283",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Administrator-ITS-RAFI",
+      "message": "Created administrator peer Administrator-ITS-RAFI (managed=false)",
+      "createdAt": "2026-03-05T20:08:03Z"
+    },
+    {
+      "id": "wireguard-create-site---wsc-kemang-1772741201",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Site - WSC-KEMANG",
+      "message": "Created site peer Site - WSC-KEMANG (managed=true)",
+      "createdAt": "2026-03-05T20:06:41Z"
+    },
+    {
+      "id": "wireguard-delete-administrator-raph-guest-1772740915",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Administrator-RAPH-GUEST",
+      "message": "Deleted peer Administrator-RAPH-GUEST",
+      "createdAt": "2026-03-05T20:01:55Z"
+    },
+    {
+      "id": "wireguard-delete-administrator-rafi-22-1772740914",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Administrator-RAFI-22",
+      "message": "Deleted peer Administrator-RAFI-22",
+      "createdAt": "2026-03-05T20:01:54Z"
+    },
+    {
+      "id": "wireguard-delete-administrator-server-12-10-1772740914",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Administrator-SERVER-12-10",
+      "message": "Deleted peer Administrator-SERVER-12-10",
+      "createdAt": "2026-03-05T20:01:54Z"
+    },
+    {
+      "id": "wireguard-delete-administrator-raph-guest2-1772740913",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Administrator-RAPH-GUEST2",
+      "message": "Deleted peer Administrator-RAPH-GUEST2",
+      "createdAt": "2026-03-05T20:01:53Z"
+    },
+    {
+      "id": "wireguard-delete-administrator-administrator-1-1772740913",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Administrator-ADMINISTRATOR-1",
+      "message": "Deleted peer Administrator-ADMINISTRATOR-1",
+      "createdAt": "2026-03-05T20:01:53Z"
+    },
+    {
+      "id": "wireguard-delete-site---ssc-kemang-1772740912",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Site - SSC-KEMANG",
+      "message": "Deleted peer Site - SSC-KEMANG",
+      "createdAt": "2026-03-05T20:01:52Z"
+    },
+    {
+      "id": "wireguard-delete-site---alskdjas-jhrioweurh-1772740911",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Site - ALSKDJAS-JHRIOWEURH",
+      "message": "Deleted peer Site - ALSKDJAS-JHRIOWEURH",
+      "createdAt": "2026-03-05T20:01:51Z"
+    },
+    {
+      "id": "wireguard-create-site---alskdjas-jhrioweurh-1772740812",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Site - ALSKDJAS-JHRIOWEURH",
+      "message": "Created site peer Site - ALSKDJAS-JHRIOWEURH (managed=true)",
+      "createdAt": "2026-03-05T20:00:12Z"
+    },
+    {
+      "id": "wireguard-create-administrator-administrator-1-1772738821",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Administrator-ADMINISTRATOR-1",
+      "message": "Created administrator peer Administrator-ADMINISTRATOR-1 (managed=false)",
+      "createdAt": "2026-03-05T19:27:01Z"
+    },
+    {
+      "id": "wireguard-create-administrator-raph-guest2-1772732464",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Administrator-RAPH-GUEST2",
+      "message": "Created administrator peer Administrator-RAPH-GUEST2 (managed=false)",
+      "createdAt": "2026-03-05T17:41:04Z"
+    },
+    {
+      "id": "wireguard-create-administrator-server-12-10-1772732445",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Administrator-SERVER-12-10",
+      "message": "Created administrator peer Administrator-SERVER-12-10 (managed=false)",
+      "createdAt": "2026-03-05T17:40:45Z"
+    },
+    {
+      "id": "wireguard-create-site---ssc-kemang-1772731757",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Site - SSC-KEMANG",
+      "message": "Created site peer Site - SSC-KEMANG (managed=true)",
+      "createdAt": "2026-03-05T17:29:17Z"
+    },
+    {
+      "id": "wireguard-create-administrator-rafi-22-1772728378",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Administrator-RAFI-22",
+      "message": "Created administrator peer Administrator-RAFI-22 (managed=true)",
+      "createdAt": "2026-03-05T16:32:58Z"
+    },
+    {
+      "id": "wireguard-create-administrator-raph-guest-1772728363",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Administrator-RAPH-GUEST",
+      "message": "Created administrator peer Administrator-RAPH-GUEST (managed=true)",
+      "createdAt": "2026-03-05T16:32:43Z"
+    },
+    {
+      "id": "wireguard-delete-administrator-mikrotik-vpn-jakarta-wg-its-1772727524",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Administrator-MIKROTIK-VPN-JAKARTA-WG-ITS",
+      "message": "Deleted peer Administrator-MIKROTIK-VPN-JAKARTA-WG-ITS",
+      "createdAt": "2026-03-05T16:18:44Z"
+    },
+    {
+      "id": "wireguard-delete-administrator-mikrotik-vpn-jakarta-wg-cctv-1772727523",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Administrator-MIKROTIK-VPN-JAKARTA-WG-CCTV",
+      "message": "Deleted peer Administrator-MIKROTIK-VPN-JAKARTA-WG-CCTV",
+      "createdAt": "2026-03-05T16:18:43Z"
+    },
+    {
+      "id": "wireguard-delete-administrator-server-bewok-1-wg-its-1772727523",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Administrator-SERVER-BEWOK-1-WG-ITS",
+      "message": "Deleted peer Administrator-SERVER-BEWOK-1-WG-ITS",
+      "createdAt": "2026-03-05T16:18:43Z"
+    },
+    {
+      "id": "wireguard-delete-administrator-server-bewok-1-wg-cctv-1772727521",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Administrator-SERVER-BEWOK-1-WG-CCTV",
+      "message": "Deleted peer Administrator-SERVER-BEWOK-1-WG-CCTV",
+      "createdAt": "2026-03-05T16:18:41Z"
+    },
+    {
+      "id": "wireguard-delete-site---cabin-ciledug-1772727520",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Site - CABIN-CILEDUG",
+      "message": "Deleted peer Site - CABIN-CILEDUG",
+      "createdAt": "2026-03-05T16:18:40Z"
+    },
+    {
+      "id": "wireguard-delete-site---cabin-bandung-1772727512",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Site - CABIN-BANDUNG",
+      "message": "Deleted peer Site - CABIN-BANDUNG",
+      "createdAt": "2026-03-05T16:18:32Z"
+    },
+    {
+      "id": "wireguard-delete-site---hotmen-ciledug-1772727511",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Site - HOTMEN-CILEDUG",
+      "message": "Deleted peer Site - HOTMEN-CILEDUG",
+      "createdAt": "2026-03-05T16:18:31Z"
+    },
+    {
+      "id": "wireguard-create-administrator-server-bewok-1-wg-cctv-1772727206",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Administrator-SERVER-BEWOK-1-WG-CCTV",
+      "message": "Created administrator peer Administrator-SERVER-BEWOK-1-WG-CCTV (managed=true)",
+      "createdAt": "2026-03-05T16:13:26Z"
+    },
+    {
+      "id": "wireguard-create-administrator-server-bewok-1-wg-its-1772727206",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Administrator-SERVER-BEWOK-1-WG-ITS",
+      "message": "Created administrator peer Administrator-SERVER-BEWOK-1-WG-ITS (managed=true)",
+      "createdAt": "2026-03-05T16:13:26Z"
+    },
+    {
+      "id": "wireguard-create-site---hotmen-ciledug-1772727192",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Site - HOTMEN-CILEDUG",
+      "message": "Created site peer Site - HOTMEN-CILEDUG (managed=true)",
+      "createdAt": "2026-03-05T16:13:12Z"
+    },
+    {
+      "id": "wireguard-create-administrator-mikrotik-vpn-jakarta-wg-cctv-1772726635",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Administrator-MIKROTIK-VPN-JAKARTA-WG-CCTV",
+      "message": "Created administrator peer Administrator-MIKROTIK-VPN-JAKARTA-WG-CCTV (managed=true)",
+      "createdAt": "2026-03-05T16:03:55Z"
+    },
+    {
+      "id": "wireguard-create-administrator-mikrotik-vpn-jakarta-wg-its-1772726635",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Administrator-MIKROTIK-VPN-JAKARTA-WG-ITS",
+      "message": "Created administrator peer Administrator-MIKROTIK-VPN-JAKARTA-WG-ITS (managed=true)",
+      "createdAt": "2026-03-05T16:03:55Z"
+    },
+    {
+      "id": "wireguard-create-site---cabin-bandung-1772726595",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Site - CABIN-BANDUNG",
+      "message": "Created site peer Site - CABIN-BANDUNG (managed=true)",
+      "createdAt": "2026-03-05T16:03:15Z"
+    },
+    {
+      "id": "wireguard-create-site---cabin-ciledug-1772726584",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "Site - CABIN-CILEDUG",
+      "message": "Created site peer Site - CABIN-CILEDUG (managed=true)",
+      "createdAt": "2026-03-05T16:03:04Z"
+    },
+    {
+      "id": "user-update-its-1772725493",
+      "category": "user",
+      "action": "update",
+      "actor": "001154",
+      "actorName": "rafi",
+      "target": "its",
+      "message": "Updated user its (000001)",
+      "createdAt": "2026-03-05T15:44:53Z"
+    },
+    {
+      "id": "user-update-rafi-1772722688",
+      "category": "user",
+      "action": "update",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "rafi",
+      "message": "Updated user rafi (001154)",
+      "createdAt": "2026-03-05T14:58:08Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---livehouse-kemang-1772718965",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-KEMANG",
+      "message": "Deleted peer Outlet - LIVEHOUSE-KEMANG",
+      "createdAt": "2026-03-05T13:56:05Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---cabin-bogor-1772718961",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - CABIN-BOGOR",
+      "message": "Deleted peer Outlet - CABIN-BOGOR",
+      "createdAt": "2026-03-05T13:56:01Z"
+    },
+    {
+      "id": "wireguard-create-outlet---cabin-bogor-1772662663",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - CABIN-BOGOR",
+      "message": "Created outlet peer Outlet - CABIN-BOGOR",
+      "createdAt": "2026-03-04T22:17:43Z"
+    },
+    {
+      "id": "wireguard-create-outlet---livehouse-kemang-1772662657",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-KEMANG",
+      "message": "Created outlet peer Outlet - LIVEHOUSE-KEMANG",
+      "createdAt": "2026-03-04T22:17:37Z"
+    },
+    {
+      "id": "wireguard-delete-administrator-server-rafi-1-wg-its-1772662645",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Administrator-SERVER-RAFI-1-WG-ITS",
+      "message": "Deleted peer Administrator-SERVER-RAFI-1-WG-ITS",
+      "createdAt": "2026-03-04T22:17:25Z"
+    },
+    {
+      "id": "wireguard-delete-administrator-server-rafi-1-wg-cctv-1772662644",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Administrator-SERVER-RAFI-1-WG-CCTV",
+      "message": "Deleted peer Administrator-SERVER-RAFI-1-WG-CCTV",
+      "createdAt": "2026-03-04T22:17:24Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---1232!@@#!@$!@-123!@#!@$!#$@#%!@#123-1772662642",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 1232!@@#!@$!@-123!@#!@$!#$@#%!@#123",
+      "message": "Deleted peer Outlet - 1232!@@#!@$!@-123!@#!@$!#$@#%!@#123",
+      "createdAt": "2026-03-04T22:17:22Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---~!@~#@!#$~!@#!@-1@#!~!!#!@$@#%$!@#13-1772662641",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - ~!@~#@!#$~!@#!@-1@#!~!!#!@$@#%$!@#13",
+      "message": "Deleted peer Outlet - ~!@~#@!#$~!@#!@-1@#!~!!#!@$@#%$!@#13",
+      "createdAt": "2026-03-04T22:17:21Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---livehouse-kemang-1772662216",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-KEMANG",
+      "message": "Deleted peer Outlet - LIVEHOUSE-KEMANG",
+      "createdAt": "2026-03-04T22:10:16Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---livehouse-bali-1772662216",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-BALI",
+      "message": "Deleted peer Outlet - LIVEHOUSE-BALI",
+      "createdAt": "2026-03-04T22:10:16Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---livehouse-1-1772662215",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-1",
+      "message": "Deleted peer Outlet - LIVEHOUSE-1",
+      "createdAt": "2026-03-04T22:10:15Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---livehouse-2-1772662214",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-2",
+      "message": "Deleted peer Outlet - LIVEHOUSE-2",
+      "createdAt": "2026-03-04T22:10:14Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---livehouse-3-1772662213",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-3",
+      "message": "Deleted peer Outlet - LIVEHOUSE-3",
+      "createdAt": "2026-03-04T22:10:13Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---livehouse-4-1772662212",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-4",
+      "message": "Deleted peer Outlet - LIVEHOUSE-4",
+      "createdAt": "2026-03-04T22:10:12Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---livehouse-5-1772662211",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-5",
+      "message": "Deleted peer Outlet - LIVEHOUSE-5",
+      "createdAt": "2026-03-04T22:10:11Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---livehouse-6-1772662211",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-6",
+      "message": "Deleted peer Outlet - LIVEHOUSE-6",
+      "createdAt": "2026-03-04T22:10:11Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---livehous-7-1772662210",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUS-7",
+      "message": "Deleted peer Outlet - LIVEHOUS-7",
+      "createdAt": "2026-03-04T22:10:10Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---livehouse-8-1772662209",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-8",
+      "message": "Deleted peer Outlet - LIVEHOUSE-8",
+      "createdAt": "2026-03-04T22:10:09Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---1-12312-1772662208",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 1-12312",
+      "message": "Deleted peer Outlet - 1-12312",
+      "createdAt": "2026-03-04T22:10:08Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---2-12314-1772662207",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 2-12314",
+      "message": "Deleted peer Outlet - 2-12314",
+      "createdAt": "2026-03-04T22:10:07Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---1231-123123-1772662207",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 1231-123123",
+      "message": "Deleted peer Outlet - 1231-123123",
+      "createdAt": "2026-03-04T22:10:07Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---123123-123123-1772662206",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 123123-123123",
+      "message": "Deleted peer Outlet - 123123-123123",
+      "createdAt": "2026-03-04T22:10:06Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---345345-1231-1772662205",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 345345-1231",
+      "message": "Deleted peer Outlet - 345345-1231",
+      "createdAt": "2026-03-04T22:10:05Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---23523-123123-1772662204",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 23523-123123",
+      "message": "Deleted peer Outlet - 23523-123123",
+      "createdAt": "2026-03-04T22:10:04Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---23423-123123-1772662203",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 23423-123123",
+      "message": "Deleted peer Outlet - 23423-123123",
+      "createdAt": "2026-03-04T22:10:03Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---2342341-2342341-1772662202",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 2342341-2342341",
+      "message": "Deleted peer Outlet - 2342341-2342341",
+      "createdAt": "2026-03-04T22:10:02Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---2342534-23412-1772662202",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 2342534-23412",
+      "message": "Deleted peer Outlet - 2342534-23412",
+      "createdAt": "2026-03-04T22:10:02Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---12314325-123123-1772662201",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 12314325-123123",
+      "message": "Deleted peer Outlet - 12314325-123123",
+      "createdAt": "2026-03-04T22:10:01Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---123123-2341231-1772662200",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 123123-2341231",
+      "message": "Deleted peer Outlet - 123123-2341231",
+      "createdAt": "2026-03-04T22:10:00Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---23423123123-1231232342-1772662199",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 23423123123-1231232342",
+      "message": "Deleted peer Outlet - 23423123123-1231232342",
+      "createdAt": "2026-03-04T22:09:59Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---123123123-123123123123-1772662198",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 123123123-123123123123",
+      "message": "Deleted peer Outlet - 123123123-123123123123",
+      "createdAt": "2026-03-04T22:09:58Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---23421312-12234123-1772662198",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 23421312-12234123",
+      "message": "Deleted peer Outlet - 23421312-12234123",
+      "createdAt": "2026-03-04T22:09:58Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---12312423-1231423-1772662197",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 12312423-1231423",
+      "message": "Deleted peer Outlet - 12312423-1231423",
+      "createdAt": "2026-03-04T22:09:57Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---12312432-12314234-1772662196",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 12312432-12314234",
+      "message": "Deleted peer Outlet - 12312432-12314234",
+      "createdAt": "2026-03-04T22:09:56Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---123123-123123123-1772662195",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 123123-123123123",
+      "message": "Deleted peer Outlet - 123123-123123123",
+      "createdAt": "2026-03-04T22:09:55Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---123wergfhfgh123-1231525345-1772662195",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 123WERGFHFGH123-1231525345",
+      "message": "Deleted peer Outlet - 123WERGFHFGH123-1231525345",
+      "createdAt": "2026-03-04T22:09:55Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---123123123-123123123-1772662193",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 123123123-123123123",
+      "message": "Deleted peer Outlet - 123123123-123123123",
+      "createdAt": "2026-03-04T22:09:53Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---asldkj12123-lakjsdlak123-1772662162",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - ASLDKJ12123-LAKJSDLAK123",
+      "message": "Deleted peer Outlet - ASLDKJ12123-LAKJSDLAK123",
+      "createdAt": "2026-03-04T22:09:22Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---123123425-3465234-1772662162",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 123123425-3465234",
+      "message": "Deleted peer Outlet - 123123425-3465234",
+      "createdAt": "2026-03-04T22:09:22Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---dfgdfgdfg-dfgdfg-1772662161",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - DFGDFGDFG-DFGDFG",
+      "message": "Deleted peer Outlet - DFGDFGDFG-DFGDFG",
+      "createdAt": "2026-03-04T22:09:21Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---d-g-1772662160",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - D-G",
+      "message": "Deleted peer Outlet - D-G",
+      "createdAt": "2026-03-04T22:09:20Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---dg-gg-1772662159",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - DG-GG",
+      "message": "Deleted peer Outlet - DG-GG",
+      "createdAt": "2026-03-04T22:09:19Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---dfg-dfgd-1772662158",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - DFG-DFGD",
+      "message": "Deleted peer Outlet - DFG-DFGD",
+      "createdAt": "2026-03-04T22:09:18Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---livehouse-asdsdg-1772662158",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-ASDSDG",
+      "message": "Deleted peer Outlet - LIVEHOUSE-ASDSDG",
+      "createdAt": "2026-03-04T22:09:18Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---sdfsef-livehouse-1772662157",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - SDFSEF-LIVEHOUSE",
+      "message": "Deleted peer Outlet - SDFSEF-LIVEHOUSE",
+      "createdAt": "2026-03-04T22:09:17Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---lh-kasd-1772662156",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LH-KASD",
+      "message": "Deleted peer Outlet - LH-KASD",
+      "createdAt": "2026-03-04T22:09:16Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---123546-7879345-1772662155",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 123546-7879345",
+      "message": "Deleted peer Outlet - 123546-7879345",
+      "createdAt": "2026-03-04T22:09:15Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---546457-23341-1772662154",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 546457-23341",
+      "message": "Deleted peer Outlet - 546457-23341",
+      "createdAt": "2026-03-04T22:09:14Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---213436-3463452-1772662154",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 213436-3463452",
+      "message": "Deleted peer Outlet - 213436-3463452",
+      "createdAt": "2026-03-04T22:09:14Z"
+    },
+    {
+      "id": "wireguard-create-outlet---213436-3463452-1772658248",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 213436-3463452",
+      "message": "Created outlet peer Outlet - 213436-3463452",
+      "createdAt": "2026-03-04T21:04:08Z"
+    },
+    {
+      "id": "wireguard-create-outlet---546457-23341-1772658241",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 546457-23341",
+      "message": "Created outlet peer Outlet - 546457-23341",
+      "createdAt": "2026-03-04T21:04:01Z"
+    },
+    {
+      "id": "wireguard-create-outlet---123546-7879345-1772658236",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 123546-7879345",
+      "message": "Created outlet peer Outlet - 123546-7879345",
+      "createdAt": "2026-03-04T21:03:56Z"
+    },
+    {
+      "id": "wireguard-create-outlet---lh-kasd-1772658224",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LH-KASD",
+      "message": "Created outlet peer Outlet - LH-KASD",
+      "createdAt": "2026-03-04T21:03:44Z"
+    },
+    {
+      "id": "wireguard-create-outlet---sdfsef-livehouse-1772657942",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - SDFSEF-LIVEHOUSE",
+      "message": "Created outlet peer Outlet - SDFSEF-LIVEHOUSE",
+      "createdAt": "2026-03-04T20:59:02Z"
+    },
+    {
+      "id": "wireguard-create-outlet---livehouse-asdsdg-1772657934",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-ASDSDG",
+      "message": "Created outlet peer Outlet - LIVEHOUSE-ASDSDG",
+      "createdAt": "2026-03-04T20:58:54Z"
+    },
+    {
+      "id": "wireguard-create-outlet---dfg-dfgd-1772657921",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - DFG-DFGD",
+      "message": "Created outlet peer Outlet - DFG-DFGD",
+      "createdAt": "2026-03-04T20:58:41Z"
+    },
+    {
+      "id": "wireguard-create-outlet---dg-gg-1772657915",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - DG-GG",
+      "message": "Created outlet peer Outlet - DG-GG",
+      "createdAt": "2026-03-04T20:58:35Z"
+    },
+    {
+      "id": "wireguard-create-outlet---d-g-1772657903",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - D-G",
+      "message": "Created outlet peer Outlet - D-G",
+      "createdAt": "2026-03-04T20:58:23Z"
+    },
+    {
+      "id": "wireguard-create-outlet---dfgdfgdfg-dfgdfg-1772657898",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - DFGDFGDFG-DFGDFG",
+      "message": "Created outlet peer Outlet - DFGDFGDFG-DFGDFG",
+      "createdAt": "2026-03-04T20:58:18Z"
+    },
+    {
+      "id": "wireguard-create-outlet---123123425-3465234-1772657893",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 123123425-3465234",
+      "message": "Created outlet peer Outlet - 123123425-3465234",
+      "createdAt": "2026-03-04T20:58:13Z"
+    },
+    {
+      "id": "wireguard-create-outlet---asldkj12123-lakjsdlak123-1772657884",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - ASLDKJ12123-LAKJSDLAK123",
+      "message": "Created outlet peer Outlet - ASLDKJ12123-LAKJSDLAK123",
+      "createdAt": "2026-03-04T20:58:04Z"
+    },
+    {
+      "id": "wireguard-create-outlet---~!@~#@!#$~!@#!@-1@#!~!!#!@$@#%$!@#13-1772657443",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - ~!@~#@!#$~!@#!@-1@#!~!!#!@$@#%$!@#13",
+      "message": "Created outlet peer Outlet - ~!@~#@!#$~!@#!@-1@#!~!!#!@$@#%$!@#13",
+      "createdAt": "2026-03-04T20:50:43Z"
+    },
+    {
+      "id": "wireguard-create-outlet---1232!@@#!@$!@-123!@#!@$!#$@#%!@#123-1772657432",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 1232!@@#!@$!@-123!@#!@$!#$@#%!@#123",
+      "message": "Created outlet peer Outlet - 1232!@@#!@$!@-123!@#!@$!#$@#%!@#123",
+      "createdAt": "2026-03-04T20:50:32Z"
+    },
+    {
+      "id": "wireguard-create-outlet---123123123-123123123-1772657406",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 123123123-123123123",
+      "message": "Created outlet peer Outlet - 123123123-123123123",
+      "createdAt": "2026-03-04T20:50:06Z"
+    },
+    {
+      "id": "wireguard-create-outlet---123wergfhfgh123-1231525345-1772657401",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 123WERGFHFGH123-1231525345",
+      "message": "Created outlet peer Outlet - 123WERGFHFGH123-1231525345",
+      "createdAt": "2026-03-04T20:50:01Z"
+    },
+    {
+      "id": "wireguard-create-outlet---123123-123123123-1772657392",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 123123-123123123",
+      "message": "Created outlet peer Outlet - 123123-123123123",
+      "createdAt": "2026-03-04T20:49:52Z"
+    },
+    {
+      "id": "wireguard-create-outlet---12312432-12314234-1772657382",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 12312432-12314234",
+      "message": "Created outlet peer Outlet - 12312432-12314234",
+      "createdAt": "2026-03-04T20:49:42Z"
+    },
+    {
+      "id": "wireguard-create-outlet---12312423-1231423-1772657378",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 12312423-1231423",
+      "message": "Created outlet peer Outlet - 12312423-1231423",
+      "createdAt": "2026-03-04T20:49:38Z"
+    },
+    {
+      "id": "wireguard-create-outlet---23421312-12234123-1772657373",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 23421312-12234123",
+      "message": "Created outlet peer Outlet - 23421312-12234123",
+      "createdAt": "2026-03-04T20:49:33Z"
+    },
+    {
+      "id": "wireguard-create-outlet---123123123-123123123123-1772657369",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 123123123-123123123123",
+      "message": "Created outlet peer Outlet - 123123123-123123123123",
+      "createdAt": "2026-03-04T20:49:29Z"
+    },
+    {
+      "id": "wireguard-create-outlet---23423123123-1231232342-1772657357",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 23423123123-1231232342",
+      "message": "Created outlet peer Outlet - 23423123123-1231232342",
+      "createdAt": "2026-03-04T20:49:17Z"
+    },
+    {
+      "id": "wireguard-create-outlet---123123-2341231-1772657342",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 123123-2341231",
+      "message": "Created outlet peer Outlet - 123123-2341231",
+      "createdAt": "2026-03-04T20:49:02Z"
+    },
+    {
+      "id": "wireguard-create-outlet---12314325-123123-1772657337",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 12314325-123123",
+      "message": "Created outlet peer Outlet - 12314325-123123",
+      "createdAt": "2026-03-04T20:48:57Z"
+    },
+    {
+      "id": "wireguard-create-outlet---2342534-23412-1772657333",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 2342534-23412",
+      "message": "Created outlet peer Outlet - 2342534-23412",
+      "createdAt": "2026-03-04T20:48:53Z"
+    },
+    {
+      "id": "wireguard-create-outlet---2342341-2342341-1772657328",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 2342341-2342341",
+      "message": "Created outlet peer Outlet - 2342341-2342341",
+      "createdAt": "2026-03-04T20:48:48Z"
+    },
+    {
+      "id": "wireguard-create-outlet---23423-123123-1772657323",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 23423-123123",
+      "message": "Created outlet peer Outlet - 23423-123123",
+      "createdAt": "2026-03-04T20:48:43Z"
+    },
+    {
+      "id": "wireguard-create-outlet---23523-123123-1772657319",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 23523-123123",
+      "message": "Created outlet peer Outlet - 23523-123123",
+      "createdAt": "2026-03-04T20:48:39Z"
+    },
+    {
+      "id": "wireguard-create-outlet---345345-1231-1772657315",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 345345-1231",
+      "message": "Created outlet peer Outlet - 345345-1231",
+      "createdAt": "2026-03-04T20:48:35Z"
+    },
+    {
+      "id": "wireguard-create-outlet---123123-123123-1772657311",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 123123-123123",
+      "message": "Created outlet peer Outlet - 123123-123123",
+      "createdAt": "2026-03-04T20:48:31Z"
+    },
+    {
+      "id": "wireguard-create-outlet---1231-123123-1772657307",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 1231-123123",
+      "message": "Created outlet peer Outlet - 1231-123123",
+      "createdAt": "2026-03-04T20:48:27Z"
+    },
+    {
+      "id": "wireguard-create-outlet---2-12314-1772657303",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 2-12314",
+      "message": "Created outlet peer Outlet - 2-12314",
+      "createdAt": "2026-03-04T20:48:23Z"
+    },
+    {
+      "id": "wireguard-create-outlet---1-12312-1772657294",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - 1-12312",
+      "message": "Created outlet peer Outlet - 1-12312",
+      "createdAt": "2026-03-04T20:48:14Z"
+    },
+    {
+      "id": "wireguard-create-outlet---livehouse-8-1772657286",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-8",
+      "message": "Created outlet peer Outlet - LIVEHOUSE-8",
+      "createdAt": "2026-03-04T20:48:06Z"
+    },
+    {
+      "id": "wireguard-create-outlet---livehous-7-1772657281",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUS-7",
+      "message": "Created outlet peer Outlet - LIVEHOUS-7",
+      "createdAt": "2026-03-04T20:48:01Z"
+    },
+    {
+      "id": "wireguard-create-outlet---livehouse-6-1772657273",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-6",
+      "message": "Created outlet peer Outlet - LIVEHOUSE-6",
+      "createdAt": "2026-03-04T20:47:53Z"
+    },
+    {
+      "id": "wireguard-create-outlet---livehouse-5-1772657268",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-5",
+      "message": "Created outlet peer Outlet - LIVEHOUSE-5",
+      "createdAt": "2026-03-04T20:47:48Z"
+    },
+    {
+      "id": "wireguard-create-outlet---livehouse-4-1772657263",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-4",
+      "message": "Created outlet peer Outlet - LIVEHOUSE-4",
+      "createdAt": "2026-03-04T20:47:43Z"
+    },
+    {
+      "id": "wireguard-create-outlet---livehouse-3-1772657257",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-3",
+      "message": "Created outlet peer Outlet - LIVEHOUSE-3",
+      "createdAt": "2026-03-04T20:47:37Z"
+    },
+    {
+      "id": "wireguard-create-outlet---livehouse-2-1772657252",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-2",
+      "message": "Created outlet peer Outlet - LIVEHOUSE-2",
+      "createdAt": "2026-03-04T20:47:32Z"
+    },
+    {
+      "id": "wireguard-create-outlet---livehouse-1-1772657244",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-1",
+      "message": "Created outlet peer Outlet - LIVEHOUSE-1",
+      "createdAt": "2026-03-04T20:47:24Z"
+    },
+    {
+      "id": "wireguard-create-administrator-server-rafi-1-wg-cctv-1772657076",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Administrator-SERVER-RAFI-1-WG-CCTV",
+      "message": "Created administrator peer Administrator-SERVER-RAFI-1-WG-CCTV",
+      "createdAt": "2026-03-04T20:44:36Z"
+    },
+    {
+      "id": "wireguard-create-administrator-server-rafi-1-wg-its-1772657076",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Administrator-SERVER-RAFI-1-WG-ITS",
+      "message": "Created administrator peer Administrator-SERVER-RAFI-1-WG-ITS",
+      "createdAt": "2026-03-04T20:44:36Z"
+    },
+    {
+      "id": "wireguard-create-outlet---livehouse-bali-1772657028",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-BALI",
+      "message": "Created outlet peer Outlet - LIVEHOUSE-BALI",
+      "createdAt": "2026-03-04T20:43:48Z"
+    },
+    {
+      "id": "wireguard-create-outlet---livehouse-kemang-1772653431",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-KEMANG",
+      "message": "Created outlet peer Outlet - LIVEHOUSE-KEMANG",
+      "createdAt": "2026-03-04T19:43:51Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---outlet-test1-1772653386",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - OUTLET-TEST1",
+      "message": "Deleted peer Outlet - OUTLET-TEST1",
+      "createdAt": "2026-03-04T19:43:06Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---outlet-b-1772653384",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - outlet-b",
+      "message": "Deleted peer Outlet - outlet-b",
+      "createdAt": "2026-03-04T19:43:04Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---outletv-1772653382",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - outletv",
+      "message": "Deleted peer Outlet - outletv",
+      "createdAt": "2026-03-04T19:43:02Z"
+    },
+    {
+      "id": "wireguard-delete-administrator-rafi-server1-wg-its-1772653009",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Administrator-RAFI-SERVER1-WG-ITS",
+      "message": "Deleted peer Administrator-RAFI-SERVER1-WG-ITS",
+      "createdAt": "2026-03-04T19:36:49Z"
+    },
+    {
+      "id": "wireguard-delete-administrator-rafi-server1-wg-cctv-1772653008",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Administrator-RAFI-SERVER1-WG-CCTV",
+      "message": "Deleted peer Administrator-RAFI-SERVER1-WG-CCTV",
+      "createdAt": "2026-03-04T19:36:48Z"
+    },
+    {
+      "id": "wireguard-delete-administrator-rafi-server2-1772653007",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Administrator-RAFI-SERVER2",
+      "message": "Deleted peer Administrator-RAFI-SERVER2",
+      "createdAt": "2026-03-04T19:36:47Z"
+    },
+    {
+      "id": "wireguard-delete-administrator-rafi-server3-wg-its-1772653007",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Administrator-RAFI-SERVER3-WG-ITS",
+      "message": "Deleted peer Administrator-RAFI-SERVER3-WG-ITS",
+      "createdAt": "2026-03-04T19:36:47Z"
+    },
+    {
+      "id": "wireguard-delete-administrator-rafi-server3-wg-cctv-1772653006",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Administrator-RAFI-SERVER3-WG-CCTV",
+      "message": "Deleted peer Administrator-RAFI-SERVER3-WG-CCTV",
+      "createdAt": "2026-03-04T19:36:46Z"
+    },
+    {
+      "id": "wireguard-delete-administrator-rafi-server4-wg-its-1772653006",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Administrator-RAFI-SERVER4-WG-ITS",
+      "message": "Deleted peer Administrator-RAFI-SERVER4-WG-ITS",
+      "createdAt": "2026-03-04T19:36:46Z"
+    },
+    {
+      "id": "wireguard-delete-administrator-rafi-server4-wg-cctv-1772653006",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Administrator-RAFI-SERVER4-WG-CCTV",
+      "message": "Deleted peer Administrator-RAFI-SERVER4-WG-CCTV",
+      "createdAt": "2026-03-04T19:36:46Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---test2-1772652989",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - test2",
+      "message": "Deleted peer Outlet - test2",
+      "createdAt": "2026-03-04T19:36:29Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---test123123-1772652988",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - test123123",
+      "message": "Deleted peer Outlet - test123123",
+      "createdAt": "2026-03-04T19:36:28Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---rafi2-1772652987",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - rafi2",
+      "message": "Deleted peer Outlet - rafi2",
+      "createdAt": "2026-03-04T19:36:27Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---rafi99-1772652986",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - rafi99",
+      "message": "Deleted peer Outlet - rafi99",
+      "createdAt": "2026-03-04T19:36:26Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---outlet-1-1772652986",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - outlet-1",
+      "message": "Deleted peer Outlet - outlet-1",
+      "createdAt": "2026-03-04T19:36:26Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---livehouse-bogor-1772652985",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-BOGOR",
+      "message": "Deleted peer Outlet - LIVEHOUSE-BOGOR",
+      "createdAt": "2026-03-04T19:36:25Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---cabin-ciledug-1772652984",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - CABIN-CILEDUG",
+      "message": "Deleted peer Outlet - CABIN-CILEDUG",
+      "createdAt": "2026-03-04T19:36:24Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---hotmen-bali-1772652983",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - HOTMEN-BALI",
+      "message": "Deleted peer Outlet - HOTMEN-BALI",
+      "createdAt": "2026-03-04T19:36:23Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---livehouse-bali-1772652983",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-BALI",
+      "message": "Deleted peer Outlet - LIVEHOUSE-BALI",
+      "createdAt": "2026-03-04T19:36:23Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---livehs-absdaw-1772652982",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHS-ABSDAW",
+      "message": "Deleted peer Outlet - LIVEHS-ABSDAW",
+      "createdAt": "2026-03-04T19:36:22Z"
+    },
+    {
+      "id": "wireguard-delete-outlet---asdknaw-alksndmlak-1772652980",
+      "category": "wireguard",
+      "action": "delete",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - ASDKNAW-ALKSNDMLAK",
+      "message": "Deleted peer Outlet - ASDKNAW-ALKSNDMLAK",
+      "createdAt": "2026-03-04T19:36:20Z"
+    },
+    {
+      "id": "wireguard-create-administrator-rafi-server4-wg-cctv-1772652949",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Administrator-RAFI-SERVER4-WG-CCTV",
+      "message": "Created administrator peer Administrator-RAFI-SERVER4-WG-CCTV",
+      "createdAt": "2026-03-04T19:35:49Z"
+    },
+    {
+      "id": "wireguard-create-administrator-rafi-server4-wg-its-1772652949",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Administrator-RAFI-SERVER4-WG-ITS",
+      "message": "Created administrator peer Administrator-RAFI-SERVER4-WG-ITS",
+      "createdAt": "2026-03-04T19:35:49Z"
+    },
+    {
+      "id": "wireguard-create-administrator-rafi-server3-wg-cctv-1772652688",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Administrator-RAFI-SERVER3-WG-CCTV",
+      "message": "Created administrator peer Administrator-RAFI-SERVER3-WG-CCTV",
+      "createdAt": "2026-03-04T19:31:28Z"
+    },
+    {
+      "id": "wireguard-create-administrator-rafi-server3-wg-its-1772652688",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Administrator-RAFI-SERVER3-WG-ITS",
+      "message": "Created administrator peer Administrator-RAFI-SERVER3-WG-ITS",
+      "createdAt": "2026-03-04T19:31:28Z"
+    },
+    {
+      "id": "wireguard-create-administrator-rafi-server2-1772652618",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Administrator-RAFI-SERVER2",
+      "message": "Created administrator peer Administrator-RAFI-SERVER2",
+      "createdAt": "2026-03-04T19:30:18Z"
+    },
+    {
+      "id": "wireguard-create-administrator-rafi-server1-wg-cctv-1772652595",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Administrator-RAFI-SERVER1-WG-CCTV",
+      "message": "Created administrator peer Administrator-RAFI-SERVER1-WG-CCTV",
+      "createdAt": "2026-03-04T19:29:55Z"
+    },
+    {
+      "id": "wireguard-create-administrator-rafi-server1-wg-its-1772652595",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Administrator-RAFI-SERVER1-WG-ITS",
+      "message": "Created administrator peer Administrator-RAFI-SERVER1-WG-ITS",
+      "createdAt": "2026-03-04T19:29:55Z"
+    },
+    {
+      "id": "wireguard-create-outlet---asdknaw-alksndmlak-1772651527",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - ASDKNAW-ALKSNDMLAK",
+      "message": "Created outlet peer Outlet - ASDKNAW-ALKSNDMLAK",
+      "createdAt": "2026-03-04T19:12:07Z"
+    },
+    {
+      "id": "wireguard-create-outlet---livehs-absdaw-1772650871",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHS-ABSDAW",
+      "message": "Created outlet peer Outlet - LIVEHS-ABSDAW",
+      "createdAt": "2026-03-04T19:01:11Z"
+    },
+    {
+      "id": "wireguard-create-outlet---livehouse-bali-1772649623",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-BALI",
+      "message": "Created outlet peer Outlet - LIVEHOUSE-BALI",
+      "createdAt": "2026-03-04T18:40:23Z"
+    },
+    {
+      "id": "wireguard-create-outlet---hotmen-bali-1772649497",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - HOTMEN-BALI",
+      "message": "Created outlet peer Outlet - HOTMEN-BALI",
+      "createdAt": "2026-03-04T18:38:17Z"
+    },
+    {
+      "id": "wireguard-create-outlet---cabin-ciledug-1772649264",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - CABIN-CILEDUG",
+      "message": "Created outlet peer Outlet - CABIN-CILEDUG",
+      "createdAt": "2026-03-04T18:34:24Z"
+    },
+    {
+      "id": "wireguard-create-outlet---livehouse-bogor-1772648933",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - LIVEHOUSE-BOGOR",
+      "message": "Created outlet peer Outlet - LIVEHOUSE-BOGOR",
+      "createdAt": "2026-03-04T18:28:53Z"
+    },
+    {
+      "id": "wireguard-create-outlet---outlet-1-1772648068",
+      "category": "wireguard",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "Outlet - outlet-1",
+      "message": "Created outlet peer Outlet - outlet-1",
+      "createdAt": "2026-03-04T18:14:28Z"
+    },
+    {
+      "id": "user-update-erick-1772521761",
+      "category": "user",
+      "action": "update",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "erick",
+      "message": "Updated user erick (123123)",
+      "createdAt": "2026-03-03T07:09:21Z"
+    },
+    {
+      "id": "user-update-erick-1772521751",
+      "category": "user",
+      "action": "update",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "erick",
+      "message": "Updated user erick (123123)",
+      "createdAt": "2026-03-03T07:09:11Z"
+    },
+    {
+      "id": "user-create-support-1772488413",
+      "category": "user",
+      "action": "create",
+      "actor": "admin",
+      "actorName": "Administrator",
+      "target": "support",
+      "message": "Created user support (112233)",
+      "createdAt": "2026-03-02T21:53:33Z"
+    },
     {
       "id": "wireguard-create-outlet---rafi99-1772487493",
       "category": "wireguard",
@@ -576,5 +1827,11 @@
       "message": "Created outlet peer Outlet - outlet1000",
       "createdAt": "2026-03-02T20:50:39Z"
     }
-  ]
+  ],
+  "settings": {
+    "wg": {
+      "activeProfile": "",
+      "profiles": {}
+    }
+  }
 }

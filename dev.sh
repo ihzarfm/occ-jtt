@@ -26,8 +26,12 @@ export STG_ITS_SSH_KEY_PATH="${STG_ITS_SSH_KEY_PATH:-${DEFAULT_SSH_KEY_PATH}}"
 
 mkdir -p "${GO_CACHE_DIR}"
 
+SYNC_STATE_PATH="${ROOT_DIR}/backups/state.json"
+export OCC_JTT_DATA="${OCC_JTT_DATA:-${SYNC_STATE_PATH}}"
+
 echo "using stg-cctv ssh key: ${STG_CCTV_SSH_KEY_PATH}"
 echo "using stg-its ssh key: ${STG_ITS_SSH_KEY_PATH}"
+echo "using app state file: ${OCC_JTT_DATA}"
 
 echo "building frontend"
 (

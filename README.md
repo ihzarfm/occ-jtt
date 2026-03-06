@@ -22,6 +22,7 @@ Command ini akan menjalankan:
 
 - Build frontend production (`frontend/dist`)
 - Backend Go di `http://localhost:8080` (single entry)
+- Storage state/account diarahkan ke `backups/state.json` lewat env `OCC_JTT_DATA` agar bisa ikut version control (GitHub).
 
 Jika `frontend/node_modules` belum ada, install dulu:
 
@@ -31,6 +32,23 @@ npm install
 ```
 
 Tekan `Ctrl+C` untuk menghentikan service.
+
+## Sinkron akun/login lewat GitHub
+
+Jika backend dijalankan lewat `bash dev.sh`, data user/login tersimpan ke file repo:
+
+```text
+backups/state.json
+```
+
+Jadi akun yang dibuat di laptop lokal bisa ikut ke commit/push dan dipakai login di mesin lain setelah pull.
+
+Jika menjalankan backend manual, pastikan env ini ikut diset:
+
+```bash
+cd backend
+OCC_JTT_DATA="../backups/state.json" go run .
+```
 
 ## Menjalankan backend
 
