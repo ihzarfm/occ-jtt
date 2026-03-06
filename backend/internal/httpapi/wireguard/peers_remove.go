@@ -86,7 +86,7 @@ func (h *Handler) HandlePeerByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) removeRemotePeer(r *http.Request, peer store.Peer) error {
-	if !isSiteOrOutletPeer(peer) || len(peer.Assignments) == 0 {
+	if !isSitePeer(peer) || len(peer.Assignments) == 0 {
 		return nil
 	}
 	if !peer.Managed {
@@ -95,17 +95,17 @@ func (h *Handler) removeRemotePeer(r *http.Request, peer store.Peer) error {
 
 	siteName := strings.TrimSpace(peer.SiteName)
 	if siteName == "" {
-		siteName = strings.TrimPrefix(peer.Name, "Outlet - ")
-	}
-	if siteName == "" {
 		siteName = strings.TrimPrefix(peer.Name, "Site - ")
 	}
 	if siteName == "" {
-		return errors.New("missing site name for outlet peer")
+		siteName = strings.TrimPrefix(peer.Name, "Outlet - ")
+	}
+	if siteName == "" {
+		return errors.New("missing site name for site peer")
 	}
 
 	for _, assignment := range peer.Assignments {
-		result, err := h.RemoveOutletFromWG(r.Context(), assignment.ServerID, siteName)
+		result, err := h.RemoveSiteFromWG(r.Context(), assignment.ServerID, siteName)
 		if err != nil {
 			if isRemotePeerNotFoundError(err.Error()) {
 				continue
@@ -127,9 +127,13 @@ func (h *Handler) removeRemotePeer(r *http.Request, peer store.Peer) error {
 	return nil
 }
 
-func isSiteOrOutletPeer(peer store.Peer) bool {
-	normalizedType := strings.ToLower(strings.TrimSpace(peer.Type))
-	return normalizedType == "site" || normalizedType == "outlet" || (normalizedType == "" && len(peer.Assignments) > 0)
+func isSitePeer(peer store.Peer) bool {
+	return isSitePeerType(peer.Type) || (peer.Type == "" && len(peer.Assignments) > 0)
+}
+
+func isSitePeerType(value string) bool {
+	normalized := strings.ToLower(strings.TrimSpace(value))
+	return normalized == "site" || normalized == "outlet"
 }
 
 func decodePathSegment(value string) string {

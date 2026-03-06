@@ -2,9 +2,9 @@
 
 set -uo pipefail
 
-SERVER_ID="stg-its"
-SERVER_NAME="stg-its"
-INTERFACE_NAME="wg-its"
+SERVER_ID="stg-cctv"
+SERVER_NAME="stg-cctv"
+INTERFACE_NAME="wg-cctv"
 OVERLAY_CIDR="10.22.0.0/22"
 POOL_BASE="10.22"
 WG_CONF="/etc/wireguard/wg0.conf"
@@ -49,7 +49,7 @@ fail() {
 usage() {
   cat <<'EOF'
 Usage:
-  occ-wg-create-outlet --site OUTLET-A
+  occ-wg-create-peer.sh --site OUTLET-A
 EOF
 }
 
@@ -92,17 +92,10 @@ wg_has_ip() {
 next_free_ip() {
   local third fourth candidate
   for third in 0 1 2; do
-    if [[ "$third" == "0" ]]; then
-      for fourth in $(seq 2 255); do
-        candidate="${POOL_BASE}.${third}.${fourth}"
-        inventory_has_ip "$candidate" || wg_has_ip "$candidate" || { printf "%s\n" "$candidate"; return 0; }
-      done
-    else
-      for fourth in $(seq 0 255); do
-        candidate="${POOL_BASE}.${third}.${fourth}"
-        inventory_has_ip "$candidate" || wg_has_ip "$candidate" || { printf "%s\n" "$candidate"; return 0; }
-      done
-    fi
+    for fourth in $(seq 2 254); do
+      candidate="${POOL_BASE}.${third}.${fourth}"
+      inventory_has_ip "$candidate" || wg_has_ip "$candidate" || { printf "%s\n" "$candidate"; return 0; }
+    done
   done
   return 1
 }
@@ -234,7 +227,7 @@ flock -x 9 || fail "failed to acquire lock"
 
 peer_exists "$SITE_NAME" && fail "peer already exists"
 
-ASSIGNED_IP="$(next_free_ip)" || fail "no available IP in pool ${POOL_BASE}.0.2-${POOL_BASE}.2.255"
+ASSIGNED_IP="$(next_free_ip)" || fail "no available IP in pool ${POOL_BASE}.0.2-${POOL_BASE}.2.254"
 PRIVATE_KEY="$(generate_private_key)" || fail "failed to generate private key"
 PUBLIC_KEY="$(generate_public_key "$PRIVATE_KEY")" || fail "failed to derive public key"
 PRESHARED_KEY="$(generate_psk)" || fail "failed to generate preshared key"

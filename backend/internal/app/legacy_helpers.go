@@ -318,7 +318,7 @@ func defaultWGServers() []wireguard.WGServerConfig {
 			RemoteWGConf:    "/etc/wireguard/wg0.conf",
 			DefaultEndpoint: "192.168.21.254",
 			DefaultPort:     51820,
-			CreateScript:    "/usr/local/bin/occ-wg-create-outlet",
+			CreateScript:    "/usr/local/bin/occ-wg-create-peer.sh",
 			RemoveScript:    "/usr/local/bin/occ-wg-remove-peer",
 		},
 		{
@@ -334,7 +334,7 @@ func defaultWGServers() []wireguard.WGServerConfig {
 			RemoteWGConf:    "/etc/wireguard/wg0.conf",
 			DefaultEndpoint: "192.168.22.254",
 			DefaultPort:     51820,
-			CreateScript:    "/usr/local/bin/occ-wg-create-outlet",
+			CreateScript:    "/usr/local/bin/occ-wg-create-peer.sh",
 			RemoveScript:    "/usr/local/bin/occ-wg-remove-peer",
 		},
 	}
